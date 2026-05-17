@@ -1,0 +1,1590 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Servicio de Emergencias - Minera Chinalco Perú</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --mcp-blue: #0A1B3F;
+            --mcp-gold: #CBA052;
+            --bg-body: #F4F6F9;
+            --bg-panel: #FFFFFF;
+            --text-main: #334155;
+            --text-light: #64748B;
+            --border: #E2E8F0;
+            --danger: #DC2626;
+            --warning: #D97706;
+            --success: #059669;
+            --sidebar-width: 280px;
+            --sidebar-collapsed: 70px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-body); color: var(--text-main); height: 100vh; display: flex; overflow: hidden; }
+
+        /* ======== UTILIDADES DE INTERFAZ ======== */
+        .btn { padding: 10px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; border: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: background 0.2s; color: white; }
+        .btn-primary { background: var(--mcp-blue); }
+        .btn-primary:hover { background: #143066; }
+        .btn-sec { background: var(--text-light); }
+        .btn-sec:hover { background: #475569; }
+        .btn-warning { background: var(--warning); color: #fff; }
+        .btn-warning:hover { background: #B45309; }
+        .btn-danger { background: var(--danger); }
+        .btn-danger:hover { background: #B91C1C; }
+        .btn-sm { padding: 6px 12px; font-size: 12px; }
+
+        .text-success { color: var(--success); }
+        .text-danger { color: var(--danger); }
+        .text-warning { color: var(--warning); }
+        .text-primary { color: var(--mcp-blue); }
+
+        .form-control { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; outline: none; transition: border 0.2s; background: white; }
+        .form-control:focus { border-color: var(--mcp-blue); box-shadow: 0 0 0 3px rgba(10, 27, 63, 0.1); }
+        .form-control:disabled, .form-control[readonly] { background-color: #F1F5F9; color: var(--text-light); cursor: not-allowed; }
+        .input-group { position: relative; display: flex; align-items: center; }
+        .input-group .toggle-pwd { position: absolute; right: 10px; cursor: pointer; color: var(--text-light); padding: 10px; }
+
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; text-align: center; display: inline-block;}
+        .bg-success { background: #D1FAE5; color: #065F46; border: 1px solid #34D399; }
+        .bg-warning { background: #FEF3C7; color: #92400E; animation: pulse 2s infinite; border: 1px solid #FCD34D;}
+        .bg-danger { background: #FEE2E2; color: #991B1B; border: 1px solid #F87171;}
+        .bg-gray { background: #F1F5F9; color: #475569; border: 1px solid var(--border);}
+
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
+
+        /* CLASES DE RESTRICCIÓN DE SEGURIDAD */
+        .admin-hidden { display: none !important; }
+        .editor-hidden { display: none !important; }
+
+        /* ======== PANTALLA LOGIN ======== */
+        #login-overlay { position: fixed; inset: 0; background: linear-gradient(135deg, var(--mcp-blue) 0%, #1a3673 100%); display: flex; justify-content: center; align-items: center; z-index: 9999; padding: 20px; }
+        .login-box { background: white; padding: 40px; border-radius: 12px; width: 100%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); text-align: center; }
+        .login-box h2 { color: var(--mcp-blue); font-size: 20px; margin-top: 15px; margin-bottom: 5px; }
+        .login-box p { color: var(--text-light); font-size: 13px; margin-bottom: 25px; }
+
+        /* ======== SIDEBAR ======== */
+        #sidebar { width: var(--sidebar-width); background: var(--mcp-blue); color: white; display: flex; flex-direction: column; transition: all 0.3s ease; z-index: 50; }
+        #sidebar.collapsed { width: var(--sidebar-collapsed); }
+        .sidebar-header { padding: 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.1); white-space: nowrap; overflow: hidden; height: 60px; min-height: 60px;}
+        .sidebar-header span { font-weight: 700; color: var(--mcp-gold); letter-spacing: 0.5px; transition: opacity 0.2s; white-space: nowrap;}
+        .menu-list { list-style: none; flex: 1; padding: 15px 0; overflow-y: auto; }
+        .menu-item { display: flex; align-items: center; padding: 12px 20px; color: #CBD5E1; cursor: pointer; transition: all 0.2s; white-space: nowrap; border-left: 3px solid transparent; }
+        .menu-item i { width: 24px; font-size: 16px; text-align: center; margin-right: 15px; }
+        .menu-item:hover, .menu-item.active { background: rgba(255,255,255,0.05); color: white; }
+        .menu-item.active { border-left-color: var(--mcp-gold); }
+        
+        /* CORRECCIÓN: Sidebar contraído */
+        #sidebar.collapsed .menu-item span { display: none; }
+        #sidebar.collapsed .sidebar-header span { display: none; }
+        #sidebar.collapsed .sidebar-header { justify-content: center; padding: 20px 0;}
+        
+        .sidebar-footer { padding: 15px; border-top: 1px solid rgba(255,255,255,0.1); }
+
+        /* ======== CONTENIDO PRINCIPAL ======== */
+        #main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; background: var(--bg-body); }
+        .topbar { background: white; height: 60px; min-height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 25px; border-bottom: 1px solid var(--border); }
+        .topbar-left { display: flex; align-items: center; gap: 15px; }
+        .topbar h1 { font-size: 16px; color: var(--mcp-blue); text-transform: uppercase; }
+        .user-info { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 600; background: var(--bg-body); padding: 6px 14px; border-radius: 20px; }
+        
+        /* Botón de Menú para Móviles */
+        .mobile-toggle { background: none; border: none; font-size: 20px; color: var(--mcp-blue); cursor: pointer; display: none; padding: 0; }
+        
+        .view { flex: 1; overflow-y: auto; padding: 25px; display: none; }
+        .view.active { display: block; }
+
+        /* ======== LAYOUT DUAL ======== */
+        .layout-personal { display: flex; height: 100%; background: white; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+        .layout-left { width: 280px; border-right: 1px solid var(--border); display: flex; flex-direction: column; background: #F8FAFC; flex-shrink: 0; }
+        .layout-actions { padding: 15px; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 10px; }
+        .person-list { flex: 1; overflow-y: auto; list-style: none; }
+        .person-item { padding: 12px 15px; border-bottom: 1px solid var(--border); cursor: pointer; font-size: 13px; font-weight: 500; transition: background 0.2s; }
+        .person-item:hover, .person-item.active { background: #E2E8F0; border-left: 4px solid var(--mcp-blue); }
+        .layout-right { flex: 1; overflow-y: auto; padding: 30px; position: relative; }
+
+        /* ======== TARJETAS Y GRID ======== */
+        .card { background: white; border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+        .section-title { font-size: 13px; font-weight: 700; color: var(--mcp-blue); text-transform: uppercase; border-bottom: 2px solid var(--border); padding-bottom: 8px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        
+        /* CORRECCIÓN: Alineación estricta de altura en grids */
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; align-items: stretch; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+        
+        .field { margin-bottom: 10px; }
+        .field label { display: block; font-size: 11px; font-weight: 600; color: var(--text-light); margin-bottom: 4px; text-transform: uppercase; }
+        .field .val { font-size: 13px; font-weight: 500; color: var(--text-main); word-break: break-word; }
+
+        /* ======== TABLAS ======== */
+        .table-container { overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; background: white; min-width: 600px; }
+        th { background: #F8FAFC; color: var(--text-light); padding: 12px 15px; font-weight: 600; border-bottom: 2px solid var(--border); }
+        td { padding: 12px 15px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+        tr:hover { background: #F8FAFC; }
+
+        .epp-name-col { min-width: 250px; }
+        .epp-sm-col { min-width: 80px; }
+        .table-transposed td { min-width: 130px; font-size: 12px; }
+
+        /* ======== MODALES ======== */
+        .modal { position: fixed; inset: 0; background: rgba(10, 27, 63, 0.6); display: none; justify-content: center; align-items: flex-start; z-index: 5000; padding: 40px 20px; overflow-y: auto; }
+        .modal-content { background: white; border-radius: 8px; width: 100%; max-width: 850px; padding: 30px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); margin: auto; position: relative; }
+        .modal-sm { max-width: 500px; }
+        .hidden { display: none !important; }
+
+        /* ======== RESPONSIVE ======== */
+        @media (max-width: 1024px) {
+            .grid-4 { grid-template-columns: repeat(2, 1fr); }
+            .grid-3 { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 768px) {
+            #sidebar { position: fixed; height: 100vh; left: -280px; box-shadow: 4px 0 15px rgba(0,0,0,0.3); }
+            #sidebar.mobile-open { left: 0; width: 280px; }
+            #sidebar.collapsed { width: var(--sidebar-width); } 
+            
+            .topbar { padding: 0 15px; }
+            .topbar h1 { font-size: 14px; }
+            .mobile-toggle { display: block; } /* Mostrar botón en móviles */
+            
+            .user-info { font-size: 11px; padding: 4px 8px; gap: 5px; }
+            .user-info span { max-width: 100px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+            
+            .view { padding: 15px; }
+            .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+            
+            .layout-personal { flex-direction: column; overflow: visible; border: none; background: transparent; height: auto; }
+            .layout-left { width: 100%; height: 300px; border-right: none; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 20px; }
+            .layout-right { padding: 0; overflow: visible; }
+            
+            .modal { padding: 15px; }
+            .modal-content { padding: 20px; margin: auto; }
+            
+            .detalles-cabecera { flex-direction: column; gap: 15px; align-items: stretch !important; }
+            .detalles-botones { display: flex; flex-wrap: wrap; gap: 8px; width: 100%; }
+            .detalles-botones .btn { flex: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="login-overlay">
+        <div class="login-box">
+            <div style="color: var(--mcp-blue); font-size: 45px; margin-bottom: 10px;"><i class="fa-solid fa-helmet-safety"></i></div>
+            <h2>Servicio de Emergencias</h2>
+            <p>Gestión Ejecutiva de Personal Minero</p>
+            <div id="login-error" class="hidden" style="color: var(--danger); font-size: 12px; margin-bottom: 15px; font-weight: 600; background: #FEE2E2; padding: 8px; border-radius: 4px;">Credenciales incorrectas o sin acceso.</div>
+            <form id="form-login">
+                <div style="margin-bottom: 15px; text-align: left;">
+                    <label style="font-size: 12px; font-weight: 600; color: var(--text-light);">Correo Electrónico</label>
+                    <input type="email" id="login-email" class="form-control" required placeholder="ejemplo@dominio.com">
+                </div>
+                <div style="margin-bottom: 20px; text-align: left;">
+                    <label style="font-size: 12px; font-weight: 600; color: var(--text-light);">Contraseña</label>
+                    <div class="input-group">
+                        <input type="password" id="login-password" class="form-control" required placeholder="••••••••">
+                        <i class="fa-solid fa-eye toggle-pwd" onclick="togglePasswordVisibility('login-password', this)"></i>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Ingresar al Sistema</button>
+            </form>
+        </div>
+    </div>
+
+    <nav id="sidebar">
+        <div class="sidebar-header">
+            <span><i class="fa-solid fa-shield-halved" style="margin-right:8px;"></i> CHINALCO MCP</span>
+            <button class="btn btn-sm" style="background:none; padding:0;" onclick="toggleSidebar()"><i class="fa-solid fa-bars" style="color:white; font-size:18px;"></i></button>
+        </div>
+        <ul class="menu-list">
+            <li class="menu-item active" onclick="switchView('view-resumen', this)"><i class="fa-solid fa-chart-pie"></i><span>RESUMEN GENERAL</span></li>
+            <li class="menu-item" onclick="switchView('view-personal', this)"><i class="fa-solid fa-users"></i><span>DATOS DE PERSONAL</span></li>
+            <li class="menu-item" onclick="switchView('view-epps', this)"><i class="fa-solid fa-hard-hat"></i><span>DATOS DE EPPS</span></li>
+            <li class="menu-item" onclick="switchView('view-fisico', this)"><i class="fa-solid fa-heart-pulse"></i><span>ESTADO FÍSICO</span></li>
+            <li class="menu-item" onclick="switchView('view-bajas', this)"><i class="fa-solid fa-user-minus"></i><span>INFORMACIÓN BAJAS</span></li>
+            <li class="menu-item admin-only admin-hidden" onclick="switchView('view-admin', this)"><i class="fa-solid fa-users-gear"></i><span>ADMIN. USUARIOS</span></li>
+        </ul>
+        <div class="sidebar-footer">
+            <div class="menu-item" onclick="cerrarSesion()" style="color: #FCA5A5;"><i class="fa-solid fa-right-from-bracket"></i><span>Cerrar Sesión</span></div>
+        </div>
+    </nav>
+
+    <div id="main-content">
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="mobile-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+                <h1 id="view-title">RESUMEN GENERAL</h1>
+            </div>
+            <div class="user-info">
+                <i class="fa-solid fa-circle-user" style="color:var(--mcp-blue); font-size:16px;"></i>
+                <span id="display-email">cargando...</span> | <span id="display-rol" style="color:var(--mcp-gold);">...</span>
+            </div>
+        </header>
+
+        <div id="view-resumen" class="view active">
+            <div class="grid-4" style="margin-bottom: 20px;">
+                <div class="card" style="border-left: 4px solid var(--mcp-blue); padding:20px; margin-bottom:0; display:flex; flex-direction:column; justify-content:space-between; height:100%;">
+                    <div style="font-size:11px; color:var(--text-light); font-weight:600;">TOTAL PERSONAL ACTIVO</div>
+                    <div style="font-size:28px; font-weight:700; color:var(--mcp-blue); margin-top:10px;" id="dash-activos">0</div>
+                </div>
+                <div class="card" style="border-left: 4px solid var(--warning); padding:20px; margin-bottom:0; display:flex; flex-direction:column; justify-content:space-between; height:100%;">
+                    <div style="font-size:11px; color:var(--text-light); font-weight:600;">ALERTAS (FALTANTES/VENCIDOS/1 MES)</div>
+                    <div style="font-size:28px; font-weight:700; color:var(--warning); margin-top:10px;" id="dash-alertas">0</div>
+                </div>
+                <div class="card" style="border-left: 4px solid var(--success); padding:20px; margin-bottom:0; display:flex; flex-direction:column; justify-content:space-between; height:100%;">
+                    <div style="font-size:11px; color:var(--text-light); font-weight:600;">COBERTURA DE EPP GENERAL</div>
+                    <div style="font-size:28px; font-weight:700; color:var(--success); margin-top:10px;" id="dash-epps">100%</div>
+                </div>
+                <div class="card" style="border-left: 4px solid var(--danger); padding:20px; margin-bottom:0; display:flex; flex-direction:column; justify-content:space-between; height:100%;">
+                    <div style="font-size:11px; color:var(--text-light); font-weight:600;">HISTÓRICO DE BAJAS</div>
+                    <div style="font-size:28px; font-weight:700; color:var(--danger); margin-top:10px;" id="dash-bajas">0</div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="section-title">
+                    Consolidado de Alertas Críticas (Cursos e Inducciones)
+                    <button class="btn btn-sec btn-sm" onclick="exportarExcel('tabla-alertas', 'Alertas_Emergencias')"><i class="fa-solid fa-file-excel"></i> Exportar a Excel</button>
+                </div>
+                <div class="table-container">
+                    <table id="tabla-alertas">
+                        <thead><tr><th>Personal Afectado</th><th>Curso / Requisito</th><th>Fecha Emisión</th><th>Vencimiento</th><th>Estado</th></tr></thead>
+                        <tbody id="tbody-alertas"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-personal" class="view">
+            <div class="layout-personal">
+                <div class="layout-left">
+                    <div class="layout-actions">
+                        <input type="text" id="search-personal" class="form-control" placeholder="Buscar por Apellido..." onkeyup="renderListaPersonal()">
+                        <div style="display:flex; gap:8px;">
+                            <button class="btn btn-primary btn-sm btn-editor" style="flex:1;" onclick="abrirModalPersonal()"><i class="fa-solid fa-user-plus"></i> Nuevo</button>
+                        </div>
+                    </div>
+                    <ul class="person-list" id="ul-personal"></ul>
+                </div>
+                
+                <div class="layout-right">
+                    <div id="msg-no-selection" style="text-align:center; padding-top:10vh; color:var(--text-light);">
+                        <i class="fa-solid fa-address-card" style="font-size:50px; margin-bottom:15px; opacity:0.5;"></i>
+                        <p>Seleccione al personal de la lista lateral <br> para cargar su legajo electrónico en tiempo real.</p>
+                    </div>
+
+                    <div id="panel-detalles" class="hidden">
+                        <div class="detalles-cabecera" style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 20px; border-bottom: 2px solid var(--border); padding-bottom:15px;">
+                            <div>
+                                <h2 id="det-nombres" style="color:var(--mcp-blue); margin-bottom:5px; font-size: 20px;">Cargando...</h2>
+                                <span id="det-puesto" class="badge bg-gray">Cargando...</span>
+                            </div>
+                            <div class="detalles-botones">
+                                <button class="btn btn-sec btn-sm" id="btn-filter" onclick="toggleFilterExpired()"><i class="fa-solid fa-filter"></i> Filtrar Faltantes</button>
+                                <button class="btn btn-sec btn-sm" onclick="exportarFichaCV()"><i class="fa-solid fa-file-pdf"></i> Ficha PDF</button>
+                                <button class="btn btn-primary btn-sm btn-editor" onclick="editarPersonalActual()"><i class="fa-solid fa-pen"></i> Editar</button>
+                                <button class="btn btn-danger btn-sm btn-editor" onclick="abrirModalBaja()"><i class="fa-solid fa-user-xmark"></i> Baja</button>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="section-title">Datos Personales y Filiación
+                                <div id="cv-container" style="font-weight:normal; font-size:12px;"></div>
+                            </div>
+                            <div class="grid-4">
+                                <div class="field"><label>F. Nacimiento</label><div class="val" id="d-fnac"></div></div>
+                                <div class="field"><label>Edad</label><div class="val" id="d-edad"></div></div>
+                                <div class="field"><label>N° DNI</label><div class="val" id="d-dni"></div></div>
+                                <div class="field"><label>Cód. UBIGEO</label><div class="val" id="d-ubigeo"></div></div>
+                                <div class="field"><label>Estado Civil</label><div class="val" id="d-estcivil"></div></div>
+                                <div class="field"><label>Cant. Hijos</label><div class="val" id="d-hijos"></div></div>
+                                <div class="field"><label>Teléfono</label><div class="val" id="d-telefono"></div></div>
+                                <div class="field"><label>Email</label><div class="val" id="d-email"></div></div>
+                                <div class="field"><label>N° Licencia MTC</label><div class="val" id="d-licmtc"></div></div>
+                                <div class="field"><label>Categoría MTC</label><div class="val" id="d-catmtc"></div></div>
+                                <div class="field"><label>Restricción Cond.</label><div class="val" id="d-restcon"></div></div>
+                                <div class="field"><label>Grupo Sanguíneo</label><div class="val" id="d-sangre"></div></div>
+                            </div>
+                            <div class="grid-2" style="margin-top:10px;">
+                                <div class="field"><label>Dirección de Domicilio</label><div class="val" id="d-direccion"></div></div>
+                                <div class="field"><label>Lugar de Nacimiento</label><div class="val" id="d-lugarnac"></div></div>
+                                <div class="field"><label>Grado Académico</label><div class="val" id="d-grado"></div></div>
+                                <div class="field"><label>Especialidad</label><div class="val" id="d-especialidad"></div></div>
+                            </div>
+                            <div class="grid-3" style="margin-top:10px; border-top:1px dashed var(--border); padding-top:15px;">
+                                <div class="field"><label>Contacto Emergencia</label><div class="val" id="d-contactoem"></div></div>
+                                <div class="field"><label>Número Contacto</label><div class="val" id="d-numcontacto"></div></div>
+                                <div class="field"><label>Parentesco</label><div class="val" id="d-parentesco"></div></div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="section-title">Fechas Contractuales y Médicas</div>
+                            <div class="grid-4">
+                                <div class="field"><label>Ingreso al Servicio</label><div class="val" id="d-fingreso"></div></div>
+                                <div class="field"><label>Fin de Contrato</label><div class="val" id="d-ffin"></div></div>
+                                <div class="field"><label>Licencia Interna</label><div class="val" id="d-licint"></div></div>
+                                <div class="field"><label>Inducción H. Nuevo</label><div class="val" id="d-finduccion"></div></div>
+                                <div class="field"><label>Vencimiento DNI</label><div class="val" id="d-vdni"></div></div>
+                                <div class="field"><label>Venc. Lic MTC</label><div class="val" id="d-vmtc"></div></div>
+                                <div class="field"><label>Venc. Lic MCP</label><div class="val" id="d-vmcp"></div></div>
+                                <div class="field"><label>Venc. Salud EMO</label><div class="val" id="d-vsalud"></div></div>
+                            </div>
+                            <div class="grid-2" style="margin-top:10px;">
+                                <div class="field"><label>Vehículos Autorizados</label><div class="val" id="d-vehiculos"></div></div>
+                                <div class="field"><label>Condición u Obs. Clínica</label><div class="val" id="d-obsclinica"></div></div>
+                            </div>
+                        </div>
+
+                        <div class="card" id="card-cursos-sso">
+                            <div class="section-title">Cursos Mandatorios SSO (Vigencia Anual)</div>
+                            <div class="grid-3" id="det-cursos-sso"></div>
+                        </div>
+
+                        <div class="card" id="card-cursos-perfil">
+                            <div class="section-title">Cursos Perfil de Puesto (Vigencia Variable)</div>
+                            <div class="grid-3" id="det-cursos-perfil"></div>
+                        </div>
+
+                        <div class="card" id="card-inducciones">
+                            <div class="section-title">Inducciones y Políticas 
+                                <div id="acta-container" style="font-weight:normal; font-size:12px;"></div>
+                            </div>
+                            <div class="grid-3" id="det-inducciones"></div>
+                        </div>
+
+                        <div class="card" id="card-amonestaciones">
+                            <div class="section-title">Historial Disciplinario
+                                <button class="btn btn-danger btn-sm btn-editor" onclick="abrirModalSancion()"><i class="fa-solid fa-plus"></i> Amonestar</button>
+                            </div>
+                            <div class="table-container">
+                                <table>
+                                    <thead><tr><th>Fecha Falta</th><th>Motivo / Tipificación</th><th>Archivo Sustento</th></tr></thead>
+                                    <tbody id="tbody-amonestaciones"></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-epps" class="view">
+            <div class="layout-personal">
+                <div class="layout-left">
+                    <div class="layout-actions">
+                        <input type="text" id="search-epps" class="form-control" placeholder="Buscar personal..." onkeyup="renderListaEpps()">
+                        <div style="display:flex; gap:8px;">
+                            <button class="btn btn-sec btn-sm" style="flex:1;" onclick="abrirModalReporteEpps()"><i class="fa-solid fa-chart-bar"></i> Totales Globales</button>
+                        </div>
+                    </div>
+                    <ul class="person-list" id="ul-epps"></ul>
+                </div>
+                
+                <div class="layout-right">
+                    <div id="msg-no-selection-epp" style="text-align:center; padding-top:10vh; color:var(--text-light);">
+                        <i class="fa-solid fa-hard-hat" style="font-size:50px; margin-bottom:15px; opacity:0.5;"></i>
+                        <p>Seleccione al personal de la lista lateral <br> para gestionar sus Equipos de Protección.</p>
+                    </div>
+
+                    <div id="panel-detalles-epps" class="hidden">
+                        <div class="detalles-cabecera" style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 20px; border-bottom: 2px solid var(--border); padding-bottom:15px;">
+                            <div>
+                                <h2 id="epp-nombres" style="color:var(--mcp-blue); margin-bottom:5px; font-size: 20px;">Cargando...</h2>
+                                <span id="epp-puesto" class="badge bg-gray" style="margin-right:5px;">Cargando...</span>
+                                <span id="epp-ingreso" class="badge bg-gray" style="border: 1px solid var(--border);">Ingreso: --</span>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="section-title">Cargo de Entrega EPP Básico
+                                <div id="cargo-epp-container" style="font-weight:normal; font-size:12px;"></div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="section-title">Detalle de Equipamiento Asignado
+                                <button class="btn btn-primary btn-sm btn-editor" onclick="abrirModalEppNuevo()"><i class="fa-solid fa-plus"></i> Agregar Equipo</button>
+                            </div>
+                            <div class="table-container">
+                                <table style="min-width: 800px;">
+                                    <thead>
+                                        <tr>
+                                            <th class="epp-name-col">Equipo / Descripción</th>
+                                            <th class="epp-sm-col">Talla</th>
+                                            <th class="epp-sm-col" title="Cantidad Global del Contrato">Cant. Cont.</th>
+                                            <th class="epp-sm-col" title="Cantidad Real Entregada">Cant. Real</th>
+                                            <th style="min-width: 140px;">Fecha Entrega</th>
+                                            <th style="width: 100px;" class="btn-editor">Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbody-epps-detalle"></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-fisico" class="view">
+            <div class="layout-personal">
+                <div class="layout-left">
+                    <div class="layout-actions">
+                        <input type="text" id="search-fisico" class="form-control" placeholder="Buscar personal..." onkeyup="renderListaFisico()">
+                    </div>
+                    <ul class="person-list" id="ul-fisico"></ul>
+                </div>
+                
+                <div class="layout-right">
+                    <div id="msg-no-selection-fisico" style="text-align:center; padding-top:10vh; color:var(--text-light);">
+                        <i class="fa-solid fa-heart-pulse" style="font-size:50px; margin-bottom:15px; opacity:0.5;"></i>
+                        <p>Seleccione al personal de la lista lateral <br> para ver su historial médico y físico.</p>
+                    </div>
+
+                    <div id="panel-detalles-fisico" class="hidden">
+                        <div class="detalles-cabecera" style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 20px; border-bottom: 2px solid var(--border); padding-bottom:15px;">
+                            <div>
+                                <h2 id="fis-nombres" style="color:var(--mcp-blue); margin-bottom:5px; font-size: 20px;">Cargando...</h2>
+                                <span id="fis-edad" class="badge bg-gray" style="margin-right:5px;">Edad: --</span>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="section-title">Estado Nutricional Histórico
+                                <button class="btn btn-primary btn-sm btn-editor" onclick="abrirModalNutricion()"><i class="fa-solid fa-plus"></i> Nueva Evaluación</button>
+                            </div>
+                            <div class="table-container">
+                                <table class="table-transposed" id="tabla-nutricion">
+                                    <thead id="thead-nutricion"></thead>
+                                    <tbody id="tbody-nutricion"></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="section-title">Asistencia a Gimnasio
+                                <div style="display:flex; gap:8px;">
+                                    <button class="btn btn-sec btn-sm" onclick="mostrarGraficoGym(false)"><i class="fa-solid fa-chart-line"></i> Gráfica Individual</button>
+                                    <button class="btn btn-sec btn-sm" onclick="mostrarGraficoGym(true)"><i class="fa-solid fa-chart-area"></i> Gráfica Global</button>
+                                    <button class="btn btn-primary btn-sm btn-editor" onclick="abrirModalGym()"><i class="fa-solid fa-plus"></i> Registrar</button>
+                                </div>
+                            </div>
+                            <div class="table-container">
+                                <table id="tabla-gym">
+                                    <thead><tr><th>Período (Mes/Año)</th><th>Asistencias</th><th>Tendencia</th><th>Observación</th><th class="btn-editor">Acción</th></tr></thead>
+                                    <tbody id="tbody-gym"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-bajas" class="view">
+            <div class="card">
+                <div class="section-title">Histórico de Desvinculaciones (Bajas)
+                    <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                        <input type="text" id="search-bajas" class="form-control" placeholder="Buscar DNI, Apellidos..." style="width:200px;" onkeyup="renderTablasGlobales()">
+                        <button class="btn btn-sec btn-sm admin-only admin-hidden" onclick="descargarPlantillaBajas()"><i class="fa-solid fa-file-arrow-down"></i> Plantilla Excel</button>
+                        <label class="btn btn-primary btn-sm admin-only admin-hidden" style="margin:0; cursor:pointer; display:inline-flex !important;"><i class="fa-solid fa-file-arrow-up"></i> Carga Masiva<input type="file" hidden accept=".xlsx, .xls" onchange="cargarMasivaBajas(this)"></label>
+                        <button class="btn btn-sec btn-sm" onclick="exportarExcel('tabla-bajas', 'Historial_Bajas_Chinalco')"><i class="fa-solid fa-download"></i> Exportar Vista</button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table id="tabla-bajas">
+                        <thead><tr><th>N°</th><th>Apellidos y Nombres</th><th>Empresa</th><th>Fecha Ingreso</th><th>Fecha Salida</th><th>Motivo</th><th>Recomendación</th><th class="btn-editor">Acciones</th></tr></thead>
+                        <tbody id="tbody-bajas"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-admin" class="view">
+            <div class="card">
+                <div class="section-title">Control de Roles y Accesos
+                    <button class="btn btn-primary btn-sm" onclick="abrirModalUsuario()"><i class="fa-solid fa-user-plus"></i> Crear Cuenta</button>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>Usuario / Correo Electrónico</th><th>Privilegios de Sistema</th><th>Herramientas</th></tr></thead>
+                        <tbody id="tbody-usuarios"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="modal-personal" class="modal">
+        <div class="modal-content">
+            <h2 style="color:var(--mcp-blue); margin-bottom: 20px; font-size: 18px; border-bottom:2px solid var(--border); padding-bottom:10px;">Formulario de Legajo Físico y Digital</h2>
+            <form id="form-personal">
+                <input type="hidden" id="f-id">
+                <div class="section-title">Datos Básicos</div>
+                <div class="grid-3">
+                    <div class="field"><label>Apellidos *</label><input type="text" id="f-apellidos" class="form-control" required></div>
+                    <div class="field"><label>Nombres *</label><input type="text" id="f-nombres" class="form-control" required></div>
+                    <div class="field"><label>Puesto *</label><input type="text" id="f-puesto" class="form-control" required></div>
+                    <div class="field"><label>DNI *</label><input type="text" id="f-dni" class="form-control" required maxlength="8"></div>
+                    <div class="field"><label>F. Nacimiento</label><input type="date" id="f-fnac" class="form-control" onchange="calcEdadForm()"></div>
+                    <div class="field"><label>Edad Automática</label><input type="number" id="f-edad" class="form-control" readonly></div>
+                </div>
+                <div class="grid-4" style="margin-top:10px;">
+                    <div class="field"><label>Estado Civil</label><input type="text" id="f-estcivil" class="form-control"></div>
+                    <div class="field"><label>Hijos</label><input type="number" id="f-hijos" class="form-control"></div>
+                    <div class="field"><label>Teléfono</label><input type="text" id="f-telefono" class="form-control"></div>
+                    <div class="field"><label>Email</label><input type="email" id="f-email" class="form-control"></div>
+                    <div class="field"><label>Cod. UBIGEO</label><input type="text" id="f-ubigeo" class="form-control"></div>
+                    <div class="field"><label>Dirección Hogar</label><input type="text" id="f-direccion" class="form-control"></div>
+                    <div class="field"><label>Lugar Nacimiento</label><input type="text" id="f-lugarnac" class="form-control"></div>
+                    <div class="field"><label>Grupo Sanguíneo</label><input type="text" id="f-sangre" class="form-control"></div>
+                </div>
+                <div class="grid-4" style="margin-top:10px;">
+                    <div class="field"><label>N° Lic. MTC</label><input type="text" id="f-licmtc" class="form-control"></div>
+                    <div class="field"><label>Categoría MTC</label><input type="text" id="f-catmtc" class="form-control"></div>
+                    <div class="field"><label>Restricción Cond.</label><input type="text" id="f-restcon" class="form-control"></div>
+                    <div class="field"><label>Lic. Interna MCP</label><input type="text" id="f-licint" class="form-control"></div>
+                    <div class="field"><label>Grado Académico</label><input type="text" id="f-grado" class="form-control"></div>
+                    <div class="field"><label>Especialidad</label><input type="text" id="f-especialidad" class="form-control"></div>
+                </div>
+                <div class="grid-3" style="margin-top:10px;">
+                    <div class="field"><label>Contacto Emergencia</label><input type="text" id="f-contactoem" class="form-control"></div>
+                    <div class="field"><label>Núm. Contacto</label><input type="text" id="f-numcontacto" class="form-control"></div>
+                    <div class="field"><label>Parentesco</label><input type="text" id="f-parentesco" class="form-control"></div>
+                </div>
+
+                <div class="section-title" style="margin-top:20px;">Control Tiempos</div>
+                <div class="grid-4">
+                    <div class="field"><label>Ingreso Servicio</label><input type="date" id="f-fingreso" class="form-control"></div>
+                    <div class="field"><label>Fin Contrato</label><input type="date" id="f-ffin" class="form-control"></div>
+                    <div class="field"><label>Inducción H. Nuevo</label><input type="date" id="f-finduccion" class="form-control"></div>
+                    <div class="field"><label>Venc. DNI</label><input type="date" id="f-vdni" class="form-control"></div>
+                    <div class="field"><label>Venc. Lic MTC</label><input type="date" id="f-vmtc" class="form-control"></div>
+                    <div class="field"><label>Venc. Lic MCP</label><input type="date" id="f-vmcp" class="form-control"></div>
+                    <div class="field"><label>Venc. Salud EMO</label><input type="date" id="f-vsalud" class="form-control"></div>
+                </div>
+                <div class="grid-2" style="margin-top:10px;">
+                    <div class="field"><label>Vehículos Autorizados</label><input type="text" id="f-vehiculos" class="form-control"></div>
+                    <div class="field"><label>Condición Médica</label><input type="text" id="f-obsclinica" class="form-control"></div>
+                </div>
+
+                <div class="section-title" style="margin-top:20px;">Cursos Mandatorios SSO</div>
+                <div class="grid-4" id="form-cursos-sso"></div>
+
+                <div class="section-title" style="margin-top:20px;">Cursos Perfil Puesto</div>
+                <div class="grid-4" id="form-cursos-perfil"></div>
+
+                <div class="section-title" style="margin-top:20px;">Inducciones (Fechas)</div>
+                <div class="grid-4" id="form-inducciones"></div>
+
+                <div style="margin-top:30px; text-align:right; border-top:1px solid var(--border); padding-top:15px; display:flex; justify-content:flex-end; gap:10px;">
+                    <button type="button" class="btn btn-sec" onclick="cerrarModal('modal-personal')">Cancelar</button>
+                    <button type="submit" id="btn-save-personal" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Guardar Expediente</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-epp" class="modal">
+        <div class="modal-content modal-sm">
+            <h2 style="color:var(--mcp-blue); margin-bottom: 20px; font-size:18px;" id="modal-epp-title">Gestionar EPP</h2>
+            <form id="form-epp">
+                <input type="hidden" id="fe-idx">
+                <div class="field">
+                    <label>Equipo / Descripción</label>
+                    <textarea id="fe-name" class="form-control" rows="3" required></textarea>
+                </div>
+                <div class="grid-2">
+                    <div class="field"><label>Talla</label><input type="text" id="fe-talla" class="form-control"></div>
+                    <div class="field"><label>Fecha de Entrega</label><input type="date" id="fe-fecha" class="form-control"></div>
+                </div>
+                <div class="grid-2">
+                    <div class="field"><label>Cant. Contrato (Global)</label><input type="number" id="fe-ccont" class="form-control" placeholder="Meta" required></div>
+                    <div class="field"><label>Cant. Real Asignada</label><input type="number" id="fe-creal" class="form-control" required></div>
+                </div>
+                <div style="margin-top:20px; text-align:right; display:flex; justify-content:flex-end; gap:10px;">
+                    <button type="button" class="btn btn-sec btn-sm" onclick="cerrarModal('modal-epp')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary btn-sm">Guardar EPP</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-nutricion" class="modal">
+        <div class="modal-content modal-sm">
+            <h2 style="color:var(--success); margin-bottom: 20px; font-size:18px;">Nueva Evaluación Nutricional</h2>
+            <form id="form-nutricion">
+                <div class="field"><label>Fecha de Evaluación</label><input type="date" id="fn-fecha" class="form-control" required></div>
+                <div class="grid-2">
+                    <div class="field"><label>Talla (metros)</label><input type="number" step="0.01" id="fn-talla" class="form-control" oninput="calcNutricion()" required></div>
+                    <div class="field"><label>Peso (kg)</label><input type="number" step="0.1" id="fn-peso" class="form-control" oninput="calcNutricion()" required></div>
+                    <div class="field"><label>IMC (Auto)</label><input type="text" id="fn-imc" class="form-control" readonly></div>
+                    <div class="field"><label>Clas. IMC</label><input type="text" id="fn-cimc" class="form-control"></div>
+                </div>
+                <div class="grid-2" style="margin-top:10px;">
+                    <div class="field"><label>% Grasa Corporal</label><input type="number" step="0.1" id="fn-grasa" class="form-control"></div>
+                    <div class="field"><label>Clas. Grasa Corp.</label><input type="text" id="fn-cgrasa" class="form-control"></div>
+                    <div class="field"><label>% Grasa Visceral</label><input type="number" step="0.1" id="fn-gvisc" class="form-control"></div>
+                    <div class="field"><label>Clas. Grasa Visc.</label><input type="text" id="fn-cgvisc" class="form-control"></div>
+                    <div class="field"><label>% Masa Muscular</label><input type="number" step="0.1" id="fn-musc" class="form-control"></div>
+                    <div class="field"><label>Clas. Masa Musc.</label><input type="text" id="fn-cmusc" class="form-control"></div>
+                </div>
+                <div class="grid-3" style="margin-top:10px;">
+                    <div class="field"><label>Perímetro Abd. (cm)</label><input type="number" step="0.1" id="fn-pabd" class="form-control" oninput="calcNutricion()"></div>
+                    <div class="field"><label>Perím. Cadera (cm)</label><input type="number" step="0.1" id="fn-pcad" class="form-control" oninput="calcNutricion()"></div>
+                    <div class="field"><label>ICC (Auto)</label><input type="text" id="fn-icc" class="form-control" readonly></div>
+                </div>
+                <div class="grid-2" style="margin-top:10px;">
+                    <div class="field"><label>Edad Corporal</label><input type="number" id="fn-edadc" class="form-control"></div>
+                    <div class="field"><label>Cant. Calorías</label><input type="number" id="fn-calorias" class="form-control"></div>
+                </div>
+                <div class="field" style="margin-top:10px;">
+                    <label>Análisis de Evaluación (Auto-sugerido)</label>
+                    <textarea id="fn-analisis" class="form-control" rows="3"></textarea>
+                </div>
+                <div class="field"><label>Siguiente Evaluación</label><input type="date" id="fn-fsig" class="form-control"></div>
+                
+                <div style="margin-top:20px; text-align:right; display:flex; justify-content:flex-end; gap:10px;">
+                    <button type="button" class="btn btn-sec btn-sm" onclick="cerrarModal('modal-nutricion')">Cancelar</button>
+                    <button type="submit" id="btn-save-nutricion" class="btn btn-primary btn-sm">Guardar Ficha</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-gym" class="modal">
+        <div class="modal-content modal-sm">
+            <h2 style="color:var(--mcp-blue); margin-bottom: 20px; font-size:18px;">Registrar Asistencia Mensual</h2>
+            <form id="form-gym">
+                <div class="grid-2">
+                    <div class="field">
+                        <label>Mes</label>
+                        <select id="fg-mes" class="form-control" required>
+                            <option value="01">Enero</option><option value="02">Febrero</option><option value="03">Marzo</option>
+                            <option value="04">Abril</option><option value="05">Mayo</option><option value="06">Junio</option>
+                            <option value="07">Julio</option><option value="08">Agosto</option><option value="09">Septiembre</option>
+                            <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
+                        </select>
+                    </div>
+                    <div class="field"><label>Año</label><input type="number" id="fg-ano" class="form-control" value="2026" required></div>
+                </div>
+                <div class="field" style="margin-top:10px;"><label>Total de Asistencias (Mes)</label><input type="number" id="fg-count" class="form-control" required></div>
+                <div style="margin-top:20px; text-align:right; display:flex; justify-content:flex-end; gap:10px;">
+                    <button type="button" class="btn btn-sec btn-sm" onclick="cerrarModal('modal-gym')">Cancelar</button>
+                    <button type="submit" id="btn-save-gym" class="btn btn-primary btn-sm">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-chart" class="modal">
+        <div class="modal-content">
+            <h2 style="color:var(--mcp-blue); margin-bottom: 10px; font-size:18px;" id="chart-title">Gráfica de Asistencia a Gimnasio</h2>
+            <div style="width: 100%; height: 400px; position: relative;"><canvas id="gymChart"></canvas></div>
+            <div style="margin-top:20px; text-align:right;"><button type="button" class="btn btn-sec btn-sm" onclick="cerrarModal('modal-chart')">Cerrar</button></div>
+        </div>
+    </div>
+
+    <div id="modal-baja" class="modal">
+        <div class="modal-content modal-sm">
+            <h2 style="color:var(--danger); margin-bottom: 20px; font-size:18px;">Confirmar Baja de Personal</h2>
+            <p style="font-size:12px; color:var(--text-light); margin-bottom:15px;">El oficial será retirado de todas las pantallas operativas y se moverá al archivo histórico de Bajas.</p>
+            <form id="form-baja">
+                <div class="field"><label>Empresa de Baja</label><input type="text" id="fb-empresa" class="form-control" value="Minera Chinalco Perú" required></div>
+                <div class="field"><label>Fecha de Salida</label><input type="date" id="fb-fecha" class="form-control" required></div>
+                <div class="field"><label>Motivo de Salida</label><textarea id="fb-motivo" class="form-control" rows="3" required></textarea></div>
+                <div class="field">
+                    <label>Categoría de Recontratación</label>
+                    <select id="fb-recomendacion" class="form-control" required>
+                        <option value="SIN OBSERVACIONES">Sin Observaciones (Neutro)</option>
+                        <option value="RECOMENDADO PARA RECONTRATACION">Recomendado para Recontratación</option>
+                        <option value="NO RECOMENDADO PARA RECONTRATACION">No Recomendado para Recontratación</option>
+                    </select>
+                </div>
+                <div style="margin-top:20px; text-align:right; display:flex; justify-content:flex-end; gap:10px;">
+                    <button type="button" class="btn btn-sec btn-sm" onclick="cerrarModal('modal-baja')">Cancelar</button>
+                    <button type="submit" class="btn btn-danger btn-sm">Procesar Baja</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-editar-baja" class="modal">
+        <div class="modal-content modal-sm">
+            <h2 style="color:var(--mcp-blue); margin-bottom: 20px; font-size:18px;">Editar Registro de Baja</h2>
+            <form id="form-editar-baja">
+                <input type="hidden" id="meb-id">
+                <div class="field"><label>Apellidos *</label><input type="text" id="meb-apellidos" class="form-control" required></div>
+                <div class="field"><label>Nombres</label><input type="text" id="meb-nombres" class="form-control"></div>
+                <div class="field"><label>DNI</label><input type="text" id="meb-dni" class="form-control"></div>
+                <div class="field"><label>Empresa</label><input type="text" id="meb-empresa" class="form-control" required></div>
+                <div class="grid-2">
+                    <div class="field"><label>Fecha Ingreso</label><input type="date" id="meb-fingreso" class="form-control"></div>
+                    <div class="field"><label>Fecha Salida *</label><input type="date" id="meb-fbaja" class="form-control" required></div>
+                </div>
+                <div class="field"><label>Motivo de Salida</label><textarea id="meb-motivo" class="form-control" rows="3" required></textarea></div>
+                <div class="field">
+                    <label>Recomendación de Recontratación</label>
+                    <select id="meb-reco" class="form-control" required>
+                        <option value="SIN OBSERVACIONES">Sin Observaciones</option>
+                        <option value="RECOMENDADO PARA RECONTRATACION">Recomendado</option>
+                        <option value="NO RECOMENDADO PARA RECONTRATACION">No Recomendado</option>
+                    </select>
+                </div>
+                <div style="margin-top:20px; text-align:right; display:flex; justify-content:flex-end; gap:10px;">
+                    <button type="button" class="btn btn-sec btn-sm" onclick="cerrarModal('modal-editar-baja')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary btn-sm">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-user" class="modal">
+        <div class="modal-content modal-sm">
+            <h2 style="color:var(--mcp-blue); margin-bottom: 20px; font-size:18px;">Gestión de Cuentas</h2>
+            <form id="form-user">
+                <div class="field"><label>Correo Electrónico</label><input type="email" id="u-email" class="form-control" required></div>
+                <div class="field" id="u-pwd-container">
+                    <label>Contraseña Asignada</label>
+                    <div class="input-group">
+                        <input type="password" id="u-pwd" class="form-control" placeholder="Mínimo 6 caracteres" required>
+                        <i class="fa-solid fa-eye toggle-pwd" onclick="togglePasswordVisibility('u-pwd', this)"></i>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Rol de Seguridad</label>
+                    <select id="u-rol" class="form-control" required>
+                        <option value="LECTOR">LECTOR (Solo Visualiza/Filtra)</option>
+                        <option value="EDITOR">EDITOR (Registra/Edita/Elimina)</option>
+                        <option value="ADMINISTRADOR">ADMINISTRADOR (Total)</option>
+                    </select>
+                </div>
+                <div style="margin-top:20px; text-align:right; display:flex; justify-content:flex-end; gap:10px;">
+                    <button type="button" class="btn btn-sec btn-sm" onclick="cerrarModal('modal-user')">Cancelar</button>
+                    <button type="submit" id="btn-save-user" class="btn btn-primary btn-sm">Guardar Rol</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-sancion" class="modal">
+        <div class="modal-content modal-sm">
+            <h2 style="color:var(--danger); margin-bottom: 20px; font-size:18px;">Registrar Amonestación</h2>
+            <form id="form-sancion">
+                <div class="field"><label>Fecha de la Falta</label><input type="date" id="s-fecha" class="form-control" required></div>
+                <div class="field"><label>Descripción del Suceso</label><textarea id="s-motivo" class="form-control" rows="4" required></textarea></div>
+                <div style="margin-top:20px; text-align:right; display:flex; justify-content:flex-end; gap:10px;">
+                    <button type="button" class="btn btn-sec btn-sm" onclick="cerrarModal('modal-sancion')">Cancelar</button>
+                    <button type="submit" id="btn-save-sancion" class="btn btn-danger btn-sm">Aplicar Sanción</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-reporte-epps" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="section-title">Resumen de EPPs en el Servicio
+                <button class="btn btn-sec btn-sm" onclick="exportarExcel('tabla-reporte-epps', 'Reporte_Total_EPPs')"><i class="fa-solid fa-file-excel"></i> Exportar</button>
+            </div>
+            <p style="font-size:12px; color:var(--text-light); margin-bottom:15px;">Sumatoria de "Cantidades Reales" asignadas a todo el personal activo.</p>
+            <div class="table-container">
+                <table id="tabla-reporte-epps">
+                    <thead><tr><th>Descripción de Equipo de Protección</th><th style="text-align:center;">Total Entregado</th></tr></thead>
+                    <tbody id="tbody-reporte-epps"></tbody>
+                </table>
+            </div>
+            <div style="margin-top:20px; text-align:right;">
+                <button type="button" class="btn btn-sec btn-sm" onclick="cerrarModal('modal-reporte-epps')">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection, updateDoc, deleteField } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCDQGSMLG38mNAHF1e_2oVv_8vKlCoJTZU",
+            authDomain: "datos-personal-rescate-mcp.firebaseapp.com",
+            projectId: "datos-personal-rescate-mcp",
+            storageBucket: "datos-personal-rescate-mcp.firebasestorage.app",
+            messagingSenderId: "1002409638628",
+            appId: "1:1002409638628:web:1b2103173f759c994b4af1"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+
+        // App secundaria solo para crear usuarios (evita auto-login y cierre de sesión de Admin)
+        const appSecundaria = initializeApp(firebaseConfig, "AppSecundaria");
+        const authSecundario = getAuth(appSecundaria);
+
+        const CURSOS_SSO = ["FRANJA VERDE (CANTERA)", "FRANJA VERDE (MINA)", "INGRESO A OP. CANTERA", "INGRESO A OP. MINA", "BLOQUEO TEÓRICO", "BLOQUEO PRÁCTICO", "TRABAJOS EN ALTURA TEÓRICO", "TRABAJOS EN ALTURA PRÁCTICO", "TRABAJOS EN ESPACIOS CONFINADOS", "TRABAJOS EN CALIENTE", "INGRESO A SALAS ELÉCTRICAS", "SEGURIDAD EN USO DE HERRAMIENTAS", "PREVENCIÓN Y RESPUESTA CON SUSTANCIAS PELIGROSAS", "PREVENCIÓN Y RESCATE EN AGUAS PROFUNDAS", "INGRESO A FLOTACIÓN ROUGHER BULK", "INGRESO A PATIO DE TRENES – CGNO"];
+        const CURSOS_PERFIL = [{id:"ACTUALIZACION NORMATIVA DE TRANSITO",v:5},{id:"TÉCNICO MATPEL",v:1},{id:"LOTE DE CUERDAS DE RESCATE",v:2},{id:"RESCATE EN ESPACIOS CONFINADOS",v:2},{id:"RESCATE VEHICULAR",v:2},{id:"LUCHA CONTRA INCENDIOS",v:2},{id:"PRIMEROS AUXILIOS AVANZADOS",v:2},{id:"SOPORTE DE TRAUMA AVANZADO",v:4},{id:"MANEJO DEF. VEHICULOS LIVIANOS/PESADOS",v:2},{id:"SISTEMA COMANDO INCIDENTES",v:2}];
+        const INDUCCIONES = ["ANEXO 5", "IPERC LÍNEA BASE", "RIT", "RISST", "MOF / PERFIL", "PETS DEL SERVICIO", "MAPAS DE RIESGO", "EPP’s BASICOS", "EPP ESTRUCTURAL", "POLITICA DE SERVICIO", "PLAN DE PREPARACIÓN EMERG.", "ESTANDAR MCP 017 EXTINTORES", "ESTANDAR MCP 018 ALARMAS", "ESTANDAR MCP 021 DETECCIÓN", "ESTANDAR MCP 022 KITS", "CARTA COMPROMISO GIMNASIO"];
+        
+        let DEFAULT_EPPS_CONFIG = [
+            { name: "Casacas imp. térmicas, Thinsulate, capucha, bolsillos convencionales altura lados abdomen y bolsillo lado der pecho para radio de com. Logo empresa lado izq pecho. Leyenda RESCATE espalda. Costura reforzada. Cintas reflectivas 2\" 3M brazos y tronco", cant_cont: 1 },
+            { name: "Pantalones impermeables térmicos, Thinsulate, bolsillos convencionales altura lados cadera y bolsillos tipo cargo altura de muslos. Costura reforzada. Cintas reflectivas 2\" 3M en piernas.", cant_cont: 1 },
+            { name: "Pantalon tipo cargo, drill", cant_cont: 2 },
+            { name: "Chompas polares, logo empresa pecho lado izq, bolsillos convencionales altura lados abdomen.", cant_cont: 1 },
+            { name: "Polos manga larga leyenda RESCATE en espalda.", cant_cont: 2 },
+            { name: "Chalecos de seguridad rojos impermeables, Thinsulate, bolsillos altura abdomen, bolsillo para radio de com lado der pecho, logo empresa lado izq pecho, leyenda RESCATE en espalda.", cant_cont: 1 },
+            { name: "Lentes / sobrelentes oscuros de seguridad", cant_cont: 1 },
+            { name: "Lentes / sobrelentes claros de seguridad", cant_cont: 1 },
+            { name: "Guantes certificados para labores de rescate con cuerdas", cant_cont: 1 },
+            { name: "Guantes de badana", cant_cont: 1 },
+            { name: "Zapatos seguridad", cant_cont: 1 },
+            { name: "Mascara full face con filtros de combinación", cant_cont: 1 }
+        ];
+
+        let state = { user: null, rol: 'LECTOR', personal: {}, usuarios: {}, eppsGlobal: {}, selectedId: null, selectedEppId: null, selectedFisicoId: null, filterActive: false };
+        let gymChartInst = null;
+
+        // TOGGLE PASSWORD
+        window.togglePasswordVisibility = (inputId, icon) => {
+            const input = document.getElementById(inputId);
+            if (input.type === "password") { input.type = "text"; icon.classList.replace("fa-eye", "fa-eye-slash"); } 
+            else { input.type = "password"; icon.classList.replace("fa-eye-slash", "fa-eye"); }
+        };
+
+        // UI NAVEGACIÓN
+        window.switchView = (viewId, menuItem) => {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+            if(menuItem) menuItem.classList.add('active');
+            document.getElementById('view-title').innerText = menuItem ? menuItem.querySelector('span').innerText : '';
+            if(window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('mobile-open');
+            
+            if(viewId === 'view-epps') renderListaEpps();
+            if(viewId === 'view-fisico') renderListaFisico();
+            if(viewId === 'view-bajas') renderTablasGlobales();
+        };
+
+        window.toggleSidebar = () => {
+            const sb = document.getElementById('sidebar');
+            if(window.innerWidth <= 768) { sb.classList.toggle('mobile-open'); sb.classList.remove('collapsed'); } 
+            else { sb.classList.toggle('collapsed'); sb.classList.remove('mobile-open'); }
+        };
+
+        window.abrirModal = id => document.getElementById(id).style.display = 'flex';
+        window.cerrarModal = id => document.getElementById(id).style.display = 'none';
+
+        window.toggleFilterExpired = () => {
+            state.filterActive = !state.filterActive;
+            const btn = document.getElementById('btn-filter');
+            if(state.filterActive) {
+                btn.classList.replace('btn-sec', 'btn-warning');
+                btn.innerHTML = '<i class="fa-solid fa-filter-circle-xmark"></i> Mostrar Todo';
+            } else {
+                btn.classList.replace('btn-warning', 'btn-sec');
+                btn.innerHTML = '<i class="fa-solid fa-filter"></i> Filtrar Faltantes';
+            }
+            if(state.selectedId) window.cargarDetallePersonal(state.selectedId);
+        };
+
+        // ================= SISTEMA DE LOGIN SEGURO ================= //
+        document.getElementById('form-login').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value.trim();
+            const pass = document.getElementById('login-password').value;
+            const errorDiv = document.getElementById('login-error');
+            errorDiv.classList.add('hidden');
+
+            try { 
+                await signInWithEmailAndPassword(auth, email, pass); 
+            } catch (error) { 
+                // Auto-crear Admin si no existe (Primera corrida)
+                if(email === 'supervision.rescate@gmail.com' && pass === 'Supervisionrescate11!') {
+                    try { await createUserWithEmailAndPassword(auth, email, pass); } 
+                    catch(e) { errorDiv.classList.remove('hidden'); }
+                } else { errorDiv.classList.remove('hidden'); }
+            }
+        });
+
+        window.cerrarSesion = () => {
+            state.rol = 'LECTOR'; state.personal = {}; state.usuarios = {}; state.selectedId = null; state.selectedEppId = null; state.selectedFisicoId = null; state.eppsGlobal = {};
+            document.getElementById('display-rol').innerText = '...'; document.getElementById('display-email').innerText = '...';
+            signOut(auth);
+        };
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) { 
+                state.user = user; iniciarSesionUI(user.email); 
+            } else { 
+                state.rol = 'LECTOR'; state.personal = {};
+                document.getElementById('display-rol').innerText = '...'; document.getElementById('display-email').innerText = '...';
+                document.getElementById('login-overlay').classList.remove('hidden'); document.getElementById('form-login').reset(); 
+            }
+        });
+
+        function iniciarSesionUI(email) {
+            document.getElementById('display-email').innerText = email;
+            document.getElementById('login-overlay').classList.add('hidden');
+            determinarPermisos(email); conectarBaseDatosFirestore();
+        }
+
+        function determinarPermisos(email) {
+            state.rol = 'LECTOR'; aplicarPermisosUI();
+            if(email === 'supervision.rescate@gmail.com') {
+                state.rol = 'ADMINISTRADOR'; aplicarPermisosUI();
+            } else {
+                const unsubscribe = onSnapshot(collection(db, 'usuarios'), (snapshot) => {
+                    snapshot.forEach((doc) => { if(doc.data().email === email){ state.rol = doc.data().rol; } });
+                    aplicarPermisosUI(); unsubscribe(); 
+                });
+            }
+        }
+
+        function aplicarPermisosUI() {
+            document.getElementById('display-rol').innerText = state.rol;
+            const hideEdit = state.rol === 'LECTOR';
+            
+            document.querySelectorAll('.btn-editor').forEach(el => {
+                if(hideEdit) el.classList.add('editor-hidden'); else el.classList.remove('editor-hidden');
+            });
+            
+            const isAdmin = state.rol === 'ADMINISTRADOR';
+            document.querySelectorAll('.admin-only, .btn-admin').forEach(el => {
+                if(isAdmin) el.classList.remove('admin-hidden'); else el.classList.add('admin-hidden');
+            });
+            if(!isAdmin && document.getElementById('view-admin').classList.contains('active')) switchView('view-resumen', document.querySelectorAll('.menu-item')[0]);
+
+            aplicarPermisosAFormularios();
+        }
+
+        function aplicarPermisosAFormularios() {
+            const isLector = state.rol === 'LECTOR';
+            document.querySelectorAll('#view-epps input, #view-epps textarea').forEach(el => {
+                el.readOnly = isLector;
+                if(el.type === 'date') el.disabled = isLector;
+            });
+        }
+
+        // ================= CONEXIÓN A CLOUD FIRESTORE ================= //
+        function conectarBaseDatosFirestore() {
+            onSnapshot(doc(db, 'config', 'epps_global'), (docSnap) => {
+                if(docSnap.exists()) { state.eppsGlobal = docSnap.data(); } 
+                else {
+                    let map = {}; DEFAULT_EPPS_CONFIG.forEach(e => map[e.name] = e.cant_cont);
+                    setDoc(doc(db, 'config', 'epps_global'), map); state.eppsGlobal = map;
+                }
+                if(state.selectedEppId) window.cargarDetalleEpps(state.selectedEppId);
+            });
+
+            onSnapshot(collection(db, 'personal'), (snapshot) => {
+                state.personal = {};
+                snapshot.forEach((doc) => { state.personal[doc.id] = doc.data(); });
+                renderResumen(); renderListaPersonal(); renderListaEpps(); renderListaFisico(); renderTablasGlobales();
+                
+                if(state.selectedId && state.personal[state.selectedId]) window.cargarDetallePersonal(state.selectedId);
+                if(state.selectedEppId && state.personal[state.selectedEppId]) window.cargarDetalleEpps(state.selectedEppId);
+                if(state.selectedFisicoId && state.personal[state.selectedFisicoId]) window.cargarDetalleFisico(state.selectedFisicoId);
+                
+            }, (error) => console.warn("Esperando reglas de seguridad..."));
+
+            onSnapshot(collection(db, 'usuarios'), (snapshot) => {
+                state.usuarios = {};
+                snapshot.forEach((doc) => { state.usuarios[doc.id] = doc.data(); });
+                renderListaUsuarios();
+            }, (error) => {});
+        }
+
+        window.calcEdadForm = () => {
+            const f = document.getElementById('f-fnac').value; if(!f) return;
+            const d = new Date(f), hoy = new Date(); let edad = hoy.getFullYear() - d.getFullYear();
+            if(hoy.getMonth() < d.getMonth() || (hoy.getMonth() === d.getMonth() && hoy.getDate() < d.getDate())) edad--;
+            document.getElementById('f-edad').value = Math.max(0, edad);
+        };
+
+        function generarAlerta(fechaToma, vigenciaAños) {
+            if(!fechaToma) return { txt: 'Pendiente', bg: 'bg-gray', isCrit: true, faltante: true };
+            const fv = new Date(fechaToma); fv.setFullYear(fv.getFullYear() + vigenciaAños);
+            const diff = Math.ceil((fv - new Date()) / (1000*60*60*24));
+            const strD = fv.toISOString().split('T')[0];
+            if(diff < 0) return { txt: `Vencido (${strD})`, bg: 'bg-danger', isCrit: true, faltante: false };
+            if(diff <= 30) return { txt: `Alerta (${strD})`, bg: 'bg-warning', isCrit: true, faltante: false };
+            return { txt: `Vigente (${strD})`, bg: 'bg-success', isCrit: false, faltante: false };
+        }
+
+        // ================= GESTIÓN ARCHIVOS STORAGE ================= //
+        window.subirArchivo = async (input, tipo, pId, sancId = null) => {
+            const file = input.files[0]; if(!file) return;
+            if(file.type !== "application/pdf") { alert("Por favor, suba únicamente archivos PDF."); return; }
+
+            const labelPadre = input.parentElement; const textoOriginal = labelPadre.innerHTML;
+            labelPadre.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Subiendo...';
+
+            const path = sancId ? `personal/${pId}/sanciones/${sancId}.pdf` : `personal/${pId}/${tipo}.pdf`;
+            const fileRef = storageRef(storage, path);
+
+            try {
+                await uploadBytes(fileRef, file);
+                const url = await getDownloadURL(fileRef);
+                const fecha = new Date().toISOString().split('T')[0];
+                const docRef = doc(db, 'personal', pId);
+
+                if(sancId) { await updateDoc(docRef, { [`sanc.${sancId}.file`]: { url, fecha, name: file.name } }); } 
+                else { await updateDoc(docRef, { [tipo]: { url, fecha, name: file.name } }); }
+            } catch(e) {
+                console.error(e); alert("Error al subir el archivo. Verifica tu red.");
+                labelPadre.innerHTML = textoOriginal;
+            }
+        };
+
+        window.eliminarArchivo = async (tipo, pId, sancId = null) => {
+            if(!confirm("¿Deseas eliminar este archivo permanentemente?")) return;
+            const path = sancId ? `personal/${pId}/sanciones/${sancId}.pdf` : `personal/${pId}/${tipo}.pdf`;
+            const fileRef = storageRef(storage, path);
+
+            try { await deleteObject(fileRef); } catch(e) { }
+
+            try {
+                const docRef = doc(db, 'personal', pId);
+                if(sancId) { await updateDoc(docRef, { [`sanc.${sancId}.file`]: deleteField() }); } 
+                else { await updateDoc(docRef, { [tipo]: deleteField() }); }
+            } catch(e) { console.error(e); }
+        };
+
+        function renderFileHTML(fileObj, tipoStr, id) {
+            if(fileObj && fileObj.url) {
+                const days = (new Date() - new Date(fileObj.fecha)) / (1000*60*60*24);
+                const isExpired = (tipoStr === 'cv' || tipoStr === 'cargoEpp') && days > 365;
+                const alertHtml = isExpired ? `<span class="badge bg-danger" style="margin-left:5px;">Vencido (>1 año)</span>` : '';
+                return `
+                    <div style="display:inline-flex; align-items:center; flex-wrap:wrap; gap:5px; margin-left:10px; padding: 4px; border:1px solid var(--border); border-radius:4px; background:#fafbfc;">
+                        <span class="${isExpired ? 'text-danger' : 'text-success'}" style="font-weight:600;"><i class="fa-solid fa-file-pdf"></i> ${fileObj.fecha}</span> ${alertHtml}
+                        <a href="${fileObj.url}" target="_blank" class="btn btn-sm btn-sec" title="Descargar PDF"><i class="fa-solid fa-download"></i></a>
+                        <label class="btn btn-sm btn-warning btn-editor" style="margin:0; cursor:pointer;" title="Actualizar PDF"><i class="fa-solid fa-rotate"></i><input type="file" hidden accept=".pdf" onchange="subirArchivo(this, '${tipoStr}', '${id}')"></label>
+                        <button class="btn btn-sm btn-danger btn-editor" title="Eliminar Archivo" onclick="eliminarArchivo('${tipoStr}', '${id}')"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                `;
+            } else {
+                return `
+                    <div style="display:inline-flex; align-items:center; gap:8px; margin-left:10px;">
+                        <span class="badge bg-gray">Faltante</span>
+                        <label class="btn btn-sm btn-sec btn-editor" style="margin:0; cursor:pointer;"><i class="fa-solid fa-upload"></i> Adjuntar Archivo<input type="file" hidden accept=".pdf" onchange="subirArchivo(this, '${tipoStr}', '${id}')"></label>
+                    </div>
+                `;
+            }
+        }
+
+        // ================= VISTA: DATOS PERSONAL ================= //
+        function inyectarForms() {
+            const divS = document.getElementById('form-cursos-sso');
+            CURSOS_SSO.forEach((c,i)=>divS.insertAdjacentHTML('beforeend',`<div class="field"><label>${c}</label><input type="date" id="fc-sso-${i}" class="form-control"></div>`));
+            const divP = document.getElementById('form-cursos-perfil');
+            CURSOS_PERFIL.forEach((c,i)=>divP.insertAdjacentHTML('beforeend',`<div class="field"><label>${c.id}</label><input type="date" id="fc-perf-${i}" class="form-control"></div>`));
+            const divI = document.getElementById('form-inducciones');
+            INDUCCIONES.forEach((c,i)=>divI.insertAdjacentHTML('beforeend',`<div class="field"><label>${c}</label><input type="date" id="fi-ind-${i}" class="form-control"></div>`));
+        } inyectarForms();
+
+        window.renderListaPersonal = () => {
+            const term = document.getElementById('search-personal').value.toLowerCase();
+            const ul = document.getElementById('ul-personal'); ul.innerHTML = '';
+            const lista = Object.entries(state.personal).map(([id,p])=>({id,...p})).filter(p=>!p.baja && p.apellidos.toLowerCase().includes(term)).sort((a,b)=>a.apellidos.localeCompare(b.apellidos));
+            lista.forEach(p => ul.insertAdjacentHTML('beforeend', `<li class="person-item ${state.selectedId===p.id?'active':''}" onclick="cargarDetallePersonal('${p.id}')"><i class="fa-solid fa-user-shield" style="color:var(--mcp-gold); margin-right:8px;"></i> ${p.apellidos}, ${p.nombres}</li>`));
+        };
+
+        window.cargarDetallePersonal = (id) => {
+            state.selectedId = id; renderListaPersonal();
+            const p = state.personal[id]; if(!p) return;
+            document.getElementById('msg-no-selection').classList.add('hidden');
+            document.getElementById('panel-detalles').classList.remove('hidden');
+
+            const mapeo = { 'det-nombres':`${p.apellidos}, ${p.nombres}`,'det-puesto':p.puesto,'d-fnac':p.f_nac,'d-edad':p.edad?p.edad+' años':'','d-dni':p.dni,'d-ubigeo':p.ubigeo,'d-estcivil':p.estcivil,'d-hijos':p.hijos,'d-telefono':p.telefono,'d-email':p.email,'d-licmtc':p.licmtc,'d-catmtc':p.catmtc,'d-restcon':p.restcon,'d-sangre':p.sangre,'d-direccion':p.direccion,'d-lugarnac':p.lugarnac,'d-grado':p.grado,'d-especialidad':p.especialidad,'d-contactoem':p.contactoem,'d-numcontacto':p.numcontacto,'d-parentesco':p.parentesco,'d-fingreso':p.fingreso,'d-ffin':p.ffin,'d-licint':p.licint,'d-finduccion':p.finduccion,'d-vdni':p.vdni,'d-vmtc':p.vmtc,'d-vmcp':p.vmcp,'d-vsalud':p.vsalud,'d-vehiculos':p.vehiculos,'d-obsclinica':p.obsclinica };
+            for(let key in mapeo) document.getElementById(key).innerText = mapeo[key] || '-';
+
+            document.getElementById('cv-container').innerHTML = renderFileHTML(p.cv, 'cv', id);
+            document.getElementById('acta-container').innerHTML = renderFileHTML(p.actaInduccion, 'actaInduccion', id);
+
+            let hasSso = false, hasPerf = false, hasInd = false;
+
+            const fillCr = (arr, valArr, isP, domId) => {
+                const dom = document.getElementById(domId); dom.innerHTML = '';
+                arr.forEach((c,i) => {
+                    const name = isP ? c.id : c; const vig = isP ? c.v : 1; const dt = valArr?.[i];
+                    const res = generarAlerta(dt, vig);
+                    if(state.filterActive && !res.isCrit) return; 
+                    if(isP) hasPerf = true; else hasSso = true;
+                    dom.insertAdjacentHTML('beforeend', `<div class="field"><label>${name}</label><div class="val" style="margin-bottom:3px;">${dt||'S/I'}</div><span class="badge ${res.bg}">${res.txt}</span></div>`);
+                });
+            };
+            fillCr(CURSOS_SSO, p.csso, false, 'det-cursos-sso');
+            fillCr(CURSOS_PERFIL, p.cperf, true, 'det-cursos-perfil');
+            
+            const divI = document.getElementById('det-inducciones'); divI.innerHTML = '';
+            INDUCCIONES.forEach((c,i)=>{
+                const isPending = !p.inds?.[i];
+                if(state.filterActive && !isPending) return;
+                hasInd = true;
+                divI.insertAdjacentHTML('beforeend',`<div class="field"><label>${c}</label><div class="val">${!isPending?`<span class="text-success"><i class="fa-solid fa-check"></i> ${p.inds[i]}</span>`:'<span class="text-light">Pendiente</span>'}</div></div>`);
+            });
+
+            document.getElementById('card-cursos-sso').style.display = (state.filterActive && !hasSso) ? 'none' : 'block';
+            document.getElementById('card-cursos-perfil').style.display = (state.filterActive && !hasPerf) ? 'none' : 'block';
+            document.getElementById('card-inducciones').style.display = (state.filterActive && !hasInd) ? 'none' : 'block';
+
+            const tbSanc = document.getElementById('tbody-amonestaciones'); tbSanc.innerHTML = '';
+            if(p.sanc) {
+                Object.entries(p.sanc).forEach(([k, s]) => {
+                    const fileCell = s.file 
+                        ? `<div style="display:inline-flex; gap:5px; align-items:center;">
+                             <a href="${s.file.url}" target="_blank" class="btn btn-sm btn-sec" title="Descargar"><i class="fa-solid fa-download"></i></a>
+                             <label class="btn btn-sm btn-warning btn-editor" style="margin:0; cursor:pointer;" title="Actualizar"><i class="fa-solid fa-rotate"></i><input type="file" hidden accept=".pdf" onchange="subirArchivo(this, 'sanciones', '${id}', '${k}')"></label>
+                             <button class="btn btn-sm btn-danger btn-editor" title="Eliminar PDF" onclick="eliminarArchivo('sanciones', '${id}', '${k}')"><i class="fa-solid fa-trash"></i></button>
+                           </div><div style="font-size:10px; color:var(--text-light); margin-top:4px;">Subido: ${s.file.fecha}</div>`
+                        : `<label class="btn btn-sm btn-sec btn-editor" style="margin:0;"><i class="fa-solid fa-upload"></i> Subir PDF<input type="file" hidden accept=".pdf" onchange="subirArchivo(this, 'sanciones', '${id}', '${k}')"></label>`;
+
+                    tbSanc.insertAdjacentHTML('beforeend',`<tr><td>${s.fecha}</td><td>${s.motivo}</td><td>${fileCell}</td></tr>`);
+                });
+            } else {
+                tbSanc.innerHTML = '<tr><td colspan="3" style="text-align:center; color:var(--text-light);">Sin amonestaciones registradas.</td></tr>';
+            }
+
+            aplicarPermisosUI(); 
+        };
+
+        // ================= VISTA: ESTADO FISICO ================= //
+        window.renderListaFisico = () => {
+            const term = document.getElementById('search-fisico').value.toLowerCase();
+            const ul = document.getElementById('ul-fisico'); ul.innerHTML = '';
+            const lista = Object.entries(state.personal).map(([id,p])=>({id,...p})).filter(p=>!p.baja && p.apellidos.toLowerCase().includes(term)).sort((a,b)=>a.apellidos.localeCompare(b.apellidos));
+            lista.forEach(p => ul.insertAdjacentHTML('beforeend', `<li class="person-item ${state.selectedFisicoId===p.id?'active':''}" onclick="cargarDetalleFisico('${p.id}')"><i class="fa-solid fa-heart-pulse" style="color:var(--mcp-gold); margin-right:8px;"></i> ${p.apellidos}, ${p.nombres}</li>`));
+        };
+
+        window.cargarDetalleFisico = (id) => {
+            state.selectedFisicoId = id; renderListaFisico();
+            const p = state.personal[id]; if(!p) return;
+            document.getElementById('msg-no-selection-fisico').classList.add('hidden');
+            document.getElementById('panel-detalles-fisico').classList.remove('hidden');
+
+            document.getElementById('fis-nombres').innerText = `${p.apellidos}, ${p.nombres}`;
+            document.getElementById('fis-edad').innerText = `Edad: ${p.edad || '--'} años`;
+
+            // TABLA NUTRICION
+            const nArr = p.nutricion || [];
+            const theadN = document.getElementById('thead-nutricion');
+            const tbodyN = document.getElementById('tbody-nutricion');
+            
+            if(nArr.length === 0) {
+                theadN.innerHTML = '';
+                tbodyN.innerHTML = '<tr><td style="text-align:center; padding: 20px;">No hay evaluaciones nutricionales registradas.</td></tr>';
+            } else {
+                theadN.innerHTML = `<tr><th style="min-width:180px;">Métrica Registrada</th>${nArr.map(n => `<th style="text-align:center;">${n.fecha}</th>`).join('')}</tr>`;
+                
+                const rowsConfig = [
+                    {lbl: "Peso (kg)", k: "peso"}, {lbl: "IMC", k: "imc"}, {lbl: "Clasificación IMC", k: "cimc"},
+                    {lbl: "% Grasa Corp.", k: "grasa"}, {lbl: "Clas. Grasa Corp.", k: "cgrasa"}, {lbl: "% Grasa Visceral", k: "gvisc"},
+                    {lbl: "Clas. Grasa Visc.", k: "cgvisc"}, {lbl: "% Masa Muscular", k: "musc"}, {lbl: "Clas. Masa Musc.", k: "cmusc"},
+                    {lbl: "Perím. Abdominal", k: "pabd"}, {lbl: "Perím. Cadera", k: "pcad"}, {lbl: "Índice Cintura/Cadera", k: "icc"},
+                    {lbl: "Edad Corporal", k: "edadc"}, {lbl: "Calorías", k: "calorias"}, {lbl: "Análisis / Conclusión", k: "analisis"},
+                    {lbl: "Próxima Evaluación", k: "fsig"}
+                ];
+
+                tbodyN.innerHTML = rowsConfig.map(row => {
+                    return `<tr><td><b>${row.lbl}</b></td>` + nArr.map((nData, idx) => {
+                        let val = nData[row.k] || '-';
+                        let indicator = '';
+                        if(row.k === 'analisis' && idx > 0) {
+                            let currIMC = parseFloat(nData.imc); let prevIMC = parseFloat(nArr[idx-1].imc);
+                            if(!isNaN(currIMC) && !isNaN(prevIMC)) {
+                                let dCurr = Math.abs(currIMC - 22); let dPrev = Math.abs(prevIMC - 22);
+                                if(dCurr < dPrev) indicator = '<i class="fa-solid fa-arrow-trend-up text-success" title="Mejoró"></i> ';
+                                else if(dCurr > dPrev) indicator = '<i class="fa-solid fa-arrow-trend-down text-danger" title="Desmejoró"></i> ';
+                                else indicator = '<i class="fa-solid fa-minus text-light" title="Sin cambio significativo"></i> ';
+                            }
+                        }
+                        return `<td style="text-align:center; min-width:140px;">${indicator}${val}</td>`;
+                    }).join('') + '</tr>';
+                }).join('');
+            }
+
+            // TABLA GYM
+            let gArr = p.gym || [];
+            gArr.sort((a,b) => b.mes.localeCompare(a.mes));
+            const tbG = document.getElementById('tbody-gym');
+            tbG.innerHTML = '';
+            
+            if(gArr.length === 0) {
+                tbG.innerHTML = '<tr><td colspan="5" style="text-align:center;">No hay asistencias registradas.</td></tr>';
+            } else {
+                gArr.forEach((g, i) => {
+                    let trend = '<i class="fa-solid fa-minus text-light"></i>';
+                    if(i < gArr.length - 1) {
+                        let prev = gArr[i+1].count;
+                        if(g.count > prev) trend = '<i class="fa-solid fa-arrow-trend-up text-success"></i>';
+                        else if(g.count < prev) trend = '<i class="fa-solid fa-arrow-trend-down text-danger"></i>';
+                    }
+                    let obs = g.count < 5 ? `<span class="badge bg-danger">Riesgo (Menor a 5)</span>` : `<span class="badge bg-success">Cumple</span>`;
+                    
+                    tbG.insertAdjacentHTML('beforeend', `<tr>
+                        <td><b>${g.mes}</b></td><td style="text-align:center;">${g.count}</td><td style="text-align:center;">${trend}</td><td>${obs}</td>
+                        <td class="btn-editor"><button class="btn btn-sm btn-danger" onclick="eliminarGym(${i})"><i class="fa-solid fa-trash"></i></button></td>
+                    </tr>`);
+                });
+            }
+
+            aplicarPermisosUI();
+        };
+
+        window.calcNutricion = () => {
+            let p = parseFloat(document.getElementById('fn-peso').value);
+            let t = parseFloat(document.getElementById('fn-talla').value);
+            if(p > 0 && t > 0) {
+                let imc = (p / (t*t)).toFixed(2);
+                document.getElementById('fn-imc').value = imc;
+                let cimc = "Normal";
+                if(imc < 18.5) cimc = "Bajo Peso"; else if(imc >= 25 && imc < 30) cimc = "Sobrepeso"; else if(imc >= 30) cimc = "Obeso";
+                document.getElementById('fn-cimc').value = cimc;
+                
+                let anal = `Paciente con estado nutricional ${cimc}. `;
+                if(cimc !== "Normal") anal += "Se sugiere plan dietético y ajuste de rutina.";
+                else anal += "Mantener régimen de alimentación.";
+                document.getElementById('fn-analisis').value = anal;
+            }
+            let abd = parseFloat(document.getElementById('fn-pabd').value);
+            let cad = parseFloat(document.getElementById('fn-pcad').value);
+            if(abd > 0 && cad > 0) document.getElementById('fn-icc').value = (abd / cad).toFixed(2);
+        };
+
+        window.abrirModalNutricion = () => { document.getElementById('form-nutricion').reset(); abrirModal('modal-nutricion'); };
+        document.getElementById('form-nutricion').addEventListener('submit', (e) => {
+            e.preventDefault(); if(!state.selectedFisicoId) return;
+            const btn = document.getElementById('btn-save-nutricion'); btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; btn.disabled = true;
+
+            const nObj = {
+                fecha: document.getElementById('fn-fecha').value,
+                peso: document.getElementById('fn-peso').value, talla: document.getElementById('fn-talla').value,
+                imc: document.getElementById('fn-imc').value, cimc: document.getElementById('fn-cimc').value,
+                grasa: document.getElementById('fn-grasa').value, cgrasa: document.getElementById('fn-cgrasa').value,
+                gvisc: document.getElementById('fn-gvisc').value, cgvisc: document.getElementById('fn-cgvisc').value,
+                musc: document.getElementById('fn-musc').value, cmusc: document.getElementById('fn-cmusc').value,
+                pabd: document.getElementById('fn-pabd').value, pcad: document.getElementById('fn-pcad').value,
+                icc: document.getElementById('fn-icc').value, edadc: document.getElementById('fn-edadc').value,
+                calorias: document.getElementById('fn-calorias').value, analisis: document.getElementById('fn-analisis').value,
+                fsig: document.getElementById('fn-fsig').value
+            };
+
+            let nArr = state.personal[state.selectedFisicoId].nutricion || [];
+            nArr.push(nObj);
+            nArr.sort((a,b) => a.fecha.localeCompare(b.fecha)); // ASC for matrix transposition
+
+            updateDoc(doc(db, "personal", state.selectedFisicoId), { nutricion: nArr }).then(() => {
+                cerrarModal('modal-nutricion'); btn.innerHTML = 'Guardar Ficha'; btn.disabled = false;
+            }).catch(e => { alert("Error al guardar."); btn.innerHTML = 'Guardar Ficha'; btn.disabled = false; });
+        });
+
+        window.abrirModalGym = () => { document.getElementById('form-gym').reset(); abrirModal('modal-gym'); };
+        document.getElementById('form-gym').addEventListener('submit', (e) => {
+            e.preventDefault(); if(!state.selectedFisicoId) return;
+            const btn = document.getElementById('btn-save-gym'); btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; btn.disabled = true;
+
+            let m = document.getElementById('fg-mes').value; let a = document.getElementById('fg-ano').value;
+            let count = parseInt(document.getElementById('fg-count').value);
+            let mesKey = `${a}-${m}`;
+
+            let gArr = state.personal[state.selectedFisicoId].gym || [];
+            gArr = gArr.filter(g => g.mes !== mesKey);
+            gArr.push({ mes: mesKey, count: count });
+
+            updateDoc(doc(db, "personal", state.selectedFisicoId), { gym: gArr }).then(() => {
+                cerrarModal('modal-gym'); btn.innerHTML = 'Guardar'; btn.disabled = false;
+            }).catch(e => { alert("Error al guardar."); btn.innerHTML = 'Guardar'; btn.disabled = false; });
+        });
+
+        window.eliminarGym = (idx) => {
+            if(!confirm("¿Eliminar registro de asistencia?")) return;
+            let gArr = state.personal[state.selectedFisicoId].gym || [];
+            gArr.sort((a,b) => b.mes.localeCompare(a.mes));
+            gArr.splice(idx, 1);
+            updateDoc(doc(db, "personal", state.selectedFisicoId), { gym: gArr });
+        };
+
+        window.mostrarGraficoGym = (isGlobal) => {
+            let labels = []; let data = []; let labelTitle = "";
+            
+            if(!isGlobal) {
+                if(!state.selectedFisicoId) return;
+                labelTitle = "Asistencia Individual (Meses)";
+                let gArr = [...(state.personal[state.selectedFisicoId].gym || [])];
+                gArr.sort((a,b) => a.mes.localeCompare(b.mes)); 
+                labels = gArr.map(g => g.mes);
+                data = gArr.map(g => g.count);
+            } else {
+                labelTitle = "Promedio Global del Servicio (Activos)";
+                let agg = {}; let actCount = 0;
+                Object.values(state.personal).filter(p=>!p.baja).forEach(p => {
+                    actCount++;
+                    if(p.gym) p.gym.forEach(g => { if(!agg[g.mes]) agg[g.mes] = 0; agg[g.mes] += g.count; });
+                });
+                let keys = Object.keys(agg).sort();
+                labels = keys;
+                data = keys.map(k => actCount > 0 ? (agg[k] / actCount).toFixed(1) : 0);
+            }
+
+            document.getElementById('chart-title').innerText = labelTitle;
+            abrirModal('modal-chart');
+
+            if(gymChartInst) gymChartInst.destroy();
+            const ctx = document.getElementById('gymChart').getContext('2d');
+            gymChartInst = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Asistencias',
+                        data: data,
+                        borderColor: '#0A1B3F',
+                        backgroundColor: 'rgba(10, 27, 63, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true, suggestedMin: 0 } }
+                }
+            });
+        };
+
+        // ================= VISTA: DATOS DE EPPS ================= //
+        window.renderListaEpps = () => {
+            const term = document.getElementById('search-epps').value.toLowerCase();
+            const ul = document.getElementById('ul-epps'); ul.innerHTML = '';
+            const lista = Object.entries(state.personal).map(([id,p])=>({id,...p})).filter(p=>!p.baja && p.apellidos.toLowerCase().includes(term)).sort((a,b)=>a.apellidos.localeCompare(b.apellidos));
+            lista.forEach(p => ul.insertAdjacentHTML('beforeend', `<li class="person-item ${state.selectedEppId===p.id?'active':''}" onclick="cargarDetalleEpps('${p.id}')"><i class="fa-solid fa-hard-hat" style="color:var(--mcp-gold); margin-right:8px;"></i> ${p.apellidos}, ${p.nombres}</li>`));
+        };
+
+        window.cargarDetalleEpps = (id) => {
+            state.selectedEppId = id; renderListaEpps();
+            const p = state.personal[id]; if(!p) return;
+            document.getElementById('msg-no-selection-epp').classList.add('hidden');
+            document.getElementById('panel-detalles-epps').classList.remove('hidden');
+
+            document.getElementById('epp-nombres').innerText = `${p.apellidos}, ${p.nombres}`;
+            document.getElementById('epp-puesto').innerText = p.puesto;
+            document.getElementById('epp-ingreso').innerText = `Ingreso: ${p.fingreso || 'S/I'}`;
+
+            document.getElementById('cargo-epp-container').innerHTML = renderFileHTML(p.cargoEpp, 'cargoEpp', id);
+
+            let personalEpps = p.epps_data || [];
+            Object.keys(state.eppsGlobal).forEach(globalName => {
+                if(!personalEpps.find(e => e.name === globalName)) {
+                    personalEpps.push({ name: globalName, talla: '', cant_real: '', fecha: '' });
+                }
+            });
+
+            const tbody = document.getElementById('tbody-epps-detalle');
+            tbody.innerHTML = '';
+            
+            personalEpps.forEach((epp, idx) => {
+                const res = generarAlerta(epp.fecha, 1); 
+                const globalContrato = state.eppsGlobal[epp.name] || 1;
+                const deficit = (Number(epp.cant_real) || 0) < globalContrato;
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="font-weight:500;">${epp.name}</td>
+                    <td><span class="badge bg-gray">${epp.talla || '-'}</span></td>
+                    <td style="text-align:center;"><b>${globalContrato}</b></td>
+                    <td style="text-align:center;">
+                        ${deficit ? `<i class="fa-solid fa-triangle-exclamation text-danger" title="Cantidad real menor a contrato" style="margin-right:5px;"></i>` : ''}
+                        <b>${epp.cant_real || '0'}</b>
+                    </td>
+                    <td>
+                        <div style="margin-bottom:3px;">${epp.fecha || 'Sin fecha'}</div>
+                        ${epp.fecha ? `<span class="badge ${res.bg}">${res.txt}</span>` : ''}
+                    </td>
+                    <td class="btn-editor">
+                        <button class="btn btn-sm btn-sec" onclick="abrirModalEppEditar(${idx})"><i class="fa-solid fa-pen"></i></button>
+                        <button class="btn btn-sm btn-danger" onclick="eliminarFilaEpp(${idx})"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            aplicarPermisosUI();
+        };
+
+        window.abrirModalEppNuevo = () => {
+            document.getElementById('form-epp').reset();
+            document.getElementById('fe-idx').value = '-1';
+            document.getElementById('fe-ccont').disabled = false;
+            document.getElementById('modal-epp-title').innerText = "Añadir Nuevo Equipo";
+            abrirModal('modal-epp');
+        };
+
+        window.abrirModalEppEditar = (idx) => {
+            if(!state.selectedEppId) return;
+            const epp = state.personal[state.selectedEppId].epps_data[idx];
+            document.getElementById('form-epp').reset();
+            document.getElementById('fe-idx').value = idx;
+            document.getElementById('fe-name').value = epp.name;
+            document.getElementById('fe-talla').value = epp.talla || '';
+            document.getElementById('fe-ccont').value = state.eppsGlobal[epp.name] || 1;
+            document.getElementById('fe-creal').value = epp.cant_real || '';
+            document.getElementById('fe-fecha').value = epp.fecha || '';
+            document.getElementById('modal-epp-title').innerText = "Editar Asignación de Equipo";
+            abrirModal('modal-epp');
+        };
+
+        document.getElementById('form-epp').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if(!state.selectedEppId) return;
+
+            const idx = parseInt(document.getElementById('fe-idx').value);
+            const name = document.getElementById('fe-name').value.trim();
+            const talla = document.getElementById('fe-talla').value.trim();
+            const cant_cont = parseInt(document.getElementById('fe-ccont').value);
+            const cant_real = document.getElementById('fe-creal').value;
+            const fecha = document.getElementById('fe-fecha').value;
+
+            try { await updateDoc(doc(db, "config", "epps_global"), { [name]: cant_cont }); } catch(error) {}
+
+            let pData = state.personal[state.selectedEppId].epps_data || [];
+            if(idx === -1) pData.push({ name, talla, cant_real, fecha }); 
+            else pData[idx] = { name, talla, cant_real, fecha };
+
+            try {
+                await updateDoc(doc(db, "personal", state.selectedEppId), { epps_data: pData });
+                cerrarModal('modal-epp');
+            } catch (error) { alert("Error al actualizar la base de datos."); }
+        });
+
+        window.eliminarFilaEpp = async (idx) => {
+            if(!confirm("¿Eliminar este equipo del registro del oficial?")) return;
+            let pData = state.personal[state.selectedEppId].epps_data || [];
+            pData.splice(idx, 1);
+            try { await updateDoc(doc(db, "personal", state.selectedEppId), { epps_data: pData }); } catch (error) {}
+        };
+
+        window.abrirModalReporteEpps = () => {
+            const tb = document.getElementById('tbody-reporte-epps');
+            tb.innerHTML = '';
+            let agregados = {};
+            Object.values(state.personal).filter(p => !p.baja && p.epps_data).forEach(p => {
+                p.epps_data.forEach(epp => {
+                    let key = epp.name.trim();
+                    if(!agregados[key]) agregados[key] = 0;
+                    agregados[key] += Number(epp.cant_real) || 0;
+                });
+            });
+
+            const keysSorted = Object.keys(agregados).sort();
+            if(keysSorted.length === 0) tb.innerHTML = '<tr><td colspan="2" style="text-align:center;">No hay equipos registrados.</td></tr>';
+            else keysSorted.forEach(key => tb.insertAdjacentHTML('beforeend', `<tr><td>${key}</td><td style="text-align:center; font-weight:bold; color:var(--mcp-blue);">${agregados[key]}</td></tr>`));
+            abrirModal('modal-reporte-epps');
+        };
+
+        // ================= DASHBOARD Y GLOBALES ================= //
+        function renderResumen() {
+            let activos = 0, bajas = 0, criticas = 0;
+            let totalContratoEPP = 0, totalRealEPP = 0;
+            let globalKeys = Object.keys(state.eppsGlobal);
+
+            const tbAlt = document.getElementById('tbody-alertas'); tbAlt.innerHTML = '';
+            
+            Object.values(state.personal).forEach(p => {
+                if(p.baja){ bajas++; return;} 
+                activos++;
+
+                globalKeys.forEach(eppName => {
+                    let cantReq = Number(state.eppsGlobal[eppName]) || 0;
+                    totalContratoEPP += cantReq;
+                    let persEpp = p.epps_data ? p.epps_data.find(e => e.name === eppName) : null;
+                    let cantEnt = persEpp ? (Number(persEpp.cant_real) || 0) : 0;
+                    if(cantEnt > cantReq) cantEnt = cantReq;
+                    totalRealEPP += cantEnt;
+                });
+
+                const procAlt = (arr, data, isP) => {
+                    arr.forEach((c,i)=>{
+                        const name = isP ? (c.id || c) : c;
+                        const vig = isP ? (c.v || 1) : 1;
+                        const dt = data?.[i]; 
+                        const res = generarAlerta(dt, vig);
+                        if(res.isCrit) {
+                            criticas++;
+                            tbAlt.insertAdjacentHTML('beforeend',`<tr><td><b>${p.apellidos}, ${p.nombres}</b><br><span style="font-size:10px;">${p.puesto}</span></td><td>${name}</td><td>${dt || 'S/I'}</td><td>${res.txt.replace(/[^0-9-]/g,'')}</td><td><span class="badge ${res.bg}">${res.txt.split('(')[0]}</span></td></tr>`);
+                        }
+                    });
+                };
+                procAlt(CURSOS_SSO, p.csso, false); procAlt(CURSOS_PERFIL, p.cperf, true);
+            });
+            
+            document.getElementById('dash-activos').innerText = activos; 
+            document.getElementById('dash-bajas').innerText = bajas; 
+            document.getElementById('dash-alertas').innerText = criticas;
+
+            let eppPorcentaje = totalContratoEPP === 0 ? 100 : Math.round((totalRealEPP / totalContratoEPP) * 100);
+            document.getElementById('dash-epps').innerText = eppPorcentaje + '%';
+
+            if(criticas===0) tbAlt.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--success); font-weight:600;">Cumplimiento Operativo 100%. No hay alertas próximas a vencer.</td></tr>';
+        }
+
+        function renderTablasGlobales() {
+            const tbB = document.getElementById('tbody-bajas'); tbB.innerHTML = '';
+            let termBaja = document.getElementById('search-bajas')?.value.toLowerCase() || '';
+            let bajasList = [];
+
+            Object.entries(state.personal).forEach(([id, p]) => {
+                if(p.baja) bajasList.push({id, ...p});
+            });
+
+            bajasList.sort((a,b) => new Date(b.fbaja) - new Date(a.fbaja));
+
+            let idx = 1;
+            bajasList.forEach(p => {
+                let s = `${p.apellidos} ${p.nombres} ${p.dni}`.toLowerCase();
+                if(termBaja && !s.includes(termBaja)) return;
+
+                let badgeClass = p.recomendacion === 'NO RECOMENDADO PARA RECONTRATACION' ? 'bg-danger' : (p.recomendacion === 'RECOMENDADO PARA RECONTRATACION' ? 'bg-success' : 'bg-gray');
+                let badgeTxt = p.recomendacion || 'SIN OBSERVACIONES';
+                
+                tbB.insertAdjacentHTML('beforeend',`<tr>
+                    <td>${idx++}</td>
+                    <td><b>${p.apellidos}, ${p.nombres}</b><br><small class="text-light">DNI: ${p.dni || 'S/I'}</small></td>
+                    <td>${p.empresa_baja || 'S/I'}</td>
+                    <td>${p.fingreso || '-'}</td>
+                    <td style="color:var(--danger); font-weight:600;">${p.fbaja}</td>
+                    <td>${p.mbaja}</td>
+                    <td><span class="badge ${badgeClass}">${badgeTxt}</span></td>
+                    <td class="btn-editor">
+                        <button class="btn btn-sm btn-sec" onclick="abrirModalEditarBaja('${p.id}')"><i class="fa-solid fa-pen"></i></button>
+                        <button class="btn btn-sm btn-danger" onclick="eliminarBaja('${p.id}')"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                </tr>`);
+            });
+
+            aplicarPermisosUI();
+        }
+
+        function renderListaUsuarios() {
+            const tb = document.getElementById('tbody-usuarios'); tb.innerHTML = '';
+            Object.entries(state.usuarios).forEach(([id, u]) => {
+                tb.insertAdjacentHTML('beforeend', `<tr><td>${u.email}</td><td><span class="badge bg-gray">${u.rol}</span></td><td><button class="btn btn-danger btn-sm" onclick="borrarUser('${id}')"><i class="fa-solid fa-trash"></i></button></td></tr>`);
+            });
+        }
+
+    </script>
+</body>
+</html>
