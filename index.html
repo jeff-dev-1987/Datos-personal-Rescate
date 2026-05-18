@@ -172,7 +172,7 @@
             <div style="color: var(--mcp-blue); font-size: 45px; margin-bottom: 10px;"><i class="fa-solid fa-helmet-safety"></i></div>
             <h2>Servicio de Emergencias</h2>
             <p>Gestión Ejecutiva de Personal Minero</p>
-            <div id="login-error" class="admin-hidden editor-hidden" style="color: var(--danger); font-size: 12px; margin-bottom: 15px; font-weight: 600; background: #FEE2E2; padding: 8px; border-radius: 4px;">Credenciales incorrectas o sin acceso.</div>
+            <div id="login-error" class="hidden" style="color: var(--danger); font-size: 12px; margin-bottom: 15px; font-weight: 600; background: #FEE2E2; padding: 8px; border-radius: 4px;">Credenciales incorrectas o sin acceso.</div>
             <form id="form-login">
                 <div style="margin-bottom: 15px; text-align: left;">
                     <label style="font-size: 12px; font-weight: 600; color: var(--text-light);">Correo Electrónico</label>
@@ -389,7 +389,7 @@
                         <p>Seleccione al personal de la lista lateral <br> para gestionar sus Equipos de Protección.</p>
                     </div>
 
-                    <div id="panel-detalles-epps" class="admin-hidden editor-hidden">
+                    <div id="panel-detalles-epps" class="hidden">
                         <div class="detalles-cabecera" style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 20px; border-bottom: 2px solid var(--border); padding-bottom:15px;">
                             <div>
                                 <h2 id="epp-nombres" style="color:var(--mcp-blue); margin-bottom:5px; font-size: 20px;">Cargando...</h2>
@@ -445,7 +445,7 @@
                         <p>Seleccione al personal de la lista lateral <br> para ver su historial médico y físico.</p>
                     </div>
 
-                    <div id="panel-detalles-fisico" class="admin-hidden editor-hidden">
+                    <div id="panel-detalles-fisico" class="hidden">
                         <div class="detalles-cabecera" style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 20px; border-bottom: 2px solid var(--border); padding-bottom:15px;">
                             <div>
                                 <h2 id="fis-nombres" style="color:var(--mcp-blue); margin-bottom:5px; font-size: 20px;">Cargando...</h2>
@@ -469,7 +469,7 @@
                             <div class="section-title">Asistencia a Gimnasio
                                 <div style="display:flex; gap:8px;">
                                     <button class="btn btn-sec btn-sm" onclick="mostrarGraficoGym(false)"><i class="fa-solid fa-chart-line"></i> Gráfica Individual</button>
-                                    <button class="btn btn-sec btn-sm" onclick="mostrarGraficoGym(true)"><i class="fa-solid fa-chart-area"></i> Gráfica Global</button>
+                                    <button class="btn btn-sec btn-sm" onclick="mostrarGraficoGym(true)"><i class="fa-solid fa-chart-area"></i> Gráfica Global Servicio</button>
                                     <button class="btn btn-primary btn-sm btn-editor" onclick="abrirModalGym()"><i class="fa-solid fa-plus"></i> Registrar</button>
                                 </div>
                             </div>
@@ -491,7 +491,7 @@
                     <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
                         <input type="text" id="search-bajas" class="form-control" placeholder="Buscar DNI, Apellidos..." style="width:200px;" onkeyup="renderTablasGlobales()">
                         <button class="btn btn-sec btn-sm admin-only admin-hidden" onclick="descargarPlantillaBajas()"><i class="fa-solid fa-file-arrow-down"></i> Plantilla Excel</button>
-                        <label class="btn btn-primary btn-sm admin-only admin-hidden" style="margin:0; cursor:pointer; display:inline-flex !important;"><i class="fa-solid fa-file-arrow-up"></i> Carga Masiva<input type="file" hidden accept=".xlsx, .xls" onchange="cargarMasivaBajas(this)"></label>
+                        <label class="btn btn-primary btn-sm admin-only admin-hidden" style="margin:0; cursor:pointer;"><i class="fa-solid fa-file-arrow-up"></i> Carga Masiva<input type="file" hidden accept=".xlsx, .xls" onchange="cargarMasivaBajas(this)"></label>
                         <button class="btn btn-sec btn-sm" onclick="exportarExcel('tabla-bajas', 'Historial_Bajas_Chinalco')"><i class="fa-solid fa-download"></i> Exportar Vista</button>
                     </div>
                 </div>
@@ -879,7 +879,7 @@
             
             if(viewId === 'view-epps') renderListaEpps();
             if(viewId === 'view-fisico') renderListaFisico();
-            if(viewId === 'view-bajas') renderTablasGlobales(); // Refrescar la vista por si hay filtros aplicados
+            if(viewId === 'view-bajas') renderTablasGlobales();
         };
 
         window.toggleSidebar = () => {
@@ -915,6 +915,7 @@
             try { 
                 await signInWithEmailAndPassword(auth, email, pass); 
             } catch (error) { 
+                // Auto-crear Admin si no existe (Primera corrida)
                 if(email === 'supervision.rescate@gmail.com' && pass === 'Supervisionrescate11!') {
                     try { await createUserWithEmailAndPassword(auth, email, pass); } 
                     catch(e) { errorDiv.classList.remove('hidden'); }
@@ -1290,7 +1291,7 @@
                 const pers = state.personal[state.selectedFisicoId];
                 let gymCount = 0;
                 if (pers && pers.gym && pers.gym.length > 0) {
-                    gymCount = pers.gym[0].count; // Toma el último mes registrado
+                    gymCount = pers.gym[0].count; 
                 }
 
                 let anal = `Evaluación Integral: `;
@@ -1363,7 +1364,7 @@
         };
 
         window.mostrarGraficoGym = (isGlobal) => {
-            abrirModal('modal-chart'); // Abrir Modal Primero para que ChartJS tome las dimensiones correctas
+            abrirModal('modal-chart');
 
             let labels = []; let data = []; let labelTitle = "";
             let tableContainer = document.getElementById('chart-table-container');
@@ -1654,7 +1655,7 @@
         }
 
         // ================= VISTA BAJAS GLOBALES ================= //
-        // NOTA: Expuesta globalmente para que el HTML la llame en el onkeyup
+        // Expuesta globalmente para que el HTML la llame en el onkeyup instantáneamente
         window.renderTablasGlobales = () => {
             const tbB = document.getElementById('tbody-bajas'); tbB.innerHTML = '';
             let termBaja = document.getElementById('search-bajas')?.value.toLowerCase() || '';
@@ -1720,7 +1721,7 @@
             abrirModal('modal-personal');
         };
 
-        // GUARDADO CON CONTROL DE ERRORES MEJORADO
+        // GUARDADO DE PERSONAL REFORZADO PARA EVITAR CONGELAMIENTO
         document.getElementById('form-personal').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btn-save-personal');
@@ -1940,7 +1941,7 @@
             } 
         };
 
-        // ================= EXPORTACIÓN PDF Y EXCEL ================= //
+        // ================= EXPORTACIÓN PDF CV EJECUTIVO ================= //
         window.exportarExcel = (tId, fname) => { XLSX.writeFile(XLSX.utils.table_to_book(document.getElementById(tId),{sheet:"Reporte"}), `${fname}.xlsx`); };
         
         window.exportarFichaCV = () => {
