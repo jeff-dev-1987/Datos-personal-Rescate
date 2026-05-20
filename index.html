@@ -137,7 +137,7 @@
         }
 
         @media (max-width: 768px) {
-            #sidebar { position: fixed; height: 100vh; left: -280px; box-shadow: 4px 0 15px rgba(0,0,0,0.3); }
+            #sidebar { position: fixed; height: 100vh; left: -280px; box-shadow: 4px 0 15px rgba(0,0,0,0.3); z-index:999; }
             #sidebar.mobile-open { left: 0; width: 280px; }
             #sidebar.collapsed { width: var(--sidebar-width); } 
             
@@ -155,7 +155,7 @@
             .layout-left { width: 100%; height: 300px; border-right: none; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 20px; }
             .layout-right { padding: 0; overflow: visible; }
             
-            .modal { padding: 15px; }
+            .modal { padding: 15px; z-index:9999; }
             .modal-content { padding: 20px; margin: auto; }
             
             .detalles-cabecera { flex-direction: column; gap: 15px; align-items: stretch !important; }
@@ -181,7 +181,7 @@
                     <label style="font-size: 12px; font-weight: 600; color: var(--text-light);">Contraseña</label>
                     <div class="input-group">
                         <input type="password" id="login-password" class="form-control" required placeholder="••••••••">
-                        <i class="fa-solid fa-eye toggle-pwd" onclick="togglePasswordVisibility('login-password', this)"></i>
+                        <i class="fa-solid fa-eye toggle-pwd" onclick="window.togglePasswordVisibility('login-password', this)"></i>
                     </div>
                 </div>
                 <button type="submit" class="btn btn-primary" style="width: 100%;">Ingresar al Sistema</button>
@@ -191,25 +191,25 @@
 
     <nav id="sidebar">
         <div class="sidebar-header">
-            <button class="btn btn-sm" style="background:none; padding:0; color:var(--mcp-gold);" onclick="toggleSidebar()"><i class="fa-solid fa-bars" style="font-size:20px;"></i></button>
+            <button class="btn btn-sm" style="background:none; padding:0; color:var(--mcp-gold);" onclick="window.toggleSidebar()"><i class="fa-solid fa-bars" style="font-size:20px;"></i></button>
         </div>
         <ul class="menu-list">
-            <li class="menu-item active" onclick="switchView('view-resumen', this)"><i class="fa-solid fa-chart-pie"></i><span>RESUMEN GENERAL</span></li>
-            <li class="menu-item" onclick="switchView('view-personal', this)"><i class="fa-solid fa-users"></i><span>DATOS DE PERSONAL</span></li>
-            <li class="menu-item" onclick="switchView('view-epps', this)"><i class="fa-solid fa-hard-hat"></i><span>DATOS DE EPPS</span></li>
-            <li class="menu-item" onclick="switchView('view-fisico', this)"><i class="fa-solid fa-heart-pulse"></i><span>ESTADO FÍSICO</span></li>
-            <li class="menu-item" onclick="switchView('view-bajas', this)"><i class="fa-solid fa-user-minus"></i><span>INFORMACIÓN BAJAS</span></li>
-            <li class="menu-item admin-only admin-hidden" onclick="switchView('view-admin', this)"><i class="fa-solid fa-users-gear"></i><span>ADMIN. USUARIOS</span></li>
+            <li class="menu-item active" onclick="window.switchView('view-resumen', this)"><i class="fa-solid fa-chart-pie"></i><span>RESUMEN GENERAL</span></li>
+            <li class="menu-item" onclick="window.switchView('view-personal', this)"><i class="fa-solid fa-users"></i><span>DATOS DE PERSONAL</span></li>
+            <li class="menu-item" onclick="window.switchView('view-epps', this)"><i class="fa-solid fa-hard-hat"></i><span>DATOS DE EPPS</span></li>
+            <li class="menu-item" onclick="window.switchView('view-fisico', this)"><i class="fa-solid fa-heart-pulse"></i><span>ESTADO FÍSICO</span></li>
+            <li class="menu-item" onclick="window.switchView('view-bajas', this)"><i class="fa-solid fa-user-minus"></i><span>INFORMACIÓN BAJAS</span></li>
+            <li class="menu-item admin-only admin-hidden" onclick="window.switchView('view-admin', this)"><i class="fa-solid fa-users-gear"></i><span>ADMIN. USUARIOS</span></li>
         </ul>
         <div class="sidebar-footer">
-            <div class="menu-item" onclick="cerrarSesion()" style="color: #FCA5A5;"><i class="fa-solid fa-right-from-bracket"></i><span>Cerrar Sesión</span></div>
+            <div class="menu-item" onclick="window.cerrarSesion()" style="color: #FCA5A5;"><i class="fa-solid fa-right-from-bracket"></i><span>Cerrar Sesión</span></div>
         </div>
     </nav>
 
     <div id="main-content">
         <header class="topbar">
             <div class="topbar-left">
-                <button class="mobile-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+                <button class="mobile-toggle" onclick="window.toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
                 <div style="display:flex; flex-direction:column; justify-content:center;">
                     <span style="font-weight:800; font-size:16px; color:var(--mcp-blue); line-height: 1.2;">DATOS PERSONALES</span>
                     <span style="font-weight:600; font-size:10px; color:var(--text-light); letter-spacing: 0.5px;">SERVICIOS DE EMERGENCIA MCP</span>
@@ -243,7 +243,7 @@
             <div class="card">
                 <div class="section-title">
                     Consolidado de Alertas Críticas (Cursos e Inducciones)
-                    <button class="btn btn-sec btn-sm" onclick="exportarExcel('tabla-alertas', 'Alertas_Emergencias')"><i class="fa-solid fa-file-excel"></i> Exportar a Excel</button>
+                    <button class="btn btn-sec btn-sm" onclick="window.exportarExcel('tabla-alertas', 'Alertas_Emergencias')"><i class="fa-solid fa-file-excel"></i> Exportar a Excel</button>
                 </div>
                 <div class="table-container">
                     <table id="tabla-alertas">
@@ -258,9 +258,9 @@
             <div class="layout-personal">
                 <div class="layout-left">
                     <div class="layout-actions">
-                        <input type="text" id="search-personal" class="form-control" placeholder="Buscar por Apellido..." onkeyup="renderListaPersonal()">
+                        <input type="text" id="search-personal" class="form-control" placeholder="Buscar por Apellido..." onkeyup="window.renderListaPersonal()">
                         <div style="display:flex; gap:8px;">
-                            <button class="btn btn-primary btn-sm btn-editor" style="flex:1;" onclick="abrirModalPersonal()"><i class="fa-solid fa-user-plus"></i> Nuevo</button>
+                            <button class="btn btn-primary btn-sm btn-editor" style="flex:1;" onclick="window.abrirModalPersonal()"><i class="fa-solid fa-user-plus"></i> Nuevo</button>
                         </div>
                     </div>
                     <ul class="person-list" id="ul-personal"></ul>
@@ -279,10 +279,10 @@
                                 <span id="det-puesto" class="badge bg-gray">Cargando...</span>
                             </div>
                             <div class="detalles-botones">
-                                <button class="btn btn-sec btn-sm" id="btn-filter" onclick="toggleFilterExpired()"><i class="fa-solid fa-filter"></i> Filtrar Faltantes</button>
-                                <button class="btn btn-sec btn-sm" onclick="exportarFichaCV()"><i class="fa-solid fa-file-pdf"></i> Ficha PDF</button>
-                                <button class="btn btn-primary btn-sm btn-editor" onclick="editarPersonalActual()"><i class="fa-solid fa-pen"></i> Editar</button>
-                                <button class="btn btn-danger btn-sm btn-editor" onclick="abrirModalBaja()"><i class="fa-solid fa-user-xmark"></i> Baja</button>
+                                <button class="btn btn-sec btn-sm" id="btn-filter" onclick="window.toggleFilterExpired()"><i class="fa-solid fa-filter"></i> Filtrar Faltantes</button>
+                                <button class="btn btn-sec btn-sm" onclick="window.exportarFichaCV()"><i class="fa-solid fa-file-pdf"></i> Ficha PDF</button>
+                                <button class="btn btn-primary btn-sm btn-editor" onclick="window.editarPersonalActual()"><i class="fa-solid fa-pen"></i> Editar</button>
+                                <button class="btn btn-danger btn-sm btn-editor" onclick="window.abrirModalBaja()"><i class="fa-solid fa-user-xmark"></i> Baja</button>
                             </div>
                         </div>
 
@@ -354,7 +354,7 @@
 
                         <div class="card" id="card-amonestaciones">
                             <div class="section-title">Historial Disciplinario
-                                <button class="btn btn-danger btn-sm btn-editor" onclick="abrirModalSancion()"><i class="fa-solid fa-plus"></i> Amonestar</button>
+                                <button class="btn btn-danger btn-sm btn-editor" onclick="window.abrirModalSancion()"><i class="fa-solid fa-plus"></i> Amonestar</button>
                             </div>
                             <div class="table-container">
                                 <table>
@@ -373,9 +373,9 @@
             <div class="layout-personal">
                 <div class="layout-left">
                     <div class="layout-actions">
-                        <input type="text" id="search-epps" class="form-control" placeholder="Buscar personal..." onkeyup="renderListaEpps()">
+                        <input type="text" id="search-epps" class="form-control" placeholder="Buscar personal..." onkeyup="window.renderListaEpps()">
                         <div style="display:flex; gap:8px;">
-                            <button class="btn btn-sec btn-sm" style="flex:1;" onclick="abrirModalReporteEpps()"><i class="fa-solid fa-chart-bar"></i> Totales Globales</button>
+                            <button class="btn btn-sec btn-sm" style="flex:1;" onclick="window.abrirModalReporteEpps()"><i class="fa-solid fa-chart-bar"></i> Totales Globales</button>
                         </div>
                     </div>
                     <ul class="person-list" id="ul-epps"></ul>
@@ -412,7 +412,7 @@
 
                         <div class="card">
                             <div class="section-title">Detalle EPP Básico Asignado
-                                <button class="btn btn-primary btn-sm btn-editor" onclick="abrirModalEppNuevo()"><i class="fa-solid fa-plus"></i> Agregar Equipo Básico</button>
+                                <button class="btn btn-primary btn-sm btn-editor" onclick="window.abrirModalEppNuevo()"><i class="fa-solid fa-plus"></i> Agregar Equipo Básico</button>
                             </div>
                             <div class="table-container">
                                 <table style="min-width: 800px;">
@@ -433,7 +433,7 @@
 
                         <div class="card">
                             <div class="section-title">Detalle EPP Estructural Asignado
-                                <button class="btn btn-primary btn-sm btn-editor" onclick="abrirModalEppEstNuevo()"><i class="fa-solid fa-plus"></i> Agregar Equipo Estructural</button>
+                                <button class="btn btn-primary btn-sm btn-editor" onclick="window.abrirModalEppEstNuevo()"><i class="fa-solid fa-plus"></i> Agregar Equipo Estructural</button>
                             </div>
                             <div class="table-container">
                                 <table style="min-width: 1000px;">
@@ -464,7 +464,7 @@
             <div class="layout-personal">
                 <div class="layout-left">
                     <div class="layout-actions">
-                        <input type="text" id="search-fisico" class="form-control" placeholder="Buscar personal..." onkeyup="renderListaFisico()">
+                        <input type="text" id="search-fisico" class="form-control" placeholder="Buscar personal..." onkeyup="window.renderListaFisico()">
                     </div>
                     <ul class="person-list" id="ul-fisico"></ul>
                 </div>
@@ -485,7 +485,7 @@
 
                         <div class="card">
                             <div class="section-title">Estado Nutricional Histórico
-                                <button class="btn btn-primary btn-sm btn-editor" onclick="abrirModalNutricion()"><i class="fa-solid fa-plus"></i> Nueva Evaluación</button>
+                                <button class="btn btn-primary btn-sm btn-editor" onclick="window.abrirModalNutricion()"><i class="fa-solid fa-plus"></i> Nueva Evaluación</button>
                             </div>
                             <div class="table-container">
                                 <table class="table-transposed" id="tabla-nutricion">
@@ -498,9 +498,9 @@
                         <div class="card">
                             <div class="section-title">Asistencia a Gimnasio
                                 <div style="display:flex; gap:8px;">
-                                    <button class="btn btn-sec btn-sm" onclick="mostrarGraficoGym(false)"><i class="fa-solid fa-chart-line"></i> Gráfica Individual</button>
-                                    <button class="btn btn-sec btn-sm" onclick="mostrarGraficoGym(true)"><i class="fa-solid fa-chart-area"></i> Gráfica Global</button>
-                                    <button class="btn btn-primary btn-sm btn-editor" onclick="abrirModalGym()"><i class="fa-solid fa-plus"></i> Registrar</button>
+                                    <button class="btn btn-sec btn-sm" onclick="window.mostrarGraficoGym(false)"><i class="fa-solid fa-chart-line"></i> Gráfica Individual</button>
+                                    <button class="btn btn-sec btn-sm" onclick="window.mostrarGraficoGym(true)"><i class="fa-solid fa-chart-area"></i> Gráfica Global</button>
+                                    <button class="btn btn-primary btn-sm btn-editor" onclick="window.abrirModalGym()"><i class="fa-solid fa-plus"></i> Registrar</button>
                                 </div>
                             </div>
                             <div class="table-container">
@@ -519,10 +519,10 @@
             <div class="card">
                 <div class="section-title">Histórico de Desvinculaciones (Bajas)
                     <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
-                        <input type="text" id="search-bajas" class="form-control" placeholder="Buscar DNI, Apellidos..." style="width:200px;" onkeyup="renderTablasGlobales()">
-                        <button class="btn btn-sec btn-sm admin-only" onclick="descargarPlantillaBajas()"><i class="fa-solid fa-file-arrow-down"></i> Plantilla Excel</button>
-                        <label class="btn btn-primary btn-sm admin-only" style="margin:0; cursor:pointer;"><i class="fa-solid fa-file-arrow-up"></i> Carga Masiva<input type="file" hidden accept=".xlsx, .xls" onchange="cargarMasivaBajas(this)"></label>
-                        <button class="btn btn-sec btn-sm" onclick="exportarExcel('tabla-bajas', 'Historial_Bajas_Chinalco')"><i class="fa-solid fa-download"></i> Exportar Vista</button>
+                        <input type="text" id="search-bajas" class="form-control" placeholder="Buscar DNI, Apellidos..." style="width:200px;" onkeyup="window.renderTablasGlobales()">
+                        <button class="btn btn-sec btn-sm admin-only admin-hidden" onclick="window.descargarPlantillaBajas()"><i class="fa-solid fa-file-arrow-down"></i> Plantilla Excel</button>
+                        <label class="btn btn-primary btn-sm admin-only admin-hidden" style="margin:0; cursor:pointer;"><i class="fa-solid fa-file-arrow-up"></i> Carga Masiva<input type="file" hidden accept=".xlsx, .xls" onchange="window.cargarMasivaBajas(this)"></label>
+                        <button class="btn btn-sec btn-sm" onclick="window.exportarExcel('tabla-bajas', 'Historial_Bajas_Chinalco')"><i class="fa-solid fa-download"></i> Exportar Vista</button>
                     </div>
                 </div>
                 <div class="table-container">
@@ -537,7 +537,7 @@
         <div id="view-admin" class="view">
             <div class="card">
                 <div class="section-title">Control de Roles y Accesos
-                    <button class="btn btn-primary btn-sm" onclick="abrirModalUsuario()"><i class="fa-solid fa-user-plus"></i> Crear Cuenta</button>
+                    <button class="btn btn-primary btn-sm" onclick="window.abrirModalUsuario()"><i class="fa-solid fa-user-plus"></i> Crear Cuenta</button>
                 </div>
                 <div class="table-container">
                     <table>
@@ -561,7 +561,7 @@
                     <div class="field"><label>Nombres *</label><input type="text" id="f-nombres" class="form-control" required></div>
                     <div class="field"><label>Puesto *</label><input type="text" id="f-puesto" class="form-control" required></div>
                     <div class="field"><label>DNI *</label><input type="text" id="f-dni" class="form-control" required maxlength="8"></div>
-                    <div class="field"><label>F. Nacimiento</label><input type="date" id="f-fnac" class="form-control" onchange="calcEdadForm()"></div>
+                    <div class="field"><label>F. Nacimiento</label><input type="date" id="f-fnac" class="form-control" onchange="window.calcEdadForm()"></div>
                     <div class="field"><label>Edad Automática</label><input type="number" id="f-edad" class="form-control" readonly></div>
                 </div>
                 <div class="grid-4" style="margin-top:10px;">
@@ -613,7 +613,7 @@
                 <div class="grid-4" id="form-inducciones"></div>
 
                 <div style="margin-top:30px; text-align:right; border-top:1px solid var(--border); padding-top:15px; display:flex; justify-content:flex-end; gap:10px;">
-                    <button type="button" class="btn btn-sec" onclick="cerrarModal('modal-personal')">Cancelar</button>
+                    <button type="button" class="btn btn-sec" onclick="window.cerrarModal('modal-personal')">Cancelar</button>
                     <button type="submit" id="btn-save-personal" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Guardar Expediente</button>
                 </div>
             </form>
@@ -638,7 +638,7 @@
                     <div class="field"><label>Cant. Real Asignada</label><input type="number" id="fe-creal" class="form-control" required></div>
                 </div>
                 <div style="margin-top:20px; text-align:right; display:flex; justify-content:flex-end; gap:10px;">
-                    <button type="button" class="btn btn-sec btn-sm" onclick="cerrarModal('modal-epp')">Cancelar</button>
+                    <button type="button" class="btn btn-sec btn-sm" onclick="window.cerrarModal('modal-epp')">Cancelar</button>
                     <button type="submit" class="btn btn-primary btn-sm">Guardar EPP Básico</button>
                 </div>
             </form>
@@ -668,7 +668,7 @@
                     <div class="field"><label>Cant. Real Asignada</label><input type="number" id="fe-est-creal" class="form-control" required></div>
                 </div>
                 <div style="margin-top:20px; text-align:right; display:flex; justify-content:flex-end; gap:10px;">
-                    <button type="button" class="btn btn-sec btn-sm" onclick="cerrarModal('modal-epp-est')">Cancelar</button>
+                    <button type="button" class="btn btn-sec btn-sm" onclick="window.cerrarModal('modal-epp-est')">Cancelar</button>
                     <button type="submit" class="btn btn-primary btn-sm">Guardar EPP Estructural</button>
                 </div>
             </form>
@@ -681,36 +681,36 @@
             <form id="form-nutricion">
                 <div class="field"><label>Fecha de Evaluación</label><input type="date" id="fn-fecha" class="form-control" required></div>
                 <div class="grid-2">
-                    <div class="field"><label>Talla (metros)</label><input type="number" step="0.01" id="fn-talla" class="form-control" oninput="calcNutricion()" required></div>
-                    <div class="field"><label>Peso (kg)</label><input type="number" step="0.1" id="fn-peso" class="form-control" oninput="calcNutricion()" required></div>
+                    <div class="field"><label>Talla (metros)</label><input type="number" step="0.01" id="fn-talla" class="form-control" oninput="window.calcNutricion()" required></div>
+                    <div class="field"><label>Peso (kg)</label><input type="number" step="0.1" id="fn-peso" class="form-control" oninput="window.calcNutricion()" required></div>
                     <div class="field"><label>IMC (Auto)</label><input type="text" id="fn-imc" class="form-control" readonly></div>
                     <div class="field"><label>Clas. IMC</label><input type="text" id="fn-cimc" class="form-control" readonly></div>
                 </div>
                 <div class="grid-2" style="margin-top:10px;">
-                    <div class="field"><label>% Grasa Corporal</label><input type="number" step="0.1" id="fn-grasa" class="form-control" oninput="calcNutricion()"></div>
+                    <div class="field"><label>% Grasa Corporal</label><input type="number" step="0.1" id="fn-grasa" class="form-control" oninput="window.calcNutricion()"></div>
                     <div class="field"><label>Clas. Grasa Corp.</label><input type="text" id="fn-cgrasa" class="form-control" readonly></div>
-                    <div class="field"><label>Puntaje Grasa Visceral</label><input type="number" step="1" id="fn-gvisc" class="form-control" oninput="calcNutricion()"></div>
+                    <div class="field"><label>Puntaje Grasa Visceral</label><input type="number" step="1" id="fn-gvisc" class="form-control" oninput="window.calcNutricion()"></div>
                     <div class="field"><label>Clas. Grasa Visc.</label><input type="text" id="fn-cgvisc" class="form-control" readonly></div>
-                    <div class="field"><label>% Masa Muscular</label><input type="number" step="0.1" id="fn-musc" class="form-control" oninput="calcNutricion()"></div>
+                    <div class="field"><label>% Masa Muscular</label><input type="number" step="0.1" id="fn-musc" class="form-control" oninput="window.calcNutricion()"></div>
                     <div class="field"><label>Clas. Masa Musc.</label><input type="text" id="fn-cmusc" class="form-control" readonly></div>
                 </div>
                 <div class="grid-3" style="margin-top:10px;">
-                    <div class="field"><label>Perímetro Abd. (cm)</label><input type="number" step="0.1" id="fn-pabd" class="form-control" oninput="calcNutricion()"></div>
-                    <div class="field"><label>Perím. Cadera (cm)</label><input type="number" step="0.1" id="fn-pcad" class="form-control" oninput="calcNutricion()"></div>
+                    <div class="field"><label>Perímetro Abd. (cm)</label><input type="number" step="0.1" id="fn-pabd" class="form-control" oninput="window.calcNutricion()"></div>
+                    <div class="field"><label>Perím. Cadera (cm)</label><input type="number" step="0.1" id="fn-pcad" class="form-control" oninput="window.calcNutricion()"></div>
                     <div class="field"><label>ICC (Auto)</label><input type="text" id="fn-icc" class="form-control" readonly></div>
                 </div>
                 <div class="grid-2" style="margin-top:10px;">
-                    <div class="field"><label>Edad Corporal</label><input type="number" id="fn-edadc" class="form-control" oninput="calcNutricion()"></div>
-                    <div class="field"><label>Cant. Calorías</label><input type="number" id="fn-calorias" class="form-control" oninput="calcNutricion()"></div>
+                    <div class="field"><label>Edad Corporal</label><input type="number" id="fn-edadc" class="form-control" oninput="window.calcNutricion()"></div>
+                    <div class="field"><label>Cant. Calorías</label><input type="number" id="fn-calorias" class="form-control" oninput="window.calcNutricion()"></div>
                 </div>
                 <div class="field" style="margin-top:10px;">
                     <label>Análisis de Evaluación (Auto-sugerido)</label>
-                    <textarea id="fn-analisis" class="form-control" rows="3"></textarea>
+                    <textarea id="fn-analisis" class="form-control" rows="4"></textarea>
                 </div>
                 <div class="field"><label>Siguiente Evaluación</label><input type="date" id="fn-fsig" class="form-control"></div>
                 
                 <div style="margin-top:20px; text-align:right; display:flex; justify-content:flex-end; gap:10px;">
-                    <button type="button" class="btn btn-sec btn-sm" onclick="cerrarModal('modal-nutricion')">Cancelar</button>
+                    <button type="button" class="btn btn-sec btn-sm" onclick="window.cerrarModal('modal-nutricion')">Cancelar</button>
                     <button type="submit" id="btn-save-nutricion" class="btn btn-primary btn-sm">Guardar Ficha</button>
                 </div>
             </form>
@@ -735,7 +735,7 @@
                 </div>
                 <div class="field" style="margin-top:10px;"><label>Total de Asistencias (Mes)</label><input type="number" id="fg-count" class="form-control" required></div>
                 <div style="margin-top:20px; text-align:right; display:flex; justify-content:flex-end; gap:10px;">
-                    <button type="button" class="btn btn-sec btn-sm" onclick="cerrarModal('modal-gym')">Cancelar</button>
+                    <button type="button" class="btn btn-sec btn-sm" onclick="window.cerrarModal('modal-gym')">Cancelar</button>
                     <button type="submit" id="btn-save-gym" class="btn btn-primary btn-sm">Guardar</button>
                 </div>
             </form>
@@ -757,7 +757,7 @@
                 </div>
             </div>
 
-            <div style="margin-top:20px; text-align:right;"><button type="button" class="btn btn-sec btn-sm" onclick="cerrarModal('modal-chart')">Cerrar</button></div>
+            <div style="margin-top:20px; text-align:right;"><button type="button" class="btn btn-sec btn-sm" onclick="window.cerrarModal('modal-chart')">Cerrar</button></div>
         </div>
     </div>
 
@@ -778,7 +778,7 @@
                     </select>
                 </div>
                 <div style="margin-top:20px; text-align:right; display:flex; justify-content:flex-end; gap:10px;">
-                    <button type="button" class="btn btn-sec btn-sm" onclick="cerrarModal('modal-baja')">Cancelar</button>
+                    <button type="button" class="btn btn-sec btn-sm" onclick="window.cerrarModal('modal-baja')">Cancelar</button>
                     <button type="submit" class="btn btn-danger btn-sm">Procesar Baja</button>
                 </div>
             </form>
@@ -808,7 +808,7 @@
                     </select>
                 </div>
                 <div style="margin-top:20px; text-align:right; display:flex; justify-content:flex-end; gap:10px;">
-                    <button type="button" class="btn btn-sec btn-sm" onclick="cerrarModal('modal-editar-baja')">Cancelar</button>
+                    <button type="button" class="btn btn-sec btn-sm" onclick="window.cerrarModal('modal-editar-baja')">Cancelar</button>
                     <button type="submit" class="btn btn-primary btn-sm">Guardar Cambios</button>
                 </div>
             </form>
@@ -824,7 +824,7 @@
                     <label>Contraseña Asignada</label>
                     <div class="input-group">
                         <input type="password" id="u-pwd" class="form-control" placeholder="Mínimo 6 caracteres" required>
-                        <i class="fa-solid fa-eye toggle-pwd" onclick="togglePasswordVisibility('u-pwd', this)"></i>
+                        <i class="fa-solid fa-eye toggle-pwd" onclick="window.togglePasswordVisibility('u-pwd', this)"></i>
                     </div>
                 </div>
                 <div class="field">
@@ -836,7 +836,7 @@
                     </select>
                 </div>
                 <div style="margin-top:20px; text-align:right; display:flex; justify-content:flex-end; gap:10px;">
-                    <button type="button" class="btn btn-sec btn-sm" onclick="cerrarModal('modal-user')">Cancelar</button>
+                    <button type="button" class="btn btn-sec btn-sm" onclick="window.cerrarModal('modal-user')">Cancelar</button>
                     <button type="submit" id="btn-save-user" class="btn btn-primary btn-sm">Guardar Rol</button>
                 </div>
             </form>
@@ -850,7 +850,7 @@
                 <div class="field"><label>Fecha de la Falta</label><input type="date" id="s-fecha" class="form-control" required></div>
                 <div class="field"><label>Descripción del Suceso</label><textarea id="s-motivo" class="form-control" rows="4" required></textarea></div>
                 <div style="margin-top:20px; text-align:right; display:flex; justify-content:flex-end; gap:10px;">
-                    <button type="button" class="btn btn-sec btn-sm" onclick="cerrarModal('modal-sancion')">Cancelar</button>
+                    <button type="button" class="btn btn-sec btn-sm" onclick="window.cerrarModal('modal-sancion')">Cancelar</button>
                     <button type="submit" id="btn-save-sancion" class="btn btn-danger btn-sm">Aplicar Sanción</button>
                 </div>
             </form>
@@ -860,7 +860,7 @@
     <div id="modal-reporte-epps" class="modal">
         <div class="modal-content" style="max-width: 600px;">
             <div class="section-title">Resumen de EPPs en el Servicio
-                <button class="btn btn-sec btn-sm" onclick="exportarExcel('tabla-reporte-epps', 'Reporte_Total_EPPs')"><i class="fa-solid fa-file-excel"></i> Exportar</button>
+                <button class="btn btn-sec btn-sm" onclick="window.exportarExcel('tabla-reporte-epps', 'Reporte_Total_EPPs')"><i class="fa-solid fa-file-excel"></i> Exportar</button>
             </div>
             <p style="font-size:12px; color:var(--text-light); margin-bottom:15px;">Sumatoria de "Cantidades Reales" asignadas a todo el personal activo.</p>
             <div class="table-container">
@@ -870,7 +870,7 @@
                 </table>
             </div>
             <div style="margin-top:20px; text-align:right;">
-                <button type="button" class="btn btn-sec btn-sm" onclick="cerrarModal('modal-reporte-epps')">Cerrar</button>
+                <button type="button" class="btn btn-sec btn-sm" onclick="window.cerrarModal('modal-reporte-epps')">Cerrar</button>
             </div>
         </div>
     </div>
@@ -880,6 +880,11 @@
         import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection, updateDoc, deleteField } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
         import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
+
+        // Registrar ChartJS DataLabels de manera extremadamente segura
+        if(window.Chart && window.ChartDataLabels) {
+            window.Chart.register(window.ChartDataLabels);
+        }
 
         const firebaseConfig = {
             apiKey: "AIzaSyCDQGSMLG38mNAHF1e_2oVv_8vKlCoJTZU",
@@ -929,14 +934,18 @@
         let state = { user: null, rol: 'LECTOR', personal: {}, usuarios: {}, eppsGlobal: {}, eppsEstGlobal: {}, selectedId: null, selectedEppId: null, selectedFisicoId: null, filterActive: false };
         let gymChartInst = null;
 
-        // TOGGLE PASSWORD
+        // INICIALIZACIÓN SUPER-SEGURA DE EVENTOS Y FUNCIONES
+        const addSafeListener = (id, event, callback) => {
+            const el = document.getElementById(id);
+            if (el) el.addEventListener(event, callback);
+        };
+
         window.togglePasswordVisibility = (inputId, icon) => {
             const input = document.getElementById(inputId);
             if (input.type === "password") { input.type = "text"; icon.classList.replace("fa-eye", "fa-eye-slash"); } 
             else { input.type = "password"; icon.classList.replace("fa-eye-slash", "fa-eye"); }
         };
 
-        // UI NAVEGACIÓN
         window.switchView = (viewId, menuItem) => {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
@@ -945,9 +954,10 @@
             
             if(window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('mobile-open');
             
-            if(viewId === 'view-epps') renderListaEpps();
-            if(viewId === 'view-fisico') renderListaFisico();
-            if(viewId === 'view-bajas') renderTablasGlobales();
+            if(viewId === 'view-personal') window.renderListaPersonal();
+            if(viewId === 'view-epps') window.renderListaEpps();
+            if(viewId === 'view-fisico') window.renderListaFisico();
+            if(viewId === 'view-bajas') window.renderTablasGlobales();
         };
 
         window.toggleSidebar = () => {
@@ -956,8 +966,8 @@
             else { sb.classList.toggle('collapsed'); sb.classList.remove('mobile-open'); }
         };
 
-        window.abrirModal = id => document.getElementById(id).style.display = 'flex';
-        window.cerrarModal = id => document.getElementById(id).style.display = 'none';
+        window.abrirModal = id => { const el = document.getElementById(id); if(el) el.style.display = 'flex'; };
+        window.cerrarModal = id => { const el = document.getElementById(id); if(el) el.style.display = 'none'; };
 
         window.toggleFilterExpired = () => {
             state.filterActive = !state.filterActive;
@@ -972,8 +982,7 @@
             if(state.selectedId) window.cargarDetallePersonal(state.selectedId);
         };
 
-        // ================= SISTEMA DE LOGIN SEGURO ================= //
-        document.getElementById('form-login').addEventListener('submit', async (e) => {
+        addSafeListener('form-login', 'submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('login-email').value.trim();
             const pass = document.getElementById('login-password').value;
@@ -1027,21 +1036,15 @@
         function aplicarPermisosUI() {
             document.getElementById('display-rol').innerText = state.rol;
             const hideEdit = state.rol === 'LECTOR';
-            
             document.querySelectorAll('.btn-editor').forEach(el => {
                 if(hideEdit) el.classList.add('editor-hidden'); else el.classList.remove('editor-hidden');
             });
-            
             const isAdmin = state.rol === 'ADMINISTRADOR';
             document.querySelectorAll('.admin-only, .btn-admin').forEach(el => {
                 if(isAdmin) el.classList.remove('admin-hidden'); else el.classList.add('admin-hidden');
             });
-            if(!isAdmin && document.getElementById('view-admin').classList.contains('active')) switchView('view-resumen', document.querySelectorAll('.menu-item')[0]);
+            if(!isAdmin && document.getElementById('view-admin').classList.contains('active')) window.switchView('view-resumen', document.querySelectorAll('.menu-item')[0]);
 
-            aplicarPermisosAFormularios();
-        }
-
-        function aplicarPermisosAFormularios() {
             const isLector = state.rol === 'LECTOR';
             document.querySelectorAll('#view-epps input:not([id^="search-"]), #view-epps textarea').forEach(el => {
                 el.readOnly = isLector;
@@ -1049,7 +1052,6 @@
             });
         }
 
-        // ================= CONEXIÓN A CLOUD FIRESTORE ================= //
         function conectarBaseDatosFirestore() {
             onSnapshot(doc(db, 'config', 'epps_global'), (docSnap) => {
                 if(docSnap.exists()) { state.eppsGlobal = docSnap.data(); } 
@@ -1072,7 +1074,12 @@
             onSnapshot(collection(db, 'personal'), (snapshot) => {
                 state.personal = {};
                 snapshot.forEach((doc) => { state.personal[doc.id] = doc.data(); });
-                renderResumen(); renderListaPersonal(); renderListaEpps(); renderListaFisico(); renderTablasGlobales();
+                window.renderResumen(); 
+                
+                if (document.getElementById('view-personal').classList.contains('active')) window.renderListaPersonal();
+                if (document.getElementById('view-epps').classList.contains('active')) window.renderListaEpps();
+                if (document.getElementById('view-fisico').classList.contains('active')) window.renderListaFisico();
+                if (document.getElementById('view-bajas').classList.contains('active')) window.renderTablasGlobales();
                 
                 if(state.selectedId && state.personal[state.selectedId]) window.cargarDetallePersonal(state.selectedId);
                 if(state.selectedEppId && state.personal[state.selectedEppId]) window.cargarDetalleEpps(state.selectedEppId);
@@ -1083,7 +1090,7 @@
             onSnapshot(collection(db, 'usuarios'), (snapshot) => {
                 state.usuarios = {};
                 snapshot.forEach((doc) => { state.usuarios[doc.id] = doc.data(); });
-                renderListaUsuarios();
+                window.renderListaUsuarios();
             }, (error) => {});
         }
 
@@ -1104,7 +1111,6 @@
             return { txt: `Vigente (${strD})`, bg: 'bg-success', isCrit: false, faltante: false };
         }
 
-        // ================= GESTIÓN ARCHIVOS STORAGE ================= //
         window.subirArchivo = async (input, tipo, pId, sancId = null) => {
             const file = input.files[0]; if(!file) return;
             if(file.type !== "application/pdf") { alert("Por favor, suba únicamente archivos PDF."); return; }
@@ -1152,15 +1158,15 @@
                     <div style="display:inline-flex; align-items:center; flex-wrap:wrap; gap:5px; padding: 4px; border:1px solid var(--border); border-radius:4px; background:#fafbfc;">
                         <span class="${isExpired ? 'text-danger' : 'text-success'}" style="font-weight:600;"><i class="fa-solid fa-file-pdf"></i> ${fileObj.fecha}</span> ${alertHtml}
                         <a href="${fileObj.url}" target="_blank" class="btn btn-sm btn-sec" title="Descargar PDF"><i class="fa-solid fa-download"></i></a>
-                        <label class="btn btn-sm btn-warning btn-editor" style="margin:0; cursor:pointer;" title="Actualizar PDF"><i class="fa-solid fa-rotate"></i><input type="file" hidden accept=".pdf" onchange="subirArchivo(this, '${tipoStr}', '${id}')"></label>
-                        <button class="btn btn-sm btn-danger btn-editor" title="Eliminar Archivo" onclick="eliminarArchivo('${tipoStr}', '${id}')"><i class="fa-solid fa-trash"></i></button>
+                        <label class="btn btn-sm btn-warning btn-editor" style="margin:0; cursor:pointer;" title="Actualizar PDF"><i class="fa-solid fa-rotate"></i><input type="file" hidden accept=".pdf" onchange="window.subirArchivo(this, '${tipoStr}', '${id}')"></label>
+                        <button class="btn btn-sm btn-danger btn-editor" title="Eliminar Archivo" onclick="window.eliminarArchivo('${tipoStr}', '${id}')"><i class="fa-solid fa-trash"></i></button>
                     </div>
                 `;
             } else {
                 return `
                     <div style="display:inline-flex; align-items:center; gap:8px;">
                         <span class="badge bg-gray">Faltante</span>
-                        <label class="btn btn-sm btn-sec btn-editor" style="margin:0; cursor:pointer;"><i class="fa-solid fa-upload"></i> Adjuntar PDF<input type="file" hidden accept=".pdf" onchange="subirArchivo(this, '${tipoStr}', '${id}')"></label>
+                        <label class="btn btn-sm btn-sec btn-editor" style="margin:0; cursor:pointer;"><i class="fa-solid fa-upload"></i> Adjuntar PDF<input type="file" hidden accept=".pdf" onchange="window.subirArchivo(this, '${tipoStr}', '${id}')"></label>
                     </div>
                 `;
             }
@@ -1169,28 +1175,45 @@
         // ================= VISTA: DATOS PERSONAL ================= //
         function inyectarForms() {
             const divS = document.getElementById('form-cursos-sso');
-            CURSOS_SSO.forEach((c,i)=>divS.insertAdjacentHTML('beforeend',`<div class="field"><label>${c}</label><input type="date" id="fc-sso-${i}" class="form-control"></div>`));
+            if(divS) {
+                divS.innerHTML = '';
+                CURSOS_SSO.forEach((c,i)=>divS.insertAdjacentHTML('beforeend',`<div class="field"><label>${c}</label><input type="date" id="fc-sso-${i}" class="form-control"></div>`));
+            }
             const divP = document.getElementById('form-cursos-perfil');
-            CURSOS_PERFIL.forEach((c,i)=>divP.insertAdjacentHTML('beforeend',`<div class="field"><label>${c.id}</label><input type="date" id="fc-perf-${i}" class="form-control"></div>`));
+            if(divP) {
+                divP.innerHTML = '';
+                CURSOS_PERFIL.forEach((c,i)=>divP.insertAdjacentHTML('beforeend',`<div class="field"><label>${c.id}</label><input type="date" id="fc-perf-${i}" class="form-control"></div>`));
+            }
             const divI = document.getElementById('form-inducciones');
-            INDUCCIONES.forEach((c,i)=>divI.insertAdjacentHTML('beforeend',`<div class="field"><label>${c}</label><input type="date" id="fi-ind-${i}" class="form-control"></div>`));
+            if(divI) {
+                divI.innerHTML = '';
+                INDUCCIONES.forEach((c,i)=>divI.insertAdjacentHTML('beforeend',`<div class="field"><label>${c}</label><input type="date" id="fi-ind-${i}" class="form-control"></div>`));
+            }
         } inyectarForms();
 
         window.renderListaPersonal = () => {
-            const term = document.getElementById('search-personal').value.toLowerCase();
-            const ul = document.getElementById('ul-personal'); ul.innerHTML = '';
-            const lista = Object.entries(state.personal).map(([id,p])=>({id,...p})).filter(p=>!p.baja && p.apellidos.toLowerCase().includes(term)).sort((a,b)=>a.apellidos.localeCompare(b.apellidos));
-            lista.forEach(p => ul.insertAdjacentHTML('beforeend', `<li class="person-item ${state.selectedId===p.id?'active':''}" onclick="cargarDetallePersonal('${p.id}')"><i class="fa-solid fa-user-shield" style="color:var(--mcp-gold); margin-right:8px;"></i> ${p.apellidos}, ${p.nombres}</li>`));
+            const searchEl = document.getElementById('search-personal');
+            if(!searchEl) return;
+            const term = searchEl.value.toLowerCase();
+            const ul = document.getElementById('ul-personal'); 
+            if(ul) {
+                ul.innerHTML = '';
+                const lista = Object.entries(state.personal).map(([id,p])=>({id,...p})).filter(p=>!p.baja && p.apellidos.toLowerCase().includes(term)).sort((a,b)=>a.apellidos.localeCompare(b.apellidos));
+                lista.forEach(p => ul.insertAdjacentHTML('beforeend', `<li class="person-item ${state.selectedId===p.id?'active':''}" onclick="window.cargarDetallePersonal('${p.id}')"><i class="fa-solid fa-user-shield" style="color:var(--mcp-gold); margin-right:8px;"></i> ${p.apellidos}, ${p.nombres}</li>`));
+            }
         };
 
         window.cargarDetallePersonal = (id) => {
-            state.selectedId = id; renderListaPersonal();
+            state.selectedId = id; window.renderListaPersonal();
             const p = state.personal[id]; if(!p) return;
             document.getElementById('msg-no-selection').classList.add('hidden');
             document.getElementById('panel-detalles').classList.remove('hidden');
 
             const mapeo = { 'det-nombres':`${p.apellidos}, ${p.nombres}`,'det-puesto':p.puesto,'d-fnac':p.f_nac,'d-edad':p.edad?p.edad+' años':'','d-dni':p.dni,'d-ubigeo':p.ubigeo,'d-estcivil':p.estcivil,'d-hijos':p.hijos,'d-telefono':p.telefono,'d-email':p.email,'d-licmtc':p.licmtc,'d-catmtc':p.catmtc,'d-restcon':p.restcon,'d-sangre':p.sangre,'d-direccion':p.direccion,'d-lugarnac':p.lugarnac,'d-grado':p.grado,'d-especialidad':p.especialidad,'d-contactoem':p.contactoem,'d-numcontacto':p.numcontacto,'d-parentesco':p.parentesco,'d-fingreso':p.fingreso,'d-ffin':p.ffin,'d-licint':p.licint,'d-finduccion':p.finduccion,'d-vdni':p.vdni,'d-vmtc':p.vmtc,'d-vmcp':p.vmcp,'d-vsalud':p.vsalud,'d-vehiculos':p.vehiculos,'d-obsclinica':p.obsclinica };
-            for(let key in mapeo) document.getElementById(key).innerText = mapeo[key] || '-';
+            for(let key in mapeo) {
+                const el = document.getElementById(key);
+                if(el) el.innerText = mapeo[key] || '-';
+            }
 
             document.getElementById('cv-container').innerHTML = renderFileHTML(p.cv, 'cv', id);
             document.getElementById('acta-container').innerHTML = renderFileHTML(p.actaInduccion, 'actaInduccion', id);
@@ -1198,7 +1221,9 @@
             let hasSso = false, hasPerf = false, hasInd = false;
 
             const fillCr = (arr, valArr, isP, domId) => {
-                const dom = document.getElementById(domId); dom.innerHTML = '';
+                const dom = document.getElementById(domId); 
+                if(!dom) return;
+                dom.innerHTML = '';
                 arr.forEach((c,i) => {
                     const name = isP ? c.id : c; const vig = isP ? c.v : 1; const dt = valArr?.[i];
                     const res = generarAlerta(dt, vig);
@@ -1210,48 +1235,127 @@
             fillCr(CURSOS_SSO, p.csso, false, 'det-cursos-sso');
             fillCr(CURSOS_PERFIL, p.cperf, true, 'det-cursos-perfil');
             
-            const divI = document.getElementById('det-inducciones'); divI.innerHTML = '';
-            INDUCCIONES.forEach((c,i)=>{
-                const isPending = !p.inds?.[i];
-                if(state.filterActive && !isPending) return;
-                hasInd = true;
-                divI.insertAdjacentHTML('beforeend',`<div class="field"><label>${c}</label><div class="val">${!isPending?`<span class="text-success"><i class="fa-solid fa-check"></i> ${p.inds[i]}</span>`:'<span class="text-light">Pendiente</span>'}</div></div>`);
-            });
+            const divI = document.getElementById('det-inducciones'); 
+            if(divI) {
+                divI.innerHTML = '';
+                INDUCCIONES.forEach((c,i)=>{
+                    const isPending = !p.inds?.[i];
+                    if(state.filterActive && !isPending) return;
+                    hasInd = true;
+                    divI.insertAdjacentHTML('beforeend',`<div class="field"><label>${c}</label><div class="val">${!isPending?`<span class="text-success"><i class="fa-solid fa-check"></i> ${p.inds[i]}</span>`:'<span class="text-light">Pendiente</span>'}</div></div>`);
+                });
+            }
 
             document.getElementById('card-cursos-sso').style.display = (state.filterActive && !hasSso) ? 'none' : 'block';
             document.getElementById('card-cursos-perfil').style.display = (state.filterActive && !hasPerf) ? 'none' : 'block';
             document.getElementById('card-inducciones').style.display = (state.filterActive && !hasInd) ? 'none' : 'block';
 
-            const tbSanc = document.getElementById('tbody-amonestaciones'); tbSanc.innerHTML = '';
-            if(p.sanc) {
-                Object.entries(p.sanc).forEach(([k, s]) => {
-                    const fileCell = s.file 
-                        ? `<div style="display:inline-flex; gap:5px; align-items:center;">
-                             <a href="${s.file.url}" target="_blank" class="btn btn-sm btn-sec" title="Descargar"><i class="fa-solid fa-download"></i></a>
-                             <label class="btn btn-sm btn-warning btn-editor" style="margin:0; cursor:pointer;" title="Actualizar"><i class="fa-solid fa-rotate"></i><input type="file" hidden accept=".pdf" onchange="subirArchivo(this, 'sanciones', '${id}', '${k}')"></label>
-                             <button class="btn btn-sm btn-danger btn-editor" title="Eliminar PDF" onclick="eliminarArchivo('sanciones', '${id}', '${k}')"><i class="fa-solid fa-trash"></i></button>
-                           </div><div style="font-size:10px; color:var(--text-light); margin-top:4px;">Subido: ${s.file.fecha}</div>`
-                        : `<label class="btn btn-sm btn-sec btn-editor" style="margin:0;"><i class="fa-solid fa-upload"></i> Subir PDF<input type="file" hidden accept=".pdf" onchange="subirArchivo(this, 'sanciones', '${id}', '${k}')"></label>`;
+            const tbSanc = document.getElementById('tbody-amonestaciones'); 
+            if(tbSanc) {
+                tbSanc.innerHTML = '';
+                if(p.sanc) {
+                    Object.entries(p.sanc).forEach(([k, s]) => {
+                        const fileCell = s.file 
+                            ? `<div style="display:inline-flex; gap:5px; align-items:center;">
+                                 <a href="${s.file.url}" target="_blank" class="btn btn-sm btn-sec" title="Descargar"><i class="fa-solid fa-download"></i></a>
+                                 <label class="btn btn-sm btn-warning btn-editor" style="margin:0; cursor:pointer;" title="Actualizar"><i class="fa-solid fa-rotate"></i><input type="file" hidden accept=".pdf" onchange="window.subirArchivo(this, 'sanciones', '${id}', '${k}')"></label>
+                                 <button class="btn btn-sm btn-danger btn-editor" title="Eliminar PDF" onclick="window.eliminarArchivo('sanciones', '${id}', '${k}')"><i class="fa-solid fa-trash"></i></button>
+                               </div><div style="font-size:10px; color:var(--text-light); margin-top:4px;">Subido: ${s.file.fecha}</div>`
+                            : `<label class="btn btn-sm btn-sec btn-editor" style="margin:0;"><i class="fa-solid fa-upload"></i> Subir PDF<input type="file" hidden accept=".pdf" onchange="window.subirArchivo(this, 'sanciones', '${id}', '${k}')"></label>`;
 
-                    tbSanc.insertAdjacentHTML('beforeend',`<tr><td>${s.fecha}</td><td>${s.motivo}</td><td>${fileCell}</td></tr>`);
-                });
-            } else {
-                tbSanc.innerHTML = '<tr><td colspan="3" style="text-align:center; color:var(--text-light);">Sin amonestaciones registradas.</td></tr>';
+                        tbSanc.insertAdjacentHTML('beforeend',`<tr><td>${s.fecha}</td><td>${s.motivo}</td><td>${fileCell}</td></tr>`);
+                    });
+                } else {
+                    tbSanc.innerHTML = '<tr><td colspan="3" style="text-align:center; color:var(--text-light);">Sin amonestaciones registradas.</td></tr>';
+                }
             }
 
             aplicarPermisosUI(); 
         };
 
+        window.abrirModalPersonal = () => { document.getElementById('form-personal').reset(); document.getElementById('f-id').value = ''; window.abrirModal('modal-personal'); };
+        
+        window.editarPersonalActual = () => {
+            if(!state.selectedId) return;
+            const p = state.personal[state.selectedId];
+            document.getElementById('f-id').value = state.selectedId;
+            document.getElementById('f-apellidos').value = p.apellidos||''; document.getElementById('f-nombres').value = p.nombres||''; document.getElementById('f-puesto').value = p.puesto||''; document.getElementById('f-dni').value = p.dni||'';
+            document.getElementById('f-fnac').value = p.f_nac||''; document.getElementById('f-edad').value = p.edad||''; document.getElementById('f-estcivil').value = p.estcivil||''; document.getElementById('f-hijos').value = p.hijos||'';
+            document.getElementById('f-telefono').value = p.telefono||''; document.getElementById('f-email').value = p.email||''; document.getElementById('f-ubigeo').value = p.ubigeo||''; document.getElementById('f-direccion').value = p.direccion||'';
+            document.getElementById('f-lugarnac').value = p.lugarnac||''; document.getElementById('f-sangre').value = p.sangre||''; document.getElementById('f-licmtc').value = p.licmtc||''; document.getElementById('f-catmtc').value = p.catmtc||'';
+            document.getElementById('f-restcon').value = p.restcon||''; document.getElementById('f-licint').value = p.licint||''; document.getElementById('f-grado').value = p.grado||''; document.getElementById('f-especialidad').value = p.especialidad||'';
+            document.getElementById('f-contactoem').value = p.contactoem||''; document.getElementById('f-numcontacto').value = p.numcontacto||''; document.getElementById('f-parentesco').value = p.parentesco||'';
+            document.getElementById('f-fingreso').value = p.fingreso||''; document.getElementById('f-ffin').value = p.ffin||''; document.getElementById('f-finduccion').value = p.finduccion||''; document.getElementById('f-vdni').value = p.vdni||'';
+            document.getElementById('f-vmtc').value = p.vmtc||''; document.getElementById('f-vmcp').value = p.vmcp||''; document.getElementById('f-vsalud').value = p.vsalud||''; document.getElementById('f-vehiculos').value = p.vehiculos||''; document.getElementById('f-obsclinica').value = p.obsclinica||'';
+            CURSOS_SSO.forEach((_,i)=>{ const el = document.getElementById(`fc-sso-${i}`); if(el) el.value=p.csso?.[i]||''; });
+            CURSOS_PERFIL.forEach((_,i)=>{ const el = document.getElementById(`fc-perf-${i}`); if(el) el.value=p.cperf?.[i]||''; });
+            INDUCCIONES.forEach((_,i)=>{ const el = document.getElementById(`fi-ind-${i}`); if(el) el.value=p.inds?.[i]||''; });
+            window.abrirModal('modal-personal');
+        };
+
+        addSafeListener('form-personal', 'submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btn-save-personal');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
+            btn.disabled = true;
+
+            try {
+                let id = document.getElementById('f-id').value;
+                if(!id) { id = 'p_' + Date.now(); }
+
+                const data = {
+                    apellidos: document.getElementById('f-apellidos').value.toUpperCase(), nombres: document.getElementById('f-nombres').value.toUpperCase(),
+                    puesto: document.getElementById('f-puesto').value.toUpperCase(), dni: document.getElementById('f-dni').value,
+                    f_nac: document.getElementById('f-fnac').value, edad: document.getElementById('f-edad').value, estcivil: document.getElementById('f-estcivil').value,
+                    hijos: document.getElementById('f-hijos').value, telefono: document.getElementById('f-telefono').value, email: document.getElementById('f-email').value,
+                    ubigeo: document.getElementById('f-ubigeo').value, direccion: document.getElementById('f-direccion').value, lugarnac: document.getElementById('f-lugarnac').value,
+                    sangre: document.getElementById('f-sangre').value, licmtc: document.getElementById('f-licmtc').value, catmtc: document.getElementById('f-catmtc').value,
+                    restcon: document.getElementById('f-restcon').value, licint: document.getElementById('f-licint').value, grado: document.getElementById('f-grado').value,
+                    especialidad: document.getElementById('f-especialidad').value, contactoem: document.getElementById('f-contactoem').value, numcontacto: document.getElementById('f-numcontacto').value,
+                    parentesco: document.getElementById('f-parentesco').value, fingreso: document.getElementById('f-fingreso').value, ffin: document.getElementById('f-ffin').value,
+                    finduccion: document.getElementById('f-finduccion').value, vdni: document.getElementById('f-vdni').value, vmtc: document.getElementById('f-vmtc').value,
+                    vmcp: document.getElementById('f-vmcp').value, vsalud: document.getElementById('f-vsalud').value, vehiculos: document.getElementById('f-vehiculos').value,
+                    obsclinica: document.getElementById('f-obsclinica').value,
+                    csso: CURSOS_SSO.map((_,i)=>document.getElementById(`fc-sso-${i}`)?.value||''), 
+                    cperf: CURSOS_PERFIL.map((_,i)=>document.getElementById(`fc-perf-${i}`)?.value||''),
+                    inds: INDUCCIONES.map((_,i)=>document.getElementById(`fi-ind-${i}`)?.value||'')
+                };
+                
+                if(state.personal[id]) { 
+                    data.baja = state.personal[id].baja || false; 
+                    ['sanc', 'cv', 'actaInduccion', 'cargoEpp', 'cargoEppEst', 'epps_data', 'epps_est_data', 'nutricion', 'gym', 'empresa_baja', 'fbaja', 'mbaja', 'recomendacion'].forEach(k => {
+                        if(state.personal[id][k]) data[k] = state.personal[id][k];
+                    });
+                }
+
+                await setDoc(doc(db, "personal", id), data, { merge: true });
+                window.cerrarModal('modal-personal');
+                state.selectedId = id; 
+                btn.innerHTML = originalText; btn.disabled = false;
+
+            } catch(err) {
+                console.error(err);
+                alert("Error al guardar: " + err.message);
+                btn.innerHTML = originalText; btn.disabled = false;
+            }
+        });
+
         // ================= VISTA: ESTADO FISICO ================= //
         window.renderListaFisico = () => {
-            const term = document.getElementById('search-fisico').value.toLowerCase();
-            const ul = document.getElementById('ul-fisico'); ul.innerHTML = '';
-            const lista = Object.entries(state.personal).map(([id,p])=>({id,...p})).filter(p=>!p.baja && p.apellidos.toLowerCase().includes(term)).sort((a,b)=>a.apellidos.localeCompare(b.apellidos));
-            lista.forEach(p => ul.insertAdjacentHTML('beforeend', `<li class="person-item ${state.selectedFisicoId===p.id?'active':''}" onclick="cargarDetalleFisico('${p.id}')"><i class="fa-solid fa-heart-pulse" style="color:var(--mcp-gold); margin-right:8px;"></i> ${p.apellidos}, ${p.nombres}</li>`));
+            const searchEl = document.getElementById('search-fisico');
+            if(!searchEl) return;
+            const term = searchEl.value.toLowerCase();
+            const ul = document.getElementById('ul-fisico'); 
+            if(ul) {
+                ul.innerHTML = '';
+                const lista = Object.entries(state.personal).map(([id,p])=>({id,...p})).filter(p=>!p.baja && p.apellidos.toLowerCase().includes(term)).sort((a,b)=>a.apellidos.localeCompare(b.apellidos));
+                lista.forEach(p => ul.insertAdjacentHTML('beforeend', `<li class="person-item ${state.selectedFisicoId===p.id?'active':''}" onclick="window.cargarDetalleFisico('${p.id}')"><i class="fa-solid fa-heart-pulse" style="color:var(--mcp-gold); margin-right:8px;"></i> ${p.apellidos}, ${p.nombres}</li>`));
+            }
         };
 
         window.cargarDetalleFisico = (id) => {
-            state.selectedFisicoId = id; renderListaFisico();
+            state.selectedFisicoId = id; window.renderListaFisico();
             const p = state.personal[id]; if(!p) return;
             document.getElementById('msg-no-selection-fisico').classList.add('hidden');
             document.getElementById('panel-detalles-fisico').classList.remove('hidden');
@@ -1317,7 +1421,7 @@
                     
                     tbG.insertAdjacentHTML('beforeend', `<tr>
                         <td><b>${g.mes}</b></td><td style="text-align:center;">${g.count}</td><td style="text-align:center;">${trend}</td><td>${obs}</td>
-                        <td class="btn-editor"><button class="btn btn-sm btn-danger" onclick="eliminarGym(${i})"><i class="fa-solid fa-trash"></i></button></td>
+                        <td class="btn-editor"><button class="btn btn-sm btn-danger" onclick="window.eliminarGym(${i})"><i class="fa-solid fa-trash"></i></button></td>
                     </tr>`);
                 });
             }
@@ -1331,6 +1435,9 @@
             let gcorp = parseFloat(document.getElementById('fn-grasa').value) || 0;
             let gvisc = parseInt(document.getElementById('fn-gvisc').value) || 0;
             let musc = parseFloat(document.getElementById('fn-musc').value) || 0;
+            let pabd = parseFloat(document.getElementById('fn-pabd').value) || 0;
+            let pcad = parseFloat(document.getElementById('fn-pcad').value) || 0;
+            let cal = parseInt(document.getElementById('fn-calorias').value) || 0;
 
             let imc = 0; let cimc = "Normal";
             if(p > 0 && t > 0) {
@@ -1358,36 +1465,67 @@
                 document.getElementById('fn-cmusc').value = cmusc;
             }
 
-            let abd = parseFloat(document.getElementById('fn-pabd').value) || 0;
-            let cad = parseFloat(document.getElementById('fn-pcad').value) || 0;
-            if(abd > 0 && cad > 0) document.getElementById('fn-icc').value = (abd / cad).toFixed(2);
+            let icc = 0;
+            if(pabd > 0 && pcad > 0) {
+                icc = (pabd / pcad).toFixed(2);
+                document.getElementById('fn-icc').value = icc;
+            }
 
             // AUTO ANALYSIS GENERATOR
             if (state.selectedFisicoId) {
                 const pers = state.personal[state.selectedFisicoId];
                 let gymCount = 0;
                 if (pers && pers.gym && pers.gym.length > 0) {
-                    gymCount = pers.gym[0].count; 
+                    let sortedGym = [...pers.gym].sort((a,b) => b.mes.localeCompare(a.mes));
+                    gymCount = sortedGym[0].count; 
                 }
 
-                let anal = `Evaluación Integral: `;
-                if(cimc === "Normal" && cgcorp === "Normal" && cgvisc === "Normal") {
-                    anal += "El oficial presenta parámetros óptimos de composición corporal. ";
+                let anal = [];
+                let riesgos = 0;
+
+                if(cimc === "Obeso" || cgcorp === "Muy Alto" || cgvisc === "Muy Alto") {
+                    anal.push("Riesgo cardiovascular alto (revisar dieta y priorizar déficit calórico).");
+                    riesgos++;
+                } else if(cimc === "Sobrepeso" || cgcorp === "Alto" || cgvisc === "Alto") {
+                    anal.push("Ligero exceso de masa lipídica (enfocarse en cardio y reducción de carbohidratos).");
+                    riesgos++;
+                } else if(cimc === "Bajo Peso" || cgcorp === "Muy Bajo") {
+                    anal.push("Déficit de peso/grasa. Sugerimos dieta hipercalórica controlada.");
                 } else {
-                    anal += `Se detecta desviación en parámetros biométricos (IMC: ${cimc}, Grasa Corp: ${cgcorp}, Grasa Visc: ${cgvisc}). `;
+                    anal.push("Composición de grasa e IMC en rangos saludables.");
                 }
 
-                if(cmusc === "Bajo") anal += "Requiere programa de hipertrofia y aumento proteico. ";
+                if(cmusc === "Bajo") {
+                    anal.push("Masa muscular deficiente. Requiere rutina de hipertrofia y mayor ingesta proteica.");
+                    riesgos++;
+                } else if(cmusc === "Alto") {
+                    anal.push("Excelente desarrollo muscular.");
+                }
 
-                if(gymCount < 5) anal += `Asistencia crítica a gimnasio (Último registro: ${gymCount} asistencias). Se insta a cumplir mínimo mensual.`;
-                else anal += `Asistencia a gimnasio adecuada. Continuar con el régimen.`;
+                if(icc > 0.90) {
+                    anal.push("Índice Cintura/Cadera advierte acumulación de grasa abdominal central.");
+                    riesgos++;
+                }
 
-                document.getElementById('fn-analisis').value = anal;
+                if (cal > 2500 && riesgos > 0) {
+                    anal.push(`Ingesta calórica actual (${cal} kcal) parece excesiva para los objetivos de salud.`);
+                }
+
+                if(gymCount < 5) {
+                    anal.push(`Asistencia al gimnasio crítica (${gymCount} vez/mes). Urge fomentar disciplina de entrenamiento.`);
+                } else if (gymCount >= 10 && riesgos > 0) {
+                    anal.push(`Buena asistencia al gym (${gymCount} veces/mes), pero sin resultados físicos óptimos. Revisar calidad del entrenamiento y dieta.`);
+                } else {
+                    anal.push(`Asistencia al gimnasio consistente y favorable (${gymCount} veces/mes).`);
+                }
+
+                document.getElementById('fn-analisis').value = anal.join(' ');
             }
         };
 
-        window.abrirModalNutricion = () => { document.getElementById('form-nutricion').reset(); abrirModal('modal-nutricion'); };
-        document.getElementById('form-nutricion').addEventListener('submit', (e) => {
+        window.abrirModalNutricion = () => { document.getElementById('form-nutricion').reset(); window.abrirModal('modal-nutricion'); };
+        
+        addSafeListener('form-nutricion', 'submit', (e) => {
             e.preventDefault(); if(!state.selectedFisicoId) return;
             const btn = document.getElementById('btn-save-nutricion'); btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; btn.disabled = true;
 
@@ -1406,28 +1544,26 @@
 
             let nArr = state.personal[state.selectedFisicoId].nutricion || [];
             nArr.push(nObj);
-            nArr.sort((a,b) => a.fecha.localeCompare(b.fecha)); // ASC for matrix transposition
+            nArr.sort((a,b) => a.fecha.localeCompare(b.fecha));
 
             updateDoc(doc(db, "personal", state.selectedFisicoId), { nutricion: nArr }).then(() => {
-                cerrarModal('modal-nutricion'); btn.innerHTML = 'Guardar Ficha'; btn.disabled = false;
+                window.cerrarModal('modal-nutricion'); btn.innerHTML = 'Guardar Ficha'; btn.disabled = false;
             }).catch(e => { alert("Error al guardar."); btn.innerHTML = 'Guardar Ficha'; btn.disabled = false; });
         });
 
-        window.abrirModalGym = () => { document.getElementById('form-gym').reset(); abrirModal('modal-gym'); };
-        document.getElementById('form-gym').addEventListener('submit', (e) => {
+        window.abrirModalGym = () => { document.getElementById('form-gym').reset(); window.abrirModal('modal-gym'); };
+        
+        addSafeListener('form-gym', 'submit', (e) => {
             e.preventDefault(); if(!state.selectedFisicoId) return;
             const btn = document.getElementById('btn-save-gym'); btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; btn.disabled = true;
 
             let m = document.getElementById('fg-mes').value; let a = document.getElementById('fg-ano').value;
-            let count = parseInt(document.getElementById('fg-count').value);
-            let mesKey = `${a}-${m}`;
+            let count = parseInt(document.getElementById('fg-count').value); let mesKey = `${a}-${m}`;
 
-            let gArr = state.personal[state.selectedFisicoId].gym || [];
-            gArr = gArr.filter(g => g.mes !== mesKey);
-            gArr.push({ mes: mesKey, count: count });
+            let gArr = state.personal[state.selectedFisicoId].gym || []; gArr = gArr.filter(g => g.mes !== mesKey); gArr.push({ mes: mesKey, count: count });
 
             updateDoc(doc(db, "personal", state.selectedFisicoId), { gym: gArr }).then(() => {
-                cerrarModal('modal-gym'); btn.innerHTML = 'Guardar'; btn.disabled = false;
+                window.cerrarModal('modal-gym'); btn.innerHTML = 'Guardar'; btn.disabled = false;
             }).catch(e => { alert("Error al guardar."); btn.innerHTML = 'Guardar'; btn.disabled = false; });
         });
 
@@ -1440,7 +1576,7 @@
         };
 
         window.mostrarGraficoGym = (isGlobal) => {
-            abrirModal('modal-chart'); 
+            window.abrirModal('modal-chart'); 
 
             let labels = []; let data = []; let labelTitle = "";
             let tableContainer = document.getElementById('chart-table-container');
@@ -1550,21 +1686,25 @@
                         }
                     },
                     scales: { y: { beginAtZero: true, suggestedMin: 0 } }
-                },
-                plugins: [ChartDataLabels]
+                }
             });
         };
 
         // ================= VISTA: DATOS DE EPPS ================= //
         window.renderListaEpps = () => {
-            const term = document.getElementById('search-epps').value.toLowerCase();
-            const ul = document.getElementById('ul-epps'); ul.innerHTML = '';
-            const lista = Object.entries(state.personal).map(([id,p])=>({id,...p})).filter(p=>!p.baja && p.apellidos.toLowerCase().includes(term)).sort((a,b)=>a.apellidos.localeCompare(b.apellidos));
-            lista.forEach(p => ul.insertAdjacentHTML('beforeend', `<li class="person-item ${state.selectedEppId===p.id?'active':''}" onclick="cargarDetalleEpps('${p.id}')"><i class="fa-solid fa-hard-hat" style="color:var(--mcp-gold); margin-right:8px;"></i> ${p.apellidos}, ${p.nombres}</li>`));
+            const searchEl = document.getElementById('search-epps');
+            if(!searchEl) return;
+            const term = searchEl.value.toLowerCase();
+            const ul = document.getElementById('ul-epps'); 
+            if(ul) {
+                ul.innerHTML = '';
+                const lista = Object.entries(state.personal).map(([id,p])=>({id,...p})).filter(p=>!p.baja && p.apellidos.toLowerCase().includes(term)).sort((a,b)=>a.apellidos.localeCompare(b.apellidos));
+                lista.forEach(p => ul.insertAdjacentHTML('beforeend', `<li class="person-item ${state.selectedEppId===p.id?'active':''}" onclick="window.cargarDetalleEpps('${p.id}')"><i class="fa-solid fa-hard-hat" style="color:var(--mcp-gold); margin-right:8px;"></i> ${p.apellidos}, ${p.nombres}</li>`));
+            }
         };
 
         window.cargarDetalleEpps = (id) => {
-            state.selectedEppId = id; renderListaEpps();
+            state.selectedEppId = id; window.renderListaEpps();
             const p = state.personal[id]; if(!p) return;
             document.getElementById('msg-no-selection-epp').classList.add('hidden');
             document.getElementById('panel-detalles-epps').classList.remove('hidden');
@@ -1582,26 +1722,29 @@
                 if(!personalEpps.find(e => e.name === globalName)) { personalEpps.push({ name: globalName, talla: '', cant_real: '', fecha: '' }); }
             });
 
-            const tbody = document.getElementById('tbody-epps-detalle'); tbody.innerHTML = '';
-            personalEpps.forEach((epp, idx) => {
-                const res = generarAlerta(epp.fecha, 1); 
-                const globalContrato = state.eppsGlobal[epp.name] || 1;
-                const deficit = (Number(epp.cant_real) || 0) < globalContrato;
-                
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td style="font-weight:500;">${epp.name}</td>
-                    <td><span class="badge bg-gray">${epp.talla || '-'}</span></td>
-                    <td style="text-align:center;"><b>${globalContrato}</b></td>
-                    <td style="text-align:center;">${deficit ? `<i class="fa-solid fa-triangle-exclamation text-danger" title="Menor a contrato"></i>` : ''} <b>${epp.cant_real || '0'}</b></td>
-                    <td><div style="margin-bottom:3px;">${epp.fecha || 'Sin fecha'}</div>${epp.fecha ? `<span class="badge ${res.bg}">${res.txt}</span>` : ''}</td>
-                    <td class="btn-editor">
-                        <button class="btn btn-sm btn-sec" onclick="abrirModalEppEditar(${idx})"><i class="fa-solid fa-pen"></i></button>
-                        <button class="btn btn-sm btn-danger" onclick="eliminarFilaEpp(${idx})"><i class="fa-solid fa-trash"></i></button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
+            const tbody = document.getElementById('tbody-epps-detalle'); 
+            if(tbody) {
+                tbody.innerHTML = '';
+                personalEpps.forEach((epp, idx) => {
+                    const res = generarAlerta(epp.fecha, 1); 
+                    const globalContrato = state.eppsGlobal[epp.name] || 1;
+                    const deficit = (Number(epp.cant_real) || 0) < globalContrato;
+                    
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td style="font-weight:500;">${epp.name}</td>
+                        <td><span class="badge bg-gray">${epp.talla || '-'}</span></td>
+                        <td style="text-align:center;"><b>${globalContrato}</b></td>
+                        <td style="text-align:center;">${deficit ? `<i class="fa-solid fa-triangle-exclamation text-danger" title="Menor a contrato"></i>` : ''} <b>${epp.cant_real || '0'}</b></td>
+                        <td><div style="margin-bottom:3px;">${epp.fecha || 'Sin fecha'}</div>${epp.fecha ? `<span class="badge ${res.bg}">${res.txt}</span>` : ''}</td>
+                        <td class="btn-editor">
+                            <button class="btn btn-sm btn-sec" onclick="window.abrirModalEppEditar(${idx})"><i class="fa-solid fa-pen"></i></button>
+                            <button class="btn btn-sm btn-danger" onclick="window.eliminarFilaEpp(${idx})"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
 
             // Estructural
             let personalEppsEst = p.epps_est_data || [];
@@ -1609,38 +1752,40 @@
                 if(!personalEppsEst.find(e => e.name === globalName)) { personalEppsEst.push({ name: globalName, marca: '', modelo: '', ffab: '', talla: '', cant_real: '', fecha: '' }); }
             });
 
-            const tbodyEst = document.getElementById('tbody-epps-est-detalle'); tbodyEst.innerHTML = '';
-            personalEppsEst.forEach((epp, idx) => {
-                const res = generarAlerta(epp.fecha, 1); 
-                const globalContrato = state.eppsEstGlobal[epp.name] || 1;
-                const deficit = (Number(epp.cant_real) || 0) < globalContrato;
-                
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td style="font-weight:500;">${epp.name}</td>
-                    <td><span class="badge bg-gray">${epp.marca || '-'}</span></td>
-                    <td><span class="badge bg-gray">${epp.modelo || '-'}</span></td>
-                    <td>${epp.ffab || '-'}</td>
-                    <td><span class="badge bg-gray">${epp.talla || '-'}</span></td>
-                    <td style="text-align:center;"><b>${globalContrato}</b></td>
-                    <td style="text-align:center;">${deficit ? `<i class="fa-solid fa-triangle-exclamation text-danger"></i>` : ''} <b>${epp.cant_real || '0'}</b></td>
-                    <td><div style="margin-bottom:3px;">${epp.fecha || 'Sin fecha'}</div>${epp.fecha ? `<span class="badge ${res.bg}">${res.txt}</span>` : ''}</td>
-                    <td class="btn-editor">
-                        <button class="btn btn-sm btn-sec" onclick="abrirModalEppEstEditar(${idx})"><i class="fa-solid fa-pen"></i></button>
-                        <button class="btn btn-sm btn-danger" onclick="eliminarFilaEppEst(${idx})"><i class="fa-solid fa-trash"></i></button>
-                    </td>
-                `;
-                tbodyEst.appendChild(tr);
-            });
+            const tbodyEst = document.getElementById('tbody-epps-est-detalle'); 
+            if(tbodyEst) {
+                tbodyEst.innerHTML = '';
+                personalEppsEst.forEach((epp, idx) => {
+                    const res = generarAlerta(epp.fecha, 1); 
+                    const globalContrato = state.eppsEstGlobal[epp.name] || 1;
+                    const deficit = (Number(epp.cant_real) || 0) < globalContrato;
+                    
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td style="font-weight:500;">${epp.name}</td>
+                        <td><span class="badge bg-gray">${epp.marca || '-'}</span></td>
+                        <td><span class="badge bg-gray">${epp.modelo || '-'}</span></td>
+                        <td>${epp.ffab || '-'}</td>
+                        <td><span class="badge bg-gray">${epp.talla || '-'}</span></td>
+                        <td style="text-align:center;"><b>${globalContrato}</b></td>
+                        <td style="text-align:center;">${deficit ? `<i class="fa-solid fa-triangle-exclamation text-danger"></i>` : ''} <b>${epp.cant_real || '0'}</b></td>
+                        <td><div style="margin-bottom:3px;">${epp.fecha || 'Sin fecha'}</div>${epp.fecha ? `<span class="badge ${res.bg}">${res.txt}</span>` : ''}</td>
+                        <td class="btn-editor">
+                            <button class="btn btn-sm btn-sec" onclick="window.abrirModalEppEstEditar(${idx})"><i class="fa-solid fa-pen"></i></button>
+                            <button class="btn btn-sm btn-danger" onclick="window.eliminarFilaEppEst(${idx})"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    `;
+                    tbodyEst.appendChild(tr);
+                });
+            }
 
             aplicarPermisosUI();
         };
 
-        // Modal EPP Básico
         window.abrirModalEppNuevo = () => {
             document.getElementById('form-epp').reset(); document.getElementById('fe-idx').value = '-1';
             document.getElementById('fe-ccont').disabled = false; document.getElementById('modal-epp-title').innerText = "Añadir Nuevo Equipo Básico";
-            abrirModal('modal-epp');
+            window.abrirModal('modal-epp');
         };
 
         window.abrirModalEppEditar = (idx) => {
@@ -1650,10 +1795,10 @@
             document.getElementById('fe-name').value = epp.name; document.getElementById('fe-talla').value = epp.talla || '';
             document.getElementById('fe-ccont').value = state.eppsGlobal[epp.name] || 1; document.getElementById('fe-creal').value = epp.cant_real || '';
             document.getElementById('fe-fecha').value = epp.fecha || ''; document.getElementById('modal-epp-title').innerText = "Editar Equipo Básico";
-            abrirModal('modal-epp');
+            window.abrirModal('modal-epp');
         };
 
-        document.getElementById('form-epp').addEventListener('submit', async (e) => {
+        addSafeListener('form-epp', 'submit', async (e) => {
             e.preventDefault(); if(!state.selectedEppId) return;
 
             const idx = parseInt(document.getElementById('fe-idx').value);
@@ -1667,21 +1812,20 @@
             if(idx === -1) pData.push({ name, talla, cant_real, fecha }); 
             else pData[idx] = { name, talla, cant_real, fecha };
 
-            try { await updateDoc(doc(db, "personal", state.selectedEppId), { epps_data: pData }); cerrarModal('modal-epp'); } 
+            try { await updateDoc(doc(db, "personal", state.selectedEppId), { epps_data: pData }); window.cerrarModal('modal-epp'); } 
             catch (error) { alert("Error al actualizar la base de datos."); }
         });
 
         window.eliminarFilaEpp = async (idx) => {
-            if(!confirm("¿Eliminar este equipo del registro?")) return;
+            if(!confirm("¿Eliminar este equipo del registro del oficial?")) return;
             let pData = state.personal[state.selectedEppId].epps_data || []; pData.splice(idx, 1);
             try { await updateDoc(doc(db, "personal", state.selectedEppId), { epps_data: pData }); } catch (error) {}
         };
 
-        // Modal EPP Estructural
         window.abrirModalEppEstNuevo = () => {
             document.getElementById('form-epp-est').reset(); document.getElementById('fe-est-idx').value = '-1';
             document.getElementById('fe-est-ccont').disabled = false; document.getElementById('modal-epp-est-title').innerText = "Añadir Nuevo Equipo Estructural";
-            abrirModal('modal-epp-est');
+            window.abrirModal('modal-epp-est');
         };
 
         window.abrirModalEppEstEditar = (idx) => {
@@ -1693,10 +1837,10 @@
             document.getElementById('fe-est-talla').value = epp.talla || ''; document.getElementById('fe-est-ccont').value = state.eppsEstGlobal[epp.name] || 1;
             document.getElementById('fe-est-creal').value = epp.cant_real || ''; document.getElementById('fe-est-fecha').value = epp.fecha || '';
             document.getElementById('modal-epp-est-title').innerText = "Editar Equipo Estructural";
-            abrirModal('modal-epp-est');
+            window.abrirModal('modal-epp-est');
         };
 
-        document.getElementById('form-epp-est').addEventListener('submit', async (e) => {
+        addSafeListener('form-epp-est', 'submit', async (e) => {
             e.preventDefault(); if(!state.selectedEppId) return;
 
             const idx = parseInt(document.getElementById('fe-est-idx').value);
@@ -1711,7 +1855,7 @@
             if(idx === -1) pData.push({ name, marca, modelo, ffab, talla, cant_real, fecha }); 
             else pData[idx] = { name, marca, modelo, ffab, talla, cant_real, fecha };
 
-            try { await updateDoc(doc(db, "personal", state.selectedEppId), { epps_est_data: pData }); cerrarModal('modal-epp-est'); } 
+            try { await updateDoc(doc(db, "personal", state.selectedEppId), { epps_est_data: pData }); window.cerrarModal('modal-epp-est'); } 
             catch (error) { alert("Error al actualizar la base de datos."); }
         });
 
@@ -1721,9 +1865,10 @@
             try { await updateDoc(doc(db, "personal", state.selectedEppId), { epps_est_data: pData }); } catch (error) {}
         };
 
-        // Reporte EPPs Globales
         window.abrirModalReporteEpps = () => {
-            const tb = document.getElementById('tbody-reporte-epps'); tb.innerHTML = '';
+            const tb = document.getElementById('tbody-reporte-epps');
+            if(!tb) return;
+            tb.innerHTML = '';
             let agregados = {};
             Object.values(state.personal).filter(p => !p.baja).forEach(p => {
                 if(p.epps_data) p.epps_data.forEach(epp => { let key = epp.name.trim(); if(!agregados[key]) agregados[key] = 0; agregados[key] += Number(epp.cant_real) || 0; });
@@ -1733,17 +1878,19 @@
             const keysSorted = Object.keys(agregados).sort();
             if(keysSorted.length === 0) tb.innerHTML = '<tr><td colspan="2" style="text-align:center;">No hay equipos registrados.</td></tr>';
             else keysSorted.forEach(key => tb.insertAdjacentHTML('beforeend', `<tr><td>${key}</td><td style="text-align:center; font-weight:bold; color:var(--mcp-blue);">${agregados[key]}</td></tr>`));
-            abrirModal('modal-reporte-epps');
+            window.abrirModal('modal-reporte-epps');
         };
 
         // ================= DASHBOARD Y GLOBALES ================= //
-        function renderResumen() {
+        window.renderResumen = () => {
             let activos = 0, bajas = 0, criticas = 0;
             let totalContratoEPP = 0, totalRealEPP = 0;
             let globalKeys = Object.keys(state.eppsGlobal);
             let globalEstKeys = Object.keys(state.eppsEstGlobal);
 
-            const tbAlt = document.getElementById('tbody-alertas'); tbAlt.innerHTML = '';
+            const tbAlt = document.getElementById('tbody-alertas'); 
+            if(!tbAlt) return;
+            tbAlt.innerHTML = '';
             
             Object.values(state.personal).forEach(p => {
                 if(p.baja){ bajas++; return;} 
@@ -1785,10 +1932,12 @@
             document.getElementById('dash-epps').innerText = eppPorcentaje + '%';
 
             if(criticas===0) tbAlt.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--success); font-weight:600;">Cumplimiento Operativo 100%. No hay alertas próximas a vencer.</td></tr>';
-        }
+        };
 
         window.renderTablasGlobales = () => {
-            const tbB = document.getElementById('tbody-bajas'); tbB.innerHTML = '';
+            const tbB = document.getElementById('tbody-bajas'); 
+            if(!tbB) return;
+            tbB.innerHTML = '';
             let termBaja = document.getElementById('search-bajas')?.value.toLowerCase() || '';
             let bajasList = [];
 
@@ -1815,21 +1964,203 @@
                     <td>${p.mbaja}</td>
                     <td><span class="badge ${badgeClass}">${badgeTxt}</span></td>
                     <td class="btn-editor">
-                        <button class="btn btn-sm btn-sec" onclick="abrirModalEditarBaja('${p.id}')"><i class="fa-solid fa-pen"></i></button>
-                        <button class="btn btn-sm btn-danger" onclick="eliminarBaja('${p.id}')"><i class="fa-solid fa-trash"></i></button>
+                        <button class="btn btn-sm btn-sec" onclick="window.abrirModalEditarBaja('${p.id}')"><i class="fa-solid fa-pen"></i></button>
+                        <button class="btn btn-sm btn-danger" onclick="window.eliminarBaja('${p.id}')"><i class="fa-solid fa-trash"></i></button>
                     </td>
                 </tr>`);
             });
 
             aplicarPermisosUI();
-        }
+        };
 
-        function renderListaUsuarios() {
-            const tb = document.getElementById('tbody-usuarios'); tb.innerHTML = '';
+        window.renderListaUsuarios = () => {
+            const tb = document.getElementById('tbody-usuarios'); 
+            if(!tb) return;
+            tb.innerHTML = '';
             Object.entries(state.usuarios).forEach(([id, u]) => {
-                tb.insertAdjacentHTML('beforeend', `<tr><td>${u.email}</td><td><span class="badge bg-gray">${u.rol}</span></td><td><button class="btn btn-danger btn-sm" onclick="borrarUser('${id}')"><i class="fa-solid fa-trash"></i></button></td></tr>`);
+                tb.insertAdjacentHTML('beforeend', `<tr><td>${u.email}</td><td><span class="badge bg-gray">${u.rol}</span></td><td><button class="btn btn-danger btn-sm" onclick="window.borrarUser('${id}')"><i class="fa-solid fa-trash"></i></button></td></tr>`);
             });
-        }
+        };
+
+        // ================= BAJAS Y MASIVA ================= //
+        window.abrirModalBaja = () => {
+            if(!state.selectedId) return;
+            document.getElementById('form-baja').reset(); window.abrirModal('modal-baja');
+        };
+
+        addSafeListener('form-baja', 'submit', (e) => {
+            e.preventDefault(); if(!state.selectedId) return;
+            const btn = e.target.querySelector('button[type="submit"]'); btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; btn.disabled = true;
+
+            const m = document.getElementById('fb-motivo').value; const f = document.getElementById('fb-fecha').value;
+            const empresa = document.getElementById('fb-empresa').value; const reco = document.getElementById('fb-recomendacion').value;
+            
+            const bajaData = {baja: true, fbaja: f, mbaja: m, empresa_baja: empresa, recomendacion: reco};
+            const currentId = state.selectedId;
+            
+            setDoc(doc(db, "personal", currentId), bajaData, { merge: true })
+                .then(() => {
+                    state.selectedId = null; document.getElementById('panel-detalles').classList.add('hidden'); document.getElementById('msg-no-selection').classList.remove('hidden');
+                    window.cerrarModal('modal-baja'); btn.innerHTML = 'Procesar Baja'; btn.disabled = false;
+                }).catch(e => { alert("Error: No se pudo registrar la baja."); btn.innerHTML = 'Procesar Baja'; btn.disabled = false; });
+        });
+
+        window.abrirModalEditarBaja = (id) => {
+            const p = state.personal[id]; if(!p) return;
+            document.getElementById('form-editar-baja').reset(); document.getElementById('meb-id').value = id;
+            document.getElementById('meb-apellidos').value = p.apellidos || ''; document.getElementById('meb-nombres').value = p.nombres || '';
+            document.getElementById('meb-dni').value = p.dni || ''; document.getElementById('meb-empresa').value = p.empresa_baja || '';
+            document.getElementById('meb-fingreso').value = p.fingreso || ''; document.getElementById('meb-fbaja').value = p.fbaja || '';
+            document.getElementById('meb-motivo').value = p.mbaja || ''; document.getElementById('meb-reco').value = p.recomendacion || 'SIN OBSERVACIONES';
+            window.abrirModal('modal-editar-baja');
+        };
+
+        addSafeListener('form-editar-baja', 'submit', (e) => {
+            e.preventDefault();
+            const id = document.getElementById('meb-id').value;
+            const btn = e.target.querySelector('button[type="submit"]'); btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; btn.disabled = true;
+
+            const data = {
+                apellidos: document.getElementById('meb-apellidos').value.toUpperCase(), nombres: document.getElementById('meb-nombres').value.toUpperCase(),
+                dni: document.getElementById('meb-dni').value, empresa_baja: document.getElementById('meb-empresa').value,
+                fingreso: document.getElementById('meb-fingreso').value, fbaja: document.getElementById('meb-fbaja').value,
+                mbaja: document.getElementById('meb-motivo').value, recomendacion: document.getElementById('meb-reco').value,
+            };
+
+            setDoc(doc(db, "personal", id), data, { merge: true }).then(() => {
+                window.cerrarModal('modal-editar-baja'); btn.innerHTML = 'Guardar Cambios'; btn.disabled = false;
+            }).catch(err => { alert("Error guardando cambios."); btn.innerHTML = 'Guardar Cambios'; btn.disabled = false; });
+        });
+
+        window.eliminarBaja = (id) => { if(confirm("¿Eliminar permanentemente este registro de baja de la base de datos?")) { deleteDoc(doc(db, "personal", id)).catch(e => alert("Error al eliminar.")); } };
+
+        window.descargarPlantillaBajas = () => {
+            if(typeof XLSX === 'undefined') { alert("Espere un momento, cargando librerías..."); return; }
+            const data = [{ "APELLIDOS": "", "NOMBRES": "", "DNI": "", "EMPRESA DE BAJA": "Minera Chinalco Perú", "FECHA DE INGRESO (AAAA-MM-DD)": "", "FECHA DE SALIDA (AAAA-MM-DD)": "", "MOTIVO DE SALIDA": "", "RECOMENDACION (SIN OBSERVACIONES, RECOMENDADO PARA RECONTRATACION, NO RECOMENDADO PARA RECONTRATACION)": "SIN OBSERVACIONES" }];
+            const ws = XLSX.utils.json_to_sheet(data); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Plantilla_Bajas");
+            XLSX.writeFile(wb, "Plantilla_CargaMasiva_Bajas.xlsx");
+        };
+
+        window.cargarMasivaBajas = (input) => {
+            if(typeof XLSX === 'undefined') { alert("Espere un momento, cargando librerías..."); return; }
+            const file = input.files[0]; if(!file) return; const reader = new FileReader();
+            reader.onload = async (e) => {
+                try {
+                    const json = XLSX.utils.sheet_to_json(XLSX.read(new Uint8Array(e.target.result), {type: 'array'}).Sheets[XLSX.read(new Uint8Array(e.target.result), {type: 'array'}).SheetNames[0]]);
+                    let cuenta = 0;
+                    for(let r of json) {
+                        if(!r['APELLIDOS']) continue; const id = 'baja_' + Date.now() + Math.random().toString(36).substring(7);
+                        await setDoc(doc(db, "personal", id), {
+                            baja: true, apellidos: String(r['APELLIDOS']).toUpperCase(), nombres: r['NOMBRES'] ? String(r['NOMBRES']).toUpperCase() : '', dni: String(r['DNI'] || ''), empresa_baja: r['EMPRESA DE BAJA'] || '',
+                            fingreso: r['FECHA DE INGRESO (AAAA-MM-DD)'] || '', fbaja: r['FECHA DE SALIDA (AAAA-MM-DD)'] || '', mbaja: r['MOTIVO DE SALIDA'] || '',
+                            recomendacion: r['RECOMENDACION (SIN OBSERVACIONES, RECOMENDADO PARA RECONTRATACION, NO RECOMENDADO PARA RECONTRATACION)'] || 'SIN OBSERVACIONES'
+                        }); cuenta++;
+                    }
+                    alert(`Carga masiva finalizada. Se registraron ${cuenta} bajas en el sistema.`); input.value = '';
+                } catch(error) { alert("Ocurrió un error al procesar el archivo Excel."); }
+            }; reader.readAsArrayBuffer(file);
+        };
+
+        // ================= SANCIONES ================= //
+        window.abrirModalSancion = () => { document.getElementById('form-sancion').reset(); window.abrirModal('modal-sancion'); };
+        addSafeListener('form-sancion', 'submit', (e) => {
+            e.preventDefault(); if(!state.selectedId) return;
+            const btn = document.getElementById('btn-save-sancion'); btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; btn.disabled = true;
+
+            const k = 's_' + Date.now(); const payload = { fecha: document.getElementById('s-fecha').value, motivo: document.getElementById('s-motivo').value };
+            
+            setDoc(doc(db, "personal", state.selectedId), { sanc: { [k]: payload } }, { merge: true })
+                .then(() => { window.cerrarModal('modal-sancion'); btn.innerHTML = 'Aplicar Sanción'; btn.disabled = false; })
+                .catch(e => { alert("Error al guardar sanción."); btn.innerHTML = 'Aplicar Sanción'; btn.disabled = false; });
+        });
+
+        // ================= USUARIOS EN NUBE ================= //
+        window.abrirModalUsuario = () => { document.getElementById('form-user').reset(); window.abrirModal('modal-user'); };
+        addSafeListener('form-user', 'submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btn-save-user'); btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; btn.disabled = true;
+
+            const email = document.getElementById('u-email').value.trim(); const pass = document.getElementById('u-pwd').value; const rol = document.getElementById('u-rol').value;
+            const b64 = btoa(email); 
+
+            try {
+                await setDoc(doc(db, "usuarios", b64), { email: email, rol: rol }, { merge: true });
+                createUserWithEmailAndPassword(authSecundario, email, pass).then(() => signOut(authSecundario)).catch(err => { });
+                window.cerrarModal('modal-user'); btn.innerHTML = 'Guardar Rol'; btn.disabled = false;
+            } catch (err) { alert("Error de conexión con la BD: " + err.message); btn.innerHTML = 'Guardar Rol'; btn.disabled = false; }
+        });
+
+        window.borrarUser = id => { if(confirm('¿Inhabilitar a este usuario de la Base de Datos?')) { deleteDoc(doc(db, "usuarios", id)).catch(e => alert("Error al eliminar.")); } };
+
+        // ================= EXPORTACIÓN PDF Y EXCEL GLOBAL ================= //
+        window.exportarExcel = (tId, fname) => { 
+            if(typeof XLSX === 'undefined') { alert("Cargando módulos de Excel, intente en unos segundos."); return; }
+            const wb = XLSX.utils.table_to_book(document.getElementById(tId), {sheet:"Reporte"});
+            XLSX.writeFile(wb, `${fname}.xlsx`); 
+        };
+        
+        window.exportarFichaCV = () => {
+            try {
+                if(!state.selectedId) return; 
+                const p = state.personal[state.selectedId]; 
+                if(typeof window.jspdf === 'undefined') { alert("Librería PDF cargando, intente nuevamente en un momento."); return; }
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                const mcpBlue = [10, 27, 63]; const mcpGold = [203, 160, 82]; const grayText = [100, 116, 139]; const blackText = [51, 65, 85];
+                let y = 0; const checkPageBreak = (spaceNeeded = 10) => { if (y + spaceNeeded > 280) { doc.addPage(); y = 20; } };
+
+                doc.setFillColor(...mcpBlue); doc.rect(0, 0, 210, 35, 'F'); doc.setTextColor(255, 255, 255); doc.setFont("helvetica", "bold"); doc.setFontSize(16); doc.text("SERVICIO DE EMERGENCIAS - MCP", 15, 18);
+                doc.setFont("helvetica", "normal"); doc.setFontSize(10); doc.setTextColor(...mcpGold); doc.text("EXPEDIENTE DIGITAL DE PERSONAL", 15, 25);
+                y = 45;
+
+                doc.setTextColor(...mcpBlue); doc.setFont("helvetica", "bold"); doc.setFontSize(20); doc.text(`${p.apellidos || ''}, ${p.nombres || ''}`, 15, y); y += 6;
+                doc.setTextColor(...grayText); doc.setFontSize(11); doc.text((p.puesto || 'OFICIAL DE RESCATE').toUpperCase(), 15, y); y += 12;
+
+                const printSectionTitle = (title) => { checkPageBreak(15); doc.setFillColor(...mcpBlue); doc.rect(15, y, 180, 8, 'F'); doc.setTextColor(255, 255, 255); doc.setFont("helvetica", "bold"); doc.setFontSize(10); doc.text(title.toUpperCase(), 18, y + 5.5); y += 12; };
+                const printField = (label, value, x1, x2) => { doc.setFont("helvetica", "bold"); doc.setTextColor(...blackText); doc.setFontSize(9); doc.text(label + ":", x1, y); doc.setFont("helvetica", "normal"); doc.setTextColor(...grayText); doc.text(String(value || '-'), x2, y); };
+
+                printSectionTitle("Datos Personales y Contacto"); checkPageBreak(25);
+                printField("DNI", p.dni, 15, 42); printField("F. Nacimiento", p.f_nac, 105, 135); y += 6;
+                printField("Edad", p.edad ? p.edad + ' años' : '', 15, 42); printField("Grupo Sang.", p.sangre, 105, 135); y += 6;
+                printField("Estado Civil", p.estcivil, 15, 42); printField("Teléfono", p.telefono, 105, 135); y += 6;
+                printField("Correo", p.email, 15, 42); printField("Dirección", p.direccion, 105, 135); y += 6;
+                printField("Contacto Eme.", p.contactoem, 15, 42); printField("N° Emergencia", `${p.numcontacto || '-'} (${p.parentesco || '-'})`, 105, 135); y += 12;
+
+                printSectionTitle("Datos Operativos y Contractuales"); checkPageBreak(25);
+                printField("Ingreso", p.fingreso, 15, 42); printField("Fin Contrato", p.ffin, 105, 135); y += 6;
+                printField("Lic. MTC", p.licmtc, 15, 42); printField("Categoría", p.catmtc, 105, 135); y += 6;
+                printField("Lic. Interna", p.licint, 15, 42); printField("Venc. Salud", p.vsalud, 105, 135); y += 6;
+                printField("Especialidad", p.especialidad, 15, 42); printField("Vehículos", p.vehiculos, 105, 135); y += 12;
+
+                const printListSection = (title, listDef, dataObj) => {
+                    printSectionTitle(title); let col = 1; let hasData = false; doc.setFontSize(9);
+                    if (dataObj) {
+                        listDef.forEach((item, i) => {
+                            let itemName = typeof item === 'string' ? item : item.id; let itemDate = dataObj[i];
+                            if (col === 1) checkPageBreak(8);
+                            doc.setFont("helvetica", "normal"); doc.setTextColor(...blackText);
+                            let textStr = itemName; if (textStr.length > 35) textStr = textStr.substring(0, 32) + '...'; doc.text(textStr, col === 1 ? 15 : 105, y);
+                            doc.setFont("helvetica", "bold"); 
+                            if(!itemDate) { doc.setTextColor(220, 38, 38); doc.text("Pendiente", col === 1 ? 95 : 190, y, { align: "right" }); } 
+                            else {
+                                hasData = true; 
+                                const vig = typeof item === 'string' ? 1 : item.v; const res = generarAlerta(itemDate, vig);
+                                if (res.isCrit && res.bg === 'bg-danger') doc.setTextColor(220, 38, 38); else if (res.isCrit && res.bg === 'bg-warning') doc.setTextColor(217, 119, 6); else doc.setTextColor(5, 150, 105);
+                                doc.text(itemDate, col === 1 ? 95 : 190, y, { align: "right" });
+                            }
+                            if (col === 2) { y += 6; col = 1; } else { col = 2; }
+                        });
+                    }
+                    if (col === 2) y += 6; if (!hasData) { doc.setFont("helvetica", "italic"); doc.setTextColor(...grayText); doc.text("Sin registros disponibles.", 15, y); y += 6; } y += 5;
+                };
+
+                printListSection("Capacitaciones y Cursos SSO", CURSOS_SSO, p.csso);
+                printListSection("Cursos de Perfil de Puesto", CURSOS_PERFIL, p.cperf);
+                printListSection("Inducciones y Políticas Entregadas", INDUCCIONES, p.inds);
+                doc.save(`Ficha_CV_${(p.apellidos || 'Personal').replace(/\s/g,'_')}.pdf`);
+            } catch (error) { console.error(error); alert("No se pudo generar el PDF corporativo."); }
+        };
 
     </script>
 </body>
