@@ -243,7 +243,10 @@
             <div class="card">
                 <div class="section-title">
                     Consolidado de Alertas Críticas (Cursos e Inducciones)
-                    <button class="btn btn-sec btn-sm" onclick="window.exportarExcel('tabla-alertas', 'Alertas_Emergencias')"><i class="fa-solid fa-file-excel"></i> Exportar a Excel</button>
+                    <div style="display:flex; gap:10px; align-items:center;">
+                        <input type="text" id="search-alertas" class="form-control" placeholder="Filtrar alertas..." style="width:200px;" onkeyup="window.filtrarAlertas()">
+                        <button class="btn btn-sec btn-sm" onclick="window.exportarExcel('tabla-alertas', 'Alertas_Emergencias')"><i class="fa-solid fa-file-excel"></i> Exportar a Excel</button>
+                    </div>
                 </div>
                 <div class="table-container">
                     <table id="tabla-alertas">
@@ -260,7 +263,7 @@
                     <div class="layout-actions">
                         <input type="text" id="search-personal" class="form-control" placeholder="Buscar por Apellido..." onkeyup="window.renderListaPersonal()">
                         <div style="display:flex; gap:8px;">
-                            <button class="btn btn-primary btn-sm btn-editor" style="flex:1;" onclick="window.abrirModalPersonal()"><i class="fa-solid fa-user-plus"></i> Nuevo</button>
+                            <button class="btn btn-primary btn-sm btn-editor" style="flex:1;" onclick="window.abrirModalPersonal()"><i class="fa-solid fa-user-plus"></i> Nuevo Personal</button>
                         </div>
                     </div>
                     <ul class="person-list" id="ul-personal"></ul>
@@ -358,7 +361,7 @@
                             </div>
                             <div class="table-container">
                                 <table>
-                                    <thead><tr><th>Fecha Falta</th><th>Motivo / Tipificación</th><th>Archivo Sustento</th></tr></thead>
+                                    <thead><tr><th>Fecha Falta</th><th>Motivo / Tipificación</th><th>Archivo Sustento</th><th class="btn-editor" style="width:100px;">Acciones</th></tr></thead>
                                     <tbody id="tbody-amonestaciones"></tbody>
                                 </table>
                             </div>
@@ -374,8 +377,10 @@
                 <div class="layout-left">
                     <div class="layout-actions">
                         <input type="text" id="search-epps" class="form-control" placeholder="Buscar personal..." onkeyup="window.renderListaEpps()">
-                        <div style="display:flex; gap:8px;">
-                            <button class="btn btn-sec btn-sm" style="flex:1;" onclick="window.abrirModalReporteEpps()"><i class="fa-solid fa-chart-bar"></i> Totales Globales</button>
+                        <div style="display:flex; flex-direction:column; gap:8px;">
+                            <button class="btn btn-sec btn-sm" onclick="window.abrirModalReporteEpps()"><i class="fa-solid fa-chart-bar"></i> Totales Globales</button>
+                            <button class="btn btn-sec btn-sm btn-editor admin-only" onclick="window.abrirConfigGlobal('basico')"><i class="fa-solid fa-gear"></i> Config. EPP Básico</button>
+                            <button class="btn btn-sec btn-sm btn-editor admin-only" onclick="window.abrirConfigGlobal('est')"><i class="fa-solid fa-gear"></i> Config. EPP Estruct.</button>
                         </div>
                     </div>
                     <ul class="person-list" id="ul-epps"></ul>
@@ -433,7 +438,7 @@
 
                         <div class="card">
                             <div class="section-title">Detalle EPP Estructural Asignado
-                                <button class="btn btn-primary btn-sm btn-editor" onclick="window.abrirModalEppEstNuevo()"><i class="fa-solid fa-plus"></i> Agregar Equipo Estructural</button>
+                                <button class="btn btn-primary btn-sm btn-editor" onclick="window.abrirModalEppEstNuevo()"><i class="fa-solid fa-plus"></i> Agregar Equipo Estruct.</button>
                             </div>
                             <div class="table-container">
                                 <table style="min-width: 1000px;">
@@ -485,7 +490,7 @@
 
                         <div class="card">
                             <div class="section-title">Estado Nutricional Histórico
-                                <button class="btn btn-primary btn-sm btn-editor" onclick="window.abrirModalNutricion()"><i class="fa-solid fa-plus"></i> Nueva Evaluación</button>
+                                <button class="btn btn-primary btn-sm btn-editor" onclick="window.abrirModalNutricionNueva()"><i class="fa-solid fa-plus"></i> Nueva Evaluación</button>
                             </div>
                             <div class="table-container">
                                 <table class="table-transposed" id="tabla-nutricion">
@@ -620,6 +625,20 @@
         </div>
     </div>
 
+    <div id="modal-config-epps" class="modal">
+        <div class="modal-content modal-sm">
+            <h2 id="config-epps-title" style="color:var(--mcp-blue); margin-bottom: 20px; font-size:18px;">Configuración Global</h2>
+            <form id="form-config-epps">
+                <input type="hidden" id="ce-tipo">
+                <div id="config-epps-list" style="max-height: 400px; overflow-y:auto; padding-right:10px;"></div>
+                <div style="margin-top:20px; text-align:right; display:flex; justify-content:flex-end; gap:10px;">
+                    <button type="button" class="btn btn-sec btn-sm" onclick="window.cerrarModal('modal-config-epps')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary btn-sm">Guardar Globales</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div id="modal-epp" class="modal">
         <div class="modal-content modal-sm">
             <h2 style="color:var(--mcp-blue); margin-bottom: 20px; font-size:18px;" id="modal-epp-title">Gestionar EPP Básico</h2>
@@ -633,10 +652,7 @@
                     <div class="field"><label>Talla</label><input type="text" id="fe-talla" class="form-control"></div>
                     <div class="field"><label>Fecha de Entrega</label><input type="date" id="fe-fecha" class="form-control"></div>
                 </div>
-                <div class="grid-2">
-                    <div class="field"><label>Cant. Contrato (Global)</label><input type="number" id="fe-ccont" class="form-control" placeholder="Meta" required></div>
-                    <div class="field"><label>Cant. Real Asignada</label><input type="number" id="fe-creal" class="form-control" required></div>
-                </div>
+                <div class="field" style="margin-top:10px;"><label>Cant. Real Asignada</label><input type="number" id="fe-creal" class="form-control" required></div>
                 <div style="margin-top:20px; text-align:right; display:flex; justify-content:flex-end; gap:10px;">
                     <button type="button" class="btn btn-sec btn-sm" onclick="window.cerrarModal('modal-epp')">Cancelar</button>
                     <button type="submit" class="btn btn-primary btn-sm">Guardar EPP Básico</button>
@@ -663,10 +679,7 @@
                     <div class="field"><label>Talla</label><input type="text" id="fe-est-talla" class="form-control"></div>
                     <div class="field"><label>Fecha de Entrega</label><input type="date" id="fe-est-fecha" class="form-control"></div>
                 </div>
-                <div class="grid-2">
-                    <div class="field"><label>Cant. Contrato (Global)</label><input type="number" id="fe-est-ccont" class="form-control" placeholder="Meta" required></div>
-                    <div class="field"><label>Cant. Real Asignada</label><input type="number" id="fe-est-creal" class="form-control" required></div>
-                </div>
+                <div class="field" style="margin-top:10px;"><label>Cant. Real Asignada</label><input type="number" id="fe-est-creal" class="form-control" required></div>
                 <div style="margin-top:20px; text-align:right; display:flex; justify-content:flex-end; gap:10px;">
                     <button type="button" class="btn btn-sec btn-sm" onclick="window.cerrarModal('modal-epp-est')">Cancelar</button>
                     <button type="submit" class="btn btn-primary btn-sm">Guardar EPP Estructural</button>
@@ -677,8 +690,9 @@
 
     <div id="modal-nutricion" class="modal">
         <div class="modal-content modal-sm">
-            <h2 style="color:var(--success); margin-bottom: 20px; font-size:18px;">Nueva Evaluación Nutricional</h2>
+            <h2 style="color:var(--success); margin-bottom: 20px; font-size:18px;">Ficha de Evaluación Nutricional</h2>
             <form id="form-nutricion">
+                <input type="hidden" id="fn-idx" value="-1">
                 <div class="field"><label>Fecha de Evaluación</label><input type="date" id="fn-fecha" class="form-control" required></div>
                 <div class="grid-2">
                     <div class="field"><label>Talla (metros)</label><input type="number" step="0.01" id="fn-talla" class="form-control" oninput="window.calcNutricion()" required></div>
@@ -845,8 +859,9 @@
 
     <div id="modal-sancion" class="modal">
         <div class="modal-content modal-sm">
-            <h2 style="color:var(--danger); margin-bottom: 20px; font-size:18px;">Registrar Amonestación</h2>
+            <h2 style="color:var(--danger); margin-bottom: 20px; font-size:18px;">Ficha de Amonestación</h2>
             <form id="form-sancion">
+                <input type="hidden" id="s-id">
                 <div class="field"><label>Fecha de la Falta</label><input type="date" id="s-fecha" class="form-control" required></div>
                 <div class="field"><label>Descripción del Suceso</label><textarea id="s-motivo" class="form-control" rows="4" required></textarea></div>
                 <div style="margin-top:20px; text-align:right; display:flex; justify-content:flex-end; gap:10px;">
@@ -857,31 +872,13 @@
         </div>
     </div>
 
-    <div id="modal-reporte-epps" class="modal">
-        <div class="modal-content" style="max-width: 600px;">
-            <div class="section-title">Resumen de EPPs en el Servicio
-                <button class="btn btn-sec btn-sm" onclick="window.exportarExcel('tabla-reporte-epps', 'Reporte_Total_EPPs')"><i class="fa-solid fa-file-excel"></i> Exportar</button>
-            </div>
-            <p style="font-size:12px; color:var(--text-light); margin-bottom:15px;">Sumatoria de "Cantidades Reales" asignadas a todo el personal activo.</p>
-            <div class="table-container">
-                <table id="tabla-reporte-epps">
-                    <thead><tr><th>Descripción de Equipo de Protección</th><th style="text-align:center;">Total Entregado</th></tr></thead>
-                    <tbody id="tbody-reporte-epps"></tbody>
-                </table>
-            </div>
-            <div style="margin-top:20px; text-align:right;">
-                <button type="button" class="btn btn-sec btn-sm" onclick="window.cerrarModal('modal-reporte-epps')">Cerrar</button>
-            </div>
-        </div>
-    </div>
-
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection, updateDoc, deleteField } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
         import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
 
-        // Registrar ChartJS DataLabels de manera extremadamente segura
+        // Inicialización segura del Plugin DataLabels
         if(window.Chart && window.ChartDataLabels) {
             window.Chart.register(window.ChartDataLabels);
         }
@@ -932,13 +929,6 @@
         ];
 
         let state = { user: null, rol: 'LECTOR', personal: {}, usuarios: {}, eppsGlobal: {}, eppsEstGlobal: {}, selectedId: null, selectedEppId: null, selectedFisicoId: null, filterActive: false };
-        let gymChartInst = null;
-
-        // INICIALIZACIÓN SUPER-SEGURA DE EVENTOS Y FUNCIONES
-        const addSafeListener = (id, event, callback) => {
-            const el = document.getElementById(id);
-            if (el) el.addEventListener(event, callback);
-        };
 
         window.togglePasswordVisibility = (inputId, icon) => {
             const input = document.getElementById(inputId);
@@ -980,6 +970,20 @@
                 btn.innerHTML = '<i class="fa-solid fa-filter"></i> Filtrar Faltantes';
             }
             if(state.selectedId) window.cargarDetallePersonal(state.selectedId);
+        };
+
+        window.filtrarAlertas = () => {
+            const term = document.getElementById('search-alertas').value.toLowerCase();
+            const rows = document.querySelectorAll('#tbody-alertas tr');
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                row.style.display = text.includes(term) ? '' : 'none';
+            });
+        };
+
+        const addSafeListener = (id, event, callback) => {
+            const el = document.getElementById(id);
+            if (el) el.addEventListener(event, callback);
         };
 
         addSafeListener('form-login', 'submit', async (e) => {
@@ -1036,9 +1040,11 @@
         function aplicarPermisosUI() {
             document.getElementById('display-rol').innerText = state.rol;
             const hideEdit = state.rol === 'LECTOR';
+            
             document.querySelectorAll('.btn-editor').forEach(el => {
                 if(hideEdit) el.classList.add('editor-hidden'); else el.classList.remove('editor-hidden');
             });
+            
             const isAdmin = state.rol === 'ADMINISTRADOR';
             document.querySelectorAll('.admin-only, .btn-admin').forEach(el => {
                 if(isAdmin) el.classList.remove('admin-hidden'); else el.classList.add('admin-hidden');
@@ -1198,7 +1204,7 @@
             const ul = document.getElementById('ul-personal'); 
             if(ul) {
                 ul.innerHTML = '';
-                const lista = Object.entries(state.personal).map(([id,p])=>({id,...p})).filter(p=>!p.baja && p.apellidos.toLowerCase().includes(term)).sort((a,b)=>a.apellidos.localeCompare(b.apellidos));
+                const lista = Object.entries(state.personal).map(([id,p])=>({id,...p})).filter(p=>!p.baja && (p.apellidos||'').toLowerCase().includes(term)).sort((a,b)=>(a.apellidos||'').localeCompare(b.apellidos||''));
                 lista.forEach(p => ul.insertAdjacentHTML('beforeend', `<li class="person-item ${state.selectedId===p.id?'active':''}" onclick="window.cargarDetallePersonal('${p.id}')"><i class="fa-solid fa-user-shield" style="color:var(--mcp-gold); margin-right:8px;"></i> ${p.apellidos}, ${p.nombres}</li>`));
             }
         };
@@ -1253,7 +1259,7 @@
             const tbSanc = document.getElementById('tbody-amonestaciones'); 
             if(tbSanc) {
                 tbSanc.innerHTML = '';
-                if(p.sanc) {
+                if(p.sanc && Object.keys(p.sanc).length > 0) {
                     Object.entries(p.sanc).forEach(([k, s]) => {
                         const fileCell = s.file 
                             ? `<div style="display:inline-flex; gap:5px; align-items:center;">
@@ -1263,10 +1269,18 @@
                                </div><div style="font-size:10px; color:var(--text-light); margin-top:4px;">Subido: ${s.file.fecha}</div>`
                             : `<label class="btn btn-sm btn-sec btn-editor" style="margin:0;"><i class="fa-solid fa-upload"></i> Subir PDF<input type="file" hidden accept=".pdf" onchange="window.subirArchivo(this, 'sanciones', '${id}', '${k}')"></label>`;
 
-                        tbSanc.insertAdjacentHTML('beforeend',`<tr><td>${s.fecha}</td><td>${s.motivo}</td><td>${fileCell}</td></tr>`);
+                        tbSanc.insertAdjacentHTML('beforeend',`<tr>
+                            <td>${s.fecha}</td>
+                            <td>${s.motivo}</td>
+                            <td>${fileCell}</td>
+                            <td class="btn-editor">
+                                <button class="btn btn-sm btn-sec" onclick="window.editarSancion('${id}', '${k}')"><i class="fa-solid fa-pen"></i></button>
+                                <button class="btn btn-sm btn-danger" onclick="window.eliminarSancion('${id}', '${k}')"><i class="fa-solid fa-trash"></i></button>
+                            </td>
+                        </tr>`);
                     });
                 } else {
-                    tbSanc.innerHTML = '<tr><td colspan="3" style="text-align:center; color:var(--text-light);">Sin amonestaciones registradas.</td></tr>';
+                    tbSanc.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--text-light);">Sin amonestaciones registradas.</td></tr>';
                 }
             }
 
@@ -1349,7 +1363,7 @@
             const ul = document.getElementById('ul-fisico'); 
             if(ul) {
                 ul.innerHTML = '';
-                const lista = Object.entries(state.personal).map(([id,p])=>({id,...p})).filter(p=>!p.baja && p.apellidos.toLowerCase().includes(term)).sort((a,b)=>a.apellidos.localeCompare(b.apellidos));
+                const lista = Object.entries(state.personal).map(([id,p])=>({id,...p})).filter(p=>!p.baja && (p.apellidos||'').toLowerCase().includes(term)).sort((a,b)=>(a.apellidos||'').localeCompare(b.apellidos||''));
                 lista.forEach(p => ul.insertAdjacentHTML('beforeend', `<li class="person-item ${state.selectedFisicoId===p.id?'active':''}" onclick="window.cargarDetalleFisico('${p.id}')"><i class="fa-solid fa-heart-pulse" style="color:var(--mcp-gold); margin-right:8px;"></i> ${p.apellidos}, ${p.nombres}</li>`));
             }
         };
@@ -1399,6 +1413,14 @@
                         return `<td style="text-align:center; min-width:140px;">${indicator}${val}</td>`;
                     }).join('') + '</tr>';
                 }).join('');
+
+                let actionRow = `<tr><td><b>Acciones</b></td>` + nArr.map((n, idx) => {
+                    return `<td style="text-align:center;" class="btn-editor">
+                                <button class="btn btn-sm btn-sec" onclick="window.editarNutricion(${idx})"><i class="fa-solid fa-pen"></i></button>
+                                <button class="btn btn-sm btn-danger" onclick="window.eliminarNutricion(${idx})"><i class="fa-solid fa-trash"></i></button>
+                            </td>`;
+                }).join('') + '</tr>';
+                tbodyN.insertAdjacentHTML('beforeend', actionRow);
             }
 
             // TABLA GYM
@@ -1523,7 +1545,38 @@
             }
         };
 
-        window.abrirModalNutricion = () => { document.getElementById('form-nutricion').reset(); window.abrirModal('modal-nutricion'); };
+        window.abrirModalNutricionNueva = () => { 
+            document.getElementById('form-nutricion').reset(); 
+            document.getElementById('fn-idx').value = "-1";
+            window.abrirModal('modal-nutricion'); 
+        };
+
+        window.editarNutricion = (idx) => {
+            const n = state.personal[state.selectedFisicoId].nutricion[idx];
+            document.getElementById('form-nutricion').reset();
+            document.getElementById('fn-idx').value = idx;
+            document.getElementById('fn-fecha').value = n.fecha || '';
+            document.getElementById('fn-talla').value = n.talla || '';
+            document.getElementById('fn-peso').value = n.peso || '';
+            document.getElementById('fn-grasa').value = n.grasa || '';
+            document.getElementById('fn-gvisc').value = n.gvisc || '';
+            document.getElementById('fn-musc').value = n.musc || '';
+            document.getElementById('fn-pabd').value = n.pabd || '';
+            document.getElementById('fn-pcad').value = n.pcad || '';
+            document.getElementById('fn-edadc').value = n.edadc || '';
+            document.getElementById('fn-calorias').value = n.calorias || '';
+            document.getElementById('fn-fsig').value = n.fsig || '';
+            window.calcNutricion(); 
+            if(n.analisis) document.getElementById('fn-analisis').value = n.analisis; // override if saved
+            window.abrirModal('modal-nutricion');
+        };
+
+        window.eliminarNutricion = async (idx) => {
+            if(!confirm("¿Eliminar evaluación nutricional?")) return;
+            let nArr = state.personal[state.selectedFisicoId].nutricion || [];
+            nArr.splice(idx, 1);
+            try { await updateDoc(doc(db, "personal", state.selectedFisicoId), { nutricion: nArr }); } catch(e){}
+        };
         
         addSafeListener('form-nutricion', 'submit', (e) => {
             e.preventDefault(); if(!state.selectedFisicoId) return;
@@ -1543,7 +1596,13 @@
             };
 
             let nArr = state.personal[state.selectedFisicoId].nutricion || [];
-            nArr.push(nObj);
+            let idx = parseInt(document.getElementById('fn-idx').value);
+
+            if(idx >= 0) {
+                nArr[idx] = nObj;
+            } else {
+                nArr.push(nObj);
+            }
             nArr.sort((a,b) => a.fecha.localeCompare(b.fecha));
 
             updateDoc(doc(db, "personal", state.selectedFisicoId), { nutricion: nArr }).then(() => {
@@ -1656,9 +1715,9 @@
 
             document.getElementById('chart-title').innerText = labelTitle;
 
-            if(gymChartInst) gymChartInst.destroy();
+            if(window.gymChartInst) window.gymChartInst.destroy();
             const ctx = document.getElementById('gymChart').getContext('2d');
-            gymChartInst = new Chart(ctx, {
+            window.gymChartInst = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: labels,
@@ -1698,7 +1757,7 @@
             const ul = document.getElementById('ul-epps'); 
             if(ul) {
                 ul.innerHTML = '';
-                const lista = Object.entries(state.personal).map(([id,p])=>({id,...p})).filter(p=>!p.baja && p.apellidos.toLowerCase().includes(term)).sort((a,b)=>a.apellidos.localeCompare(b.apellidos));
+                const lista = Object.entries(state.personal).map(([id,p])=>({id,...p})).filter(p=>!p.baja && (p.apellidos||'').toLowerCase().includes(term)).sort((a,b)=>(a.apellidos||'').localeCompare(b.apellidos||''));
                 lista.forEach(p => ul.insertAdjacentHTML('beforeend', `<li class="person-item ${state.selectedEppId===p.id?'active':''}" onclick="window.cargarDetalleEpps('${p.id}')"><i class="fa-solid fa-hard-hat" style="color:var(--mcp-gold); margin-right:8px;"></i> ${p.apellidos}, ${p.nombres}</li>`));
             }
         };
@@ -1738,8 +1797,8 @@
                         <td style="text-align:center;">${deficit ? `<i class="fa-solid fa-triangle-exclamation text-danger" title="Menor a contrato"></i>` : ''} <b>${epp.cant_real || '0'}</b></td>
                         <td><div style="margin-bottom:3px;">${epp.fecha || 'Sin fecha'}</div>${epp.fecha ? `<span class="badge ${res.bg}">${res.txt}</span>` : ''}</td>
                         <td class="btn-editor">
-                            <button class="btn btn-sm btn-sec" onclick="window.abrirModalEppEditar(${idx})"><i class="fa-solid fa-pen"></i></button>
-                            <button class="btn btn-sm btn-danger" onclick="window.eliminarFilaEpp(${idx})"><i class="fa-solid fa-trash"></i></button>
+                            <button class="btn btn-sm btn-sec" onclick="window.abrirModalEppEditar('${encodeURIComponent(epp.name)}')"><i class="fa-solid fa-pen"></i></button>
+                            <button class="btn btn-sm btn-danger" onclick="window.eliminarFilaEpp('${encodeURIComponent(epp.name)}')"><i class="fa-solid fa-trash"></i></button>
                         </td>
                     `;
                     tbody.appendChild(tr);
@@ -1771,8 +1830,8 @@
                         <td style="text-align:center;">${deficit ? `<i class="fa-solid fa-triangle-exclamation text-danger"></i>` : ''} <b>${epp.cant_real || '0'}</b></td>
                         <td><div style="margin-bottom:3px;">${epp.fecha || 'Sin fecha'}</div>${epp.fecha ? `<span class="badge ${res.bg}">${res.txt}</span>` : ''}</td>
                         <td class="btn-editor">
-                            <button class="btn btn-sm btn-sec" onclick="window.abrirModalEppEstEditar(${idx})"><i class="fa-solid fa-pen"></i></button>
-                            <button class="btn btn-sm btn-danger" onclick="window.eliminarFilaEppEst(${idx})"><i class="fa-solid fa-trash"></i></button>
+                            <button class="btn btn-sm btn-sec" onclick="window.abrirModalEppEstEditar('${encodeURIComponent(epp.name)}')"><i class="fa-solid fa-pen"></i></button>
+                            <button class="btn btn-sm btn-danger" onclick="window.eliminarFilaEppEst('${encodeURIComponent(epp.name)}')"><i class="fa-solid fa-trash"></i></button>
                         </td>
                     `;
                     tbodyEst.appendChild(tr);
@@ -1783,87 +1842,194 @@
         };
 
         window.abrirModalEppNuevo = () => {
-            document.getElementById('form-epp').reset(); document.getElementById('fe-idx').value = '-1';
-            document.getElementById('fe-ccont').disabled = false; document.getElementById('modal-epp-title').innerText = "Añadir Nuevo Equipo Básico";
+            document.getElementById('form-epp').reset(); 
+            document.getElementById('fe-idx').value = '-1';
+            document.getElementById('fe-name').readOnly = false;
             window.abrirModal('modal-epp');
         };
 
-        window.abrirModalEppEditar = (idx) => {
+        window.abrirModalEppEditar = (encodedName) => {
             if(!state.selectedEppId) return;
-            const epp = state.personal[state.selectedEppId].epps_data[idx];
-            document.getElementById('form-epp').reset(); document.getElementById('fe-idx').value = idx;
-            document.getElementById('fe-name').value = epp.name; document.getElementById('fe-talla').value = epp.talla || '';
-            document.getElementById('fe-ccont').value = state.eppsGlobal[epp.name] || 1; document.getElementById('fe-creal').value = epp.cant_real || '';
-            document.getElementById('fe-fecha').value = epp.fecha || ''; document.getElementById('modal-epp-title').innerText = "Editar Equipo Básico";
+            const name = decodeURIComponent(encodedName);
+            let epp = state.personal[state.selectedEppId].epps_data.find(e => e.name === name);
+            if(!epp) epp = { name: name, talla: '', cant_real: '', fecha: '' }; // Fallback
+
+            document.getElementById('form-epp').reset(); 
+            document.getElementById('fe-idx').value = name; 
+            document.getElementById('fe-name').value = epp.name; 
+            document.getElementById('fe-name').readOnly = true; 
+            document.getElementById('fe-talla').value = epp.talla || '';
+            document.getElementById('fe-creal').value = epp.cant_real || ''; 
+            document.getElementById('fe-fecha').value = epp.fecha || '';
+            document.getElementById('modal-epp-title').innerText = "Editar Equipo Básico";
             window.abrirModal('modal-epp');
         };
 
+        window.eliminarFilaEpp = async (encodedName) => {
+            const name = decodeURIComponent(encodedName);
+            if(!confirm(`¿Eliminar permanentemente el equipo "${name}" para TODOS los usuarios?`)) return;
+            
+            try { 
+                await updateDoc(doc(db, "config", "epps_global"), { [name]: deleteField() }); 
+                
+                const batchPromises = [];
+                Object.keys(state.personal).forEach(pId => {
+                    let pData = state.personal[pId].epps_data || [];
+                    const initLen = pData.length;
+                    pData = pData.filter(e => e.name !== name);
+                    if(pData.length !== initLen) {
+                        batchPromises.push(updateDoc(doc(db, "personal", pId), { epps_data: pData }));
+                    }
+                });
+                await Promise.all(batchPromises);
+            } catch (error) { console.error(error); }
+        };
+
+        window.abrirModalEppEstNuevo = () => {
+            document.getElementById('form-epp-est').reset(); 
+            document.getElementById('fe-est-idx').value = '-1';
+            document.getElementById('fe-est-name').readOnly = false;
+            window.abrirModal('modal-epp-est');
+        };
+
+        window.abrirModalEppEstEditar = (encodedName) => {
+            if(!state.selectedEppId) return;
+            const name = decodeURIComponent(encodedName);
+            let epp = state.personal[state.selectedEppId].epps_est_data.find(e => e.name === name);
+            if(!epp) epp = { name: name, marca: '', modelo: '', ffab: '', talla: '', cant_real: '', fecha: '' };
+
+            document.getElementById('form-epp-est').reset(); 
+            document.getElementById('fe-est-idx').value = name; 
+            document.getElementById('fe-est-name').value = epp.name; 
+            document.getElementById('fe-est-name').readOnly = true; 
+            document.getElementById('fe-est-marca').value = epp.marca || '';
+            document.getElementById('fe-est-modelo').value = epp.modelo || ''; 
+            document.getElementById('fe-est-ffab').value = epp.ffab || '';
+            document.getElementById('fe-est-talla').value = epp.talla || ''; 
+            document.getElementById('fe-est-creal').value = epp.cant_real || ''; 
+            document.getElementById('fe-est-fecha').value = epp.fecha || '';
+            document.getElementById('modal-epp-est-title').innerText = "Editar Equipo Estructural";
+            window.abrirModal('modal-epp-est');
+        };
+
+        window.eliminarFilaEppEst = async (encodedName) => {
+            const name = decodeURIComponent(encodedName);
+            if(!confirm(`¿Eliminar permanentemente el equipo estructural "${name}" para TODOS los usuarios?`)) return;
+            
+            try { 
+                await updateDoc(doc(db, "config", "epps_est_global"), { [name]: deleteField() }); 
+                
+                const batchPromises = [];
+                Object.keys(state.personal).forEach(pId => {
+                    let pData = state.personal[pId].epps_est_data || [];
+                    const initLen = pData.length;
+                    pData = pData.filter(e => e.name !== name);
+                    if(pData.length !== initLen) {
+                        batchPromises.push(updateDoc(doc(db, "personal", pId), { epps_est_data: pData }));
+                    }
+                });
+                await Promise.all(batchPromises);
+            } catch (error) { console.error(error); }
+        };
+
+        // Modales Globales EPP
+        window.abrirConfigGlobal = (tipo) => {
+            document.getElementById('ce-tipo').value = tipo;
+            document.getElementById('config-epps-title').innerText = tipo === 'basico' ? 'Cantidades Globales EPP Básico' : 'Cantidades Globales EPP Estructural';
+            const listDiv = document.getElementById('config-epps-list');
+            listDiv.innerHTML = '';
+            const dict = tipo === 'basico' ? state.eppsGlobal : state.eppsEstGlobal;
+            
+            Object.entries(dict).forEach(([name, cant], i) => {
+                listDiv.insertAdjacentHTML('beforeend', `
+                    <div class="field" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <label style="flex:1; margin:0; font-size:10px;">${name}</label>
+                        <input type="number" class="form-control" style="width:80px;" id="config-cant-${i}" data-name="${encodeURIComponent(name)}" value="${cant}" required>
+                    </div>
+                `);
+            });
+            window.abrirModal('modal-config-epps');
+        };
+
+        addSafeListener('form-config-epps', 'submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]'); btn.disabled = true;
+            const tipo = document.getElementById('ce-tipo').value;
+            const dictName = tipo === 'basico' ? 'epps_global' : 'epps_est_global';
+            
+            let newData = {};
+            const inputs = document.querySelectorAll('[id^="config-cant-"]');
+            inputs.forEach(inp => {
+                newData[decodeURIComponent(inp.getAttribute('data-name'))] = parseInt(inp.value);
+            });
+
+            try {
+                await setDoc(doc(db, "config", dictName), newData);
+                window.cerrarModal('modal-config-epps'); btn.disabled = false;
+            } catch(err) {
+                alert("Error guardando configuración global."); btn.disabled = false;
+            }
+        });
+
+        // Eventos Guardar EPP Individual
         addSafeListener('form-epp', 'submit', async (e) => {
             e.preventDefault(); if(!state.selectedEppId) return;
 
-            const idx = parseInt(document.getElementById('fe-idx').value);
+            const nameOriginal = document.getElementById('fe-idx').value; 
             const name = document.getElementById('fe-name').value.trim(); const talla = document.getElementById('fe-talla').value.trim();
-            const cant_cont = parseInt(document.getElementById('fe-ccont').value); const cant_real = document.getElementById('fe-creal').value;
-            const fecha = document.getElementById('fe-fecha').value;
+            const cant_real = document.getElementById('fe-creal').value; const fecha = document.getElementById('fe-fecha').value;
+            let currentGlobalCant = state.eppsGlobal[nameOriginal] || 1;
 
-            try { await updateDoc(doc(db, "config", "epps_global"), { [name]: cant_cont }); } catch(error) {}
+            try { 
+                if (nameOriginal !== '-1' && nameOriginal !== name) {
+                    await updateDoc(doc(db, "config", "epps_global"), { [nameOriginal]: deleteField(), [name]: currentGlobalCant });
+                } else if (nameOriginal === '-1' && !state.eppsGlobal[name]) {
+                    await updateDoc(doc(db, "config", "epps_global"), { [name]: 1 });
+                }
+            } catch(error) {}
 
             let pData = state.personal[state.selectedEppId].epps_data || [];
-            if(idx === -1) pData.push({ name, talla, cant_real, fecha }); 
-            else pData[idx] = { name, talla, cant_real, fecha };
+            if(nameOriginal === '-1') {
+                pData.push({ name, talla, cant_real, fecha }); 
+            } else {
+                let existingIndex = pData.findIndex(e => e.name === nameOriginal);
+                if(existingIndex !== -1) pData[existingIndex] = { name, talla, cant_real, fecha };
+                else pData.push({ name, talla, cant_real, fecha }); 
+            }
 
             try { await updateDoc(doc(db, "personal", state.selectedEppId), { epps_data: pData }); window.cerrarModal('modal-epp'); } 
             catch (error) { alert("Error al actualizar la base de datos."); }
         });
 
-        window.eliminarFilaEpp = async (idx) => {
-            if(!confirm("¿Eliminar este equipo del registro del oficial?")) return;
-            let pData = state.personal[state.selectedEppId].epps_data || []; pData.splice(idx, 1);
-            try { await updateDoc(doc(db, "personal", state.selectedEppId), { epps_data: pData }); } catch (error) {}
-        };
-
-        window.abrirModalEppEstNuevo = () => {
-            document.getElementById('form-epp-est').reset(); document.getElementById('fe-est-idx').value = '-1';
-            document.getElementById('fe-est-ccont').disabled = false; document.getElementById('modal-epp-est-title').innerText = "Añadir Nuevo Equipo Estructural";
-            window.abrirModal('modal-epp-est');
-        };
-
-        window.abrirModalEppEstEditar = (idx) => {
-            if(!state.selectedEppId) return;
-            const epp = state.personal[state.selectedEppId].epps_est_data[idx];
-            document.getElementById('form-epp-est').reset(); document.getElementById('fe-est-idx').value = idx;
-            document.getElementById('fe-est-name').value = epp.name; document.getElementById('fe-est-marca').value = epp.marca || '';
-            document.getElementById('fe-est-modelo').value = epp.modelo || ''; document.getElementById('fe-est-ffab').value = epp.ffab || '';
-            document.getElementById('fe-est-talla').value = epp.talla || ''; document.getElementById('fe-est-ccont').value = state.eppsEstGlobal[epp.name] || 1;
-            document.getElementById('fe-est-creal').value = epp.cant_real || ''; document.getElementById('fe-est-fecha').value = epp.fecha || '';
-            document.getElementById('modal-epp-est-title').innerText = "Editar Equipo Estructural";
-            window.abrirModal('modal-epp-est');
-        };
-
         addSafeListener('form-epp-est', 'submit', async (e) => {
             e.preventDefault(); if(!state.selectedEppId) return;
 
-            const idx = parseInt(document.getElementById('fe-est-idx').value);
+            const nameOriginal = document.getElementById('fe-est-idx').value;
             const name = document.getElementById('fe-est-name').value.trim(); const marca = document.getElementById('fe-est-marca').value.trim();
             const modelo = document.getElementById('fe-est-modelo').value.trim(); const ffab = document.getElementById('fe-est-ffab').value;
-            const talla = document.getElementById('fe-est-talla').value.trim(); const cant_cont = parseInt(document.getElementById('fe-est-ccont').value);
-            const cant_real = document.getElementById('fe-est-creal').value; const fecha = document.getElementById('fe-est-fecha').value;
+            const talla = document.getElementById('fe-est-talla').value.trim(); const cant_real = document.getElementById('fe-est-creal').value; const fecha = document.getElementById('fe-est-fecha').value;
+            let currentGlobalCant = state.eppsEstGlobal[nameOriginal] || 1;
 
-            try { await updateDoc(doc(db, "config", "epps_est_global"), { [name]: cant_cont }); } catch(error) {}
+            try { 
+                if (nameOriginal !== '-1' && nameOriginal !== name) {
+                    await updateDoc(doc(db, "config", "epps_est_global"), { [nameOriginal]: deleteField(), [name]: currentGlobalCant });
+                } else if (nameOriginal === '-1' && !state.eppsEstGlobal[name]) {
+                    await updateDoc(doc(db, "config", "epps_est_global"), { [name]: 1 });
+                }
+            } catch(error) {}
 
             let pData = state.personal[state.selectedEppId].epps_est_data || [];
-            if(idx === -1) pData.push({ name, marca, modelo, ffab, talla, cant_real, fecha }); 
-            else pData[idx] = { name, marca, modelo, ffab, talla, cant_real, fecha };
+            if(nameOriginal === '-1') {
+                pData.push({ name, marca, modelo, ffab, talla, cant_real, fecha }); 
+            } else {
+                let existingIndex = pData.findIndex(e => e.name === nameOriginal);
+                if(existingIndex !== -1) pData[existingIndex] = { name, marca, modelo, ffab, talla, cant_real, fecha };
+                else pData.push({ name, marca, modelo, ffab, talla, cant_real, fecha }); 
+            }
 
             try { await updateDoc(doc(db, "personal", state.selectedEppId), { epps_est_data: pData }); window.cerrarModal('modal-epp-est'); } 
             catch (error) { alert("Error al actualizar la base de datos."); }
         });
-
-        window.eliminarFilaEppEst = async (idx) => {
-            if(!confirm("¿Eliminar este equipo estructural?")) return;
-            let pData = state.personal[state.selectedEppId].epps_est_data || []; pData.splice(idx, 1);
-            try { await updateDoc(doc(db, "personal", state.selectedEppId), { epps_est_data: pData }); } catch (error) {}
-        };
 
         window.abrirModalReporteEpps = () => {
             const tb = document.getElementById('tbody-reporte-epps');
@@ -1885,8 +2051,8 @@
         window.renderResumen = () => {
             let activos = 0, bajas = 0, criticas = 0;
             let totalContratoEPP = 0, totalRealEPP = 0;
-            let globalKeys = Object.keys(state.eppsGlobal);
-            let globalEstKeys = Object.keys(state.eppsEstGlobal);
+            let globalKeys = Object.keys(state.eppsGlobal || {});
+            let globalEstKeys = Object.keys(state.eppsEstGlobal || {});
 
             const tbAlt = document.getElementById('tbody-alertas'); 
             if(!tbAlt) return;
@@ -1932,6 +2098,8 @@
             document.getElementById('dash-epps').innerText = eppPorcentaje + '%';
 
             if(criticas===0) tbAlt.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--success); font-weight:600;">Cumplimiento Operativo 100%. No hay alertas próximas a vencer.</td></tr>';
+            
+            window.filtrarAlertas();
         };
 
         window.renderTablasGlobales = () => {
@@ -2062,13 +2230,40 @@
         };
 
         // ================= SANCIONES ================= //
-        window.abrirModalSancion = () => { document.getElementById('form-sancion').reset(); window.abrirModal('modal-sancion'); };
+        window.abrirModalSancion = () => { 
+            document.getElementById('form-sancion').reset(); 
+            document.getElementById('s-id').value = '';
+            window.abrirModal('modal-sancion'); 
+        };
+
+        window.editarSancion = (id, k) => {
+            const s = state.personal[id].sanc[k];
+            document.getElementById('form-sancion').reset(); 
+            document.getElementById('s-id').value = k;
+            document.getElementById('s-fecha').value = s.fecha || '';
+            document.getElementById('s-motivo').value = s.motivo || '';
+            window.abrirModal('modal-sancion');
+        };
+
+        window.eliminarSancion = async (id, k) => {
+            if(!confirm("¿Eliminar permanentemente esta amonestación?")) return;
+            try { await updateDoc(doc(db, "personal", id), { [`sanc.${k}`]: deleteField() }); } 
+            catch(e) { console.error(e); }
+        };
+
         addSafeListener('form-sancion', 'submit', (e) => {
             e.preventDefault(); if(!state.selectedId) return;
             const btn = document.getElementById('btn-save-sancion'); btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; btn.disabled = true;
 
-            const k = 's_' + Date.now(); const payload = { fecha: document.getElementById('s-fecha').value, motivo: document.getElementById('s-motivo').value };
+            let k = document.getElementById('s-id').value;
+            if(!k) k = 's_' + Date.now(); 
             
+            const payload = { fecha: document.getElementById('s-fecha').value, motivo: document.getElementById('s-motivo').value };
+            
+            if (state.personal[state.selectedId].sanc && state.personal[state.selectedId].sanc[k] && state.personal[state.selectedId].sanc[k].file) {
+                payload.file = state.personal[state.selectedId].sanc[k].file;
+            }
+
             setDoc(doc(db, "personal", state.selectedId), { sanc: { [k]: payload } }, { merge: true })
                 .then(() => { window.cerrarModal('modal-sancion'); btn.innerHTML = 'Aplicar Sanción'; btn.disabled = false; })
                 .catch(e => { alert("Error al guardar sanción."); btn.innerHTML = 'Aplicar Sanción'; btn.disabled = false; });
