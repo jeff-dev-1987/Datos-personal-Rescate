@@ -1749,7 +1749,7 @@
             });
         };
 
-        // ================= VISTA: DATOS DE EPPS ================= //
+        // ================= DATOS DE EPPS (CORREGIDO) ================= //
         window.renderListaEpps = () => {
             const searchEl = document.getElementById('search-epps');
             if(!searchEl) return;
@@ -1851,7 +1851,8 @@
         window.abrirModalEppEditar = (encodedName) => {
             if(!state.selectedEppId) return;
             const name = decodeURIComponent(encodedName);
-            let epp = state.personal[state.selectedEppId].epps_data.find(e => e.name === name);
+            // CORRECCIÓN AQUÍ: Se añade "|| []" para prevenir el error al buscar en registros vacíos.
+            let epp = (state.personal[state.selectedEppId].epps_data || []).find(e => e.name === name);
             if(!epp) epp = { name: name, talla: '', cant_real: '', fecha: '' }; // Fallback
 
             document.getElementById('form-epp').reset(); 
@@ -1895,7 +1896,8 @@
         window.abrirModalEppEstEditar = (encodedName) => {
             if(!state.selectedEppId) return;
             const name = decodeURIComponent(encodedName);
-            let epp = state.personal[state.selectedEppId].epps_est_data.find(e => e.name === name);
+            // CORRECCIÓN AQUÍ: Se añade "|| []" para prevenir el error al buscar en registros vacíos.
+            let epp = (state.personal[state.selectedEppId].epps_est_data || []).find(e => e.name === name);
             if(!epp) epp = { name: name, marca: '', modelo: '', ffab: '', talla: '', cant_real: '', fecha: '' };
 
             document.getElementById('form-epp-est').reset(); 
