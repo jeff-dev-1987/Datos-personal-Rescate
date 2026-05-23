@@ -339,7 +339,7 @@
                         </div>
 
                         <div class="card" id="card-cursos-sso">
-                            <div class="section-title">Cursos Mandatorios SSO (Vigencia Anual)</div>
+                            <div class="section-title">Cursos Mandatorios SSO</div>
                             <div class="grid-3" id="det-cursos-sso"></div>
                         </div>
 
@@ -447,11 +447,11 @@
                                             <th class="epp-name-col">Equipo / Descripción</th>
                                             <th>Marca</th>
                                             <th>Modelo</th>
-                                            <th>F. Fabricación</th>
+                                            <th style="min-width: 140px;">F. Fabricación / Venc.</th>
                                             <th class="epp-sm-col">Talla</th>
                                             <th class="epp-sm-col" title="Cantidad Global del Contrato">Cant. Cont.</th>
                                             <th class="epp-sm-col" title="Cantidad Real Entregada">Cant. Real</th>
-                                            <th style="min-width: 140px;">Fecha Entrega</th>
+                                            <th style="min-width: 100px;">F. Entrega</th>
                                             <th style="width: 100px;" class="btn-editor">Acciones</th>
                                         </tr>
                                     </thead>
@@ -555,6 +555,7 @@
 
     </div>
 
+    <!-- MODAL PERSONAL -->
     <div id="modal-personal" class="modal">
         <div class="modal-content">
             <h2 style="color:var(--mcp-blue); margin-bottom: 20px; font-size: 18px; border-bottom:2px solid var(--border); padding-bottom:10px;">Formulario de Legajo Físico y Digital</h2>
@@ -625,6 +626,7 @@
         </div>
     </div>
 
+    <!-- MODAL CONFIG EPPS GLOBALES -->
     <div id="modal-config-epps" class="modal">
         <div class="modal-content modal-sm">
             <h2 id="config-epps-title" style="color:var(--mcp-blue); margin-bottom: 20px; font-size:18px;">Configuración Global</h2>
@@ -639,6 +641,7 @@
         </div>
     </div>
 
+    <!-- MODAL EPP INDIVIDUAL BÁSICO -->
     <div id="modal-epp" class="modal">
         <div class="modal-content modal-sm">
             <h2 style="color:var(--mcp-blue); margin-bottom: 20px; font-size:18px;" id="modal-epp-title">Gestionar EPP Básico</h2>
@@ -661,6 +664,7 @@
         </div>
     </div>
 
+    <!-- MODAL EPP INDIVIDUAL ESTRUCTURAL -->
     <div id="modal-epp-est" class="modal">
         <div class="modal-content modal-sm" style="max-width: 600px;">
             <h2 style="color:var(--mcp-blue); margin-bottom: 20px; font-size:18px;" id="modal-epp-est-title">Gestionar EPP Estructural</h2>
@@ -904,31 +908,37 @@
         const CURSOS_PERFIL = [{id:"ACTUALIZACION NORMATIVA DE TRANSITO",v:5},{id:"TÉCNICO MATPEL",v:1},{id:"LOTE DE CUERDAS DE RESCATE",v:2},{id:"RESCATE EN ESPACIOS CONFINADOS",v:2},{id:"RESCATE VEHICULAR",v:2},{id:"LUCHA CONTRA INCENDIOS",v:2},{id:"PRIMEROS AUXILIOS AVANZADOS",v:2},{id:"SOPORTE DE TRAUMA AVANZADO",v:4},{id:"MANEJO DEF. VEHICULOS LIVIANOS/PESADOS",v:2},{id:"SISTEMA COMANDO INCIDENTES",v:2}];
         const INDUCCIONES = ["ANEXO 5", "IPERC LÍNEA BASE", "RIT", "RISST", "MOF / PERFIL", "PETS DEL SERVICIO", "MAPAS DE RIESGO", "EPP’s BASICOS", "EPP ESTRUCTURAL", "POLITICA DE SERVICIO", "PLAN DE PREPARACIÓN EMERG.", "ESTANDAR MCP 017 EXTINTORES", "ESTANDAR MCP 018 ALARMAS", "ESTANDAR MCP 021 DETECCIÓN", "ESTANDAR MCP 022 KITS", "CARTA COMPROMISO GIMNASIO"];
         
-        let DEFAULT_EPPS_CONFIG = [
-            { name: "Casacas imp. térmicas, Thinsulate, capucha, bolsillos convencionales altura lados abdomen y bolsillo lado der pecho para radio de com. Logo empresa lado izq pecho. Leyenda RESCATE espalda. Costura reforzada. Cintas reflectivas 2\" 3M brazos y tronco", cant_cont: 1 },
-            { name: "Pantalones impermeables térmicos, Thinsulate, bolsillos convencionales altura lados cadera y bolsillos tipo cargo altura de muslos. Costura reforzada. Cintas reflectivas 2\" 3M en piernas.", cant_cont: 1 },
-            { name: "Pantalon tipo cargo, drill", cant_cont: 2 },
-            { name: "Chompas polares, logo empresa pecho lado izq, bolsillos convencionales altura lados abdomen.", cant_cont: 1 },
-            { name: "Polos manga larga leyenda RESCATE en espalda.", cant_cont: 2 },
-            { name: "Chalecos de seguridad rojos impermeables, Thinsulate, bolsillos altura abdomen, bolsillo para radio de com lado der pecho, logo empresa lado izq pecho, leyenda RESCATE en espalda.", cant_cont: 1 },
-            { name: "Lentes / sobrelentes oscuros de seguridad", cant_cont: 1 },
-            { name: "Lentes / sobrelentes claros de seguridad", cant_cont: 1 },
-            { name: "Guantes certificados para labores de rescate con cuerdas", cant_cont: 1 },
-            { name: "Guantes de badana", cant_cont: 1 },
-            { name: "Zapatos seguridad", cant_cont: 1 },
-            { name: "Mascara full face con filtros de combinación", cant_cont: 1 }
+        // CURSOS SIN VENCIMIENTO - SOLUCIÓN REQUERIMIENTO 1
+        const CURSOS_NO_VENCEN = ["FRANJA VERDE (CANTERA)", "FRANJA VERDE (MINA)", "INGRESO A OP. CANTERA", "INGRESO A OP. MINA"];
+
+        // CONFIGURACIÓN DE LISTAS GLOBALES - SOLUCIÓN REQUERIMIENTO 3, 4 y 5
+        const DEFAULT_EPPS_CONFIG = [
+            { name: "Casco certificado para labores de rescate color blanco (supervisión), color rojo (oficial de rescate), dieléctrico, certificaciones CE, EN 397, EN 12492 (1), EN 50365, ANSI Z89.1 Type I Class E, EAC, UKCA, AS/NZS 1801.", cant_cont: 0 },
+            { name: "Lentes / sobrelentes oscuros de seguridad", cant_cont: 0 },
+            { name: "Lentes / sobrelentes claros de seguridad", cant_cont: 0 },
+            { name: "Mascara full face con filtros de combinación", cant_cont: 0 },
+            { name: "Polos manga larga leyenda RESCATE en espalda.", cant_cont: 0 },
+            { name: "Chompas polares, logo empresa pecho lado izq, bolsillos convencionales altura lados abdomen.", cant_cont: 0 },
+            { name: "Casacas imp. térmicas, Thinsulate, capucha, bolsillos convencionales altura lados abdomen y bolsillo lado der pecho para radio de com. Logo empresa lado izq pecho. Leyenda RESCATE espalda. Costura reforzada. Cintas reflectivas 2\" 3M brazos y tronco", cant_cont: 0 },
+            { name: "Chalecos de seguridad rojos impermeables, Thinsulate, bolsillos altura abdomen, bolsillo para radio de com lado der pecho, logo empresa lado izq pecho, leyenda RESCATE en espalda.", cant_cont: 0 },
+            { name: "Pantalones impermeables térmicos, Thinsulate, bolsillos convencionales altura lados cadera y bolsillos tipo cargo altura de muslos. Costura reforzada. Cintas reflectivas 2\" 3M en piernas.", cant_cont: 0 },
+            { name: "Pantalon tipo cargo, drill", cant_cont: 0 },
+            { name: "Guantes de badana", cant_cont: 0 },
+            { name: "Rodilleras para labores de rescate.", cant_cont: 0 },
+            { name: "Zapatos seguridad", cant_cont: 0 },
+            { name: "Guantes certificados para labores de rescate con cuerdas", cant_cont: 0 }
         ];
 
-        let DEFAULT_EPPS_EST_CONFIG = [
-            { name: "CASCO", cant_cont: 1 },
-            { name: "CAPUCHA", cant_cont: 1 },
-            { name: "CASACA", cant_cont: 1 },
-            { name: "PANTALON CON TIRANTES", cant_cont: 1 },
-            { name: "GUANTES CONTRA INCENDIO", cant_cont: 1 },
-            { name: "BOTAS CONTRA INCENDIO", cant_cont: 1 }
+        const DEFAULT_EPPS_EST_CONFIG = [
+            { name: "CASCO", cant_cont: 0 },
+            { name: "CAPUCHA", cant_cont: 0 },
+            { name: "CASACA", cant_cont: 0 },
+            { name: "PANTALON CON TIRANTES", cant_cont: 0 },
+            { name: "GUANTES CONTRA INCENDIO", cant_cont: 0 },
+            { name: "BOTAS CONTRA INCENDIO", cant_cont: 0 }
         ];
 
-        let state = { user: null, rol: 'LECTOR', personal: {}, usuarios: {}, eppsGlobal: {}, eppsEstGlobal: {}, selectedId: null, selectedEppId: null, selectedFisicoId: null, filterActive: false };
+        let state = { user: null, rol: 'LECTOR', personal: {}, usuarios: {}, eppsGlobal: [], eppsEstGlobal: [], selectedId: null, selectedEppId: null, selectedFisicoId: null, filterActive: false };
 
         window.togglePasswordVisibility = (inputId, icon) => {
             const input = document.getElementById(inputId);
@@ -1004,7 +1014,7 @@
         });
 
         window.cerrarSesion = () => {
-            state.rol = 'LECTOR'; state.personal = {}; state.usuarios = {}; state.selectedId = null; state.selectedEppId = null; state.selectedFisicoId = null; state.eppsGlobal = {}; state.eppsEstGlobal = {};
+            state.rol = 'LECTOR'; state.personal = {}; state.usuarios = {}; state.selectedId = null; state.selectedEppId = null; state.selectedFisicoId = null; state.eppsGlobal = []; state.eppsEstGlobal = [];
             document.getElementById('display-rol').innerText = '...'; document.getElementById('display-email').innerText = '...';
             signOut(auth);
         };
@@ -1059,20 +1069,21 @@
         }
 
         function conectarBaseDatosFirestore() {
-            onSnapshot(doc(db, 'config', 'epps_global'), (docSnap) => {
-                if(docSnap.exists()) { state.eppsGlobal = docSnap.data(); } 
+            // Se utiliza epps_global_v2 para forzar el arreglo y borrar la visualización del formato antiguo
+            onSnapshot(doc(db, 'config', 'epps_global_v2'), (docSnap) => {
+                if(docSnap.exists() && docSnap.data().items) { state.eppsGlobal = docSnap.data().items; } 
                 else {
-                    let map = {}; DEFAULT_EPPS_CONFIG.forEach(e => map[e.name] = e.cant_cont);
-                    setDoc(doc(db, 'config', 'epps_global'), map); state.eppsGlobal = map;
+                    setDoc(doc(db, 'config', 'epps_global_v2'), { items: DEFAULT_EPPS_CONFIG }); 
+                    state.eppsGlobal = DEFAULT_EPPS_CONFIG;
                 }
                 if(state.selectedEppId) window.cargarDetalleEpps(state.selectedEppId);
             });
 
-            onSnapshot(doc(db, 'config', 'epps_est_global'), (docSnap) => {
-                if(docSnap.exists()) { state.eppsEstGlobal = docSnap.data(); } 
+            onSnapshot(doc(db, 'config', 'epps_est_global_v2'), (docSnap) => {
+                if(docSnap.exists() && docSnap.data().items) { state.eppsEstGlobal = docSnap.data().items; } 
                 else {
-                    let map = {}; DEFAULT_EPPS_EST_CONFIG.forEach(e => map[e.name] = e.cant_cont);
-                    setDoc(doc(db, 'config', 'epps_est_global'), map); state.eppsEstGlobal = map;
+                    setDoc(doc(db, 'config', 'epps_est_global_v2'), { items: DEFAULT_EPPS_EST_CONFIG }); 
+                    state.eppsEstGlobal = DEFAULT_EPPS_EST_CONFIG;
                 }
                 if(state.selectedEppId) window.cargarDetalleEpps(state.selectedEppId);
             });
@@ -1107,8 +1118,10 @@
             document.getElementById('f-edad').value = Math.max(0, edad);
         };
 
-        function generarAlerta(fechaToma, vigenciaAños) {
+        function generarAlerta(fechaToma, vigenciaAños, isNoVence = false) {
             if(!fechaToma) return { txt: 'Pendiente', bg: 'bg-gray', isCrit: true, faltante: true };
+            if(isNoVence) return { txt: 'Vigente (Sin Venc.)', bg: 'bg-success', isCrit: false, faltante: false };
+            
             const fv = new Date(fechaToma); fv.setFullYear(fv.getFullYear() + vigenciaAños);
             const diff = Math.ceil((fv - new Date()) / (1000*60*60*24));
             const strD = fv.toISOString().split('T')[0];
@@ -1231,8 +1244,13 @@
                 if(!dom) return;
                 dom.innerHTML = '';
                 arr.forEach((c,i) => {
-                    const name = isP ? c.id : c; const vig = isP ? c.v : 1; const dt = valArr?.[i];
-                    const res = generarAlerta(dt, vig);
+                    const name = isP ? c.id : c; 
+                    const vig = isP ? c.v : 1; 
+                    const dt = valArr?.[i];
+                    
+                    const isNoVence = CURSOS_NO_VENCEN.includes(name);
+                    const res = generarAlerta(dt, vig, isNoVence);
+                    
                     if(state.filterActive && !res.isCrit) return; 
                     if(isP) hasPerf = true; else hasSso = true;
                     dom.insertAdjacentHTML('beforeend', `<div class="field"><label>${name}</label><div class="val" style="margin-bottom:3px;">${dt||'S/I'}</div><span class="badge ${res.bg}">${res.txt}</span></div>`);
@@ -1749,7 +1767,7 @@
             });
         };
 
-        // ================= DATOS DE EPPS (CORREGIDO) ================= //
+        // ================= DATOS DE EPPS (LISTA MAESTRA) ================= //
         window.renderListaEpps = () => {
             const searchEl = document.getElementById('search-epps');
             if(!searchEl) return;
@@ -1775,10 +1793,12 @@
             document.getElementById('cargo-epp-container').innerHTML = renderFileHTML(p.cargoEpp, 'cargoEpp', id);
             document.getElementById('cargo-epp-est-container').innerHTML = renderFileHTML(p.cargoEppEst, 'cargoEppEst', id);
 
-            // Básico
-            let personalEpps = p.epps_data || [];
-            Object.keys(state.eppsGlobal).forEach(globalName => {
-                if(!personalEpps.find(e => e.name === globalName)) { personalEpps.push({ name: globalName, talla: '', cant_real: '', fecha: '' }); }
+            // Básico - Se itera sobre el arreglo Global Maestro para mantener orden e items exactos.
+            let personalEpps = [];
+            (state.eppsGlobal || []).forEach(globalItem => {
+                let epp = (p.epps_data || []).find(e => e.name === globalItem.name);
+                if (epp) personalEpps.push({ ...epp, globalContrato: globalItem.cant_cont });
+                else personalEpps.push({ name: globalItem.name, talla: '', cant_real: '', fecha: '', globalContrato: globalItem.cant_cont });
             });
 
             const tbody = document.getElementById('tbody-epps-detalle'); 
@@ -1786,15 +1806,14 @@
                 tbody.innerHTML = '';
                 personalEpps.forEach((epp, idx) => {
                     const res = generarAlerta(epp.fecha, 1); 
-                    const globalContrato = state.eppsGlobal[epp.name] || 1;
-                    const deficit = (Number(epp.cant_real) || 0) < globalContrato;
+                    const deficit = (Number(epp.cant_real) || 0) < Number(epp.globalContrato);
                     
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
                         <td style="font-weight:500;">${epp.name}</td>
                         <td><span class="badge bg-gray">${epp.talla || '-'}</span></td>
-                        <td style="text-align:center;"><b>${globalContrato}</b></td>
-                        <td style="text-align:center;">${deficit ? `<i class="fa-solid fa-triangle-exclamation text-danger" title="Menor a contrato"></i>` : ''} <b>${epp.cant_real || '0'}</b></td>
+                        <td style="text-align:center;"><b>${epp.globalContrato}</b></td>
+                        <td style="text-align:center;">${deficit && Number(epp.globalContrato) > 0 ? `<i class="fa-solid fa-triangle-exclamation text-danger" title="Menor a contrato"></i>` : ''} <b>${epp.cant_real || '0'}</b></td>
                         <td><div style="margin-bottom:3px;">${epp.fecha || 'Sin fecha'}</div>${epp.fecha ? `<span class="badge ${res.bg}">${res.txt}</span>` : ''}</td>
                         <td class="btn-editor">
                             <button class="btn btn-sm btn-sec" onclick="window.abrirModalEppEditar('${encodeURIComponent(epp.name)}')"><i class="fa-solid fa-pen"></i></button>
@@ -1805,30 +1824,31 @@
                 });
             }
 
-            // Estructural
-            let personalEppsEst = p.epps_est_data || [];
-            Object.keys(state.eppsEstGlobal).forEach(globalName => {
-                if(!personalEppsEst.find(e => e.name === globalName)) { personalEppsEst.push({ name: globalName, marca: '', modelo: '', ffab: '', talla: '', cant_real: '', fecha: '' }); }
+            // Estructural - Se itera sobre el arreglo Global Maestro
+            let personalEppsEst = [];
+            (state.eppsEstGlobal || []).forEach(globalItem => {
+                let epp = (p.epps_est_data || []).find(e => e.name === globalItem.name);
+                if (epp) personalEppsEst.push({ ...epp, globalContrato: globalItem.cant_cont });
+                else personalEppsEst.push({ name: globalItem.name, marca: '', modelo: '', ffab: '', talla: '', cant_real: '', fecha: '', globalContrato: globalItem.cant_cont });
             });
 
             const tbodyEst = document.getElementById('tbody-epps-est-detalle'); 
             if(tbodyEst) {
                 tbodyEst.innerHTML = '';
                 personalEppsEst.forEach((epp, idx) => {
-                    const res = generarAlerta(epp.fecha, 1); 
-                    const globalContrato = state.eppsEstGlobal[epp.name] || 1;
-                    const deficit = (Number(epp.cant_real) || 0) < globalContrato;
+                    const res = generarAlerta(epp.ffab, 10); // FABRICATION DATE + 10 AÑOS
+                    const deficit = (Number(epp.cant_real) || 0) < Number(epp.globalContrato);
                     
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
                         <td style="font-weight:500;">${epp.name}</td>
                         <td><span class="badge bg-gray">${epp.marca || '-'}</span></td>
                         <td><span class="badge bg-gray">${epp.modelo || '-'}</span></td>
-                        <td>${epp.ffab || '-'}</td>
+                        <td><div style="margin-bottom:3px;">${epp.ffab || '-'}</div>${epp.ffab ? `<span class="badge ${res.bg}">${res.txt}</span>` : ''}</td>
                         <td><span class="badge bg-gray">${epp.talla || '-'}</span></td>
-                        <td style="text-align:center;"><b>${globalContrato}</b></td>
-                        <td style="text-align:center;">${deficit ? `<i class="fa-solid fa-triangle-exclamation text-danger"></i>` : ''} <b>${epp.cant_real || '0'}</b></td>
-                        <td><div style="margin-bottom:3px;">${epp.fecha || 'Sin fecha'}</div>${epp.fecha ? `<span class="badge ${res.bg}">${res.txt}</span>` : ''}</td>
+                        <td style="text-align:center;"><b>${epp.globalContrato}</b></td>
+                        <td style="text-align:center;">${deficit && Number(epp.globalContrato) > 0 ? `<i class="fa-solid fa-triangle-exclamation text-danger"></i>` : ''} <b>${epp.cant_real || '0'}</b></td>
+                        <td>${epp.fecha || 'Sin fecha'}</td>
                         <td class="btn-editor">
                             <button class="btn btn-sm btn-sec" onclick="window.abrirModalEppEstEditar('${encodeURIComponent(epp.name)}')"><i class="fa-solid fa-pen"></i></button>
                             <button class="btn btn-sm btn-danger" onclick="window.eliminarFilaEppEst('${encodeURIComponent(epp.name)}')"><i class="fa-solid fa-trash"></i></button>
@@ -1851,9 +1871,8 @@
         window.abrirModalEppEditar = (encodedName) => {
             if(!state.selectedEppId) return;
             const name = decodeURIComponent(encodedName);
-            // CORRECCIÓN AQUÍ: Se añade "|| []" para prevenir el error al buscar en registros vacíos.
             let epp = (state.personal[state.selectedEppId].epps_data || []).find(e => e.name === name);
-            if(!epp) epp = { name: name, talla: '', cant_real: '', fecha: '' }; // Fallback
+            if(!epp) epp = { name: name, talla: '', cant_real: '', fecha: '' }; 
 
             document.getElementById('form-epp').reset(); 
             document.getElementById('fe-idx').value = name; 
@@ -1871,18 +1890,9 @@
             if(!confirm(`¿Eliminar permanentemente el equipo "${name}" para TODOS los usuarios?`)) return;
             
             try { 
-                await updateDoc(doc(db, "config", "epps_global"), { [name]: deleteField() }); 
-                
-                const batchPromises = [];
-                Object.keys(state.personal).forEach(pId => {
-                    let pData = state.personal[pId].epps_data || [];
-                    const initLen = pData.length;
-                    pData = pData.filter(e => e.name !== name);
-                    if(pData.length !== initLen) {
-                        batchPromises.push(updateDoc(doc(db, "personal", pId), { epps_data: pData }));
-                    }
-                });
-                await Promise.all(batchPromises);
+                let globalList = [...(state.eppsGlobal || [])];
+                globalList = globalList.filter(e => e.name !== name);
+                await updateDoc(doc(db, "config", "epps_global_v2"), { items: globalList });
             } catch (error) { console.error(error); }
         };
 
@@ -1896,7 +1906,6 @@
         window.abrirModalEppEstEditar = (encodedName) => {
             if(!state.selectedEppId) return;
             const name = decodeURIComponent(encodedName);
-            // CORRECCIÓN AQUÍ: Se añade "|| []" para prevenir el error al buscar en registros vacíos.
             let epp = (state.personal[state.selectedEppId].epps_est_data || []).find(e => e.name === name);
             if(!epp) epp = { name: name, marca: '', modelo: '', ffab: '', talla: '', cant_real: '', fecha: '' };
 
@@ -1919,18 +1928,9 @@
             if(!confirm(`¿Eliminar permanentemente el equipo estructural "${name}" para TODOS los usuarios?`)) return;
             
             try { 
-                await updateDoc(doc(db, "config", "epps_est_global"), { [name]: deleteField() }); 
-                
-                const batchPromises = [];
-                Object.keys(state.personal).forEach(pId => {
-                    let pData = state.personal[pId].epps_est_data || [];
-                    const initLen = pData.length;
-                    pData = pData.filter(e => e.name !== name);
-                    if(pData.length !== initLen) {
-                        batchPromises.push(updateDoc(doc(db, "personal", pId), { epps_est_data: pData }));
-                    }
-                });
-                await Promise.all(batchPromises);
+                let globalList = [...(state.eppsEstGlobal || [])];
+                globalList = globalList.filter(e => e.name !== name);
+                await updateDoc(doc(db, "config", "epps_est_global_v2"), { items: globalList });
             } catch (error) { console.error(error); }
         };
 
@@ -1940,13 +1940,13 @@
             document.getElementById('config-epps-title').innerText = tipo === 'basico' ? 'Cantidades Globales EPP Básico' : 'Cantidades Globales EPP Estructural';
             const listDiv = document.getElementById('config-epps-list');
             listDiv.innerHTML = '';
-            const dict = tipo === 'basico' ? state.eppsGlobal : state.eppsEstGlobal;
+            const list = tipo === 'basico' ? state.eppsGlobal : state.eppsEstGlobal;
             
-            Object.entries(dict).forEach(([name, cant], i) => {
+            list.forEach((item, i) => {
                 listDiv.insertAdjacentHTML('beforeend', `
                     <div class="field" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                        <label style="flex:1; margin:0; font-size:10px;">${name}</label>
-                        <input type="number" class="form-control" style="width:80px;" id="config-cant-${i}" data-name="${encodeURIComponent(name)}" value="${cant}" required>
+                        <label style="flex:1; margin:0; font-size:10px;">${item.name}</label>
+                        <input type="number" class="form-control" style="width:80px;" id="config-cant-${i}" data-name="${encodeURIComponent(item.name)}" value="${item.cant_cont}" required>
                     </div>
                 `);
             });
@@ -1957,16 +1957,18 @@
             e.preventDefault();
             const btn = e.target.querySelector('button[type="submit"]'); btn.disabled = true;
             const tipo = document.getElementById('ce-tipo').value;
-            const dictName = tipo === 'basico' ? 'epps_global' : 'epps_est_global';
+            const dictName = tipo === 'basico' ? 'epps_global_v2' : 'epps_est_global_v2';
             
-            let newData = {};
+            let currentList = JSON.parse(JSON.stringify(tipo === 'basico' ? state.eppsGlobal : state.eppsEstGlobal));
             const inputs = document.querySelectorAll('[id^="config-cant-"]');
             inputs.forEach(inp => {
-                newData[decodeURIComponent(inp.getAttribute('data-name'))] = parseInt(inp.value);
+                let name = decodeURIComponent(inp.getAttribute('data-name'));
+                let obj = currentList.find(e => e.name === name);
+                if(obj) obj.cant_cont = parseInt(inp.value);
             });
 
             try {
-                await setDoc(doc(db, "config", dictName), newData);
+                await setDoc(doc(db, "config", dictName), { items: currentList });
                 window.cerrarModal('modal-config-epps'); btn.disabled = false;
             } catch(err) {
                 alert("Error guardando configuración global."); btn.disabled = false;
@@ -1978,26 +1980,27 @@
             e.preventDefault(); if(!state.selectedEppId) return;
 
             const nameOriginal = document.getElementById('fe-idx').value; 
-            const name = document.getElementById('fe-name').value.trim(); const talla = document.getElementById('fe-talla').value.trim();
-            const cant_real = document.getElementById('fe-creal').value; const fecha = document.getElementById('fe-fecha').value;
-            let currentGlobalCant = state.eppsGlobal[nameOriginal] || 1;
+            const name = document.getElementById('fe-name').value.trim(); 
+            const talla = document.getElementById('fe-talla').value.trim();
+            const cant_real = document.getElementById('fe-creal').value; 
+            const fecha = document.getElementById('fe-fecha').value;
 
-            try { 
-                if (nameOriginal !== '-1' && nameOriginal !== name) {
-                    await updateDoc(doc(db, "config", "epps_global"), { [nameOriginal]: deleteField(), [name]: currentGlobalCant });
-                } else if (nameOriginal === '-1' && !state.eppsGlobal[name]) {
-                    await updateDoc(doc(db, "config", "epps_global"), { [name]: 1 });
-                }
-            } catch(error) {}
-
-            let pData = state.personal[state.selectedEppId].epps_data || [];
-            if(nameOriginal === '-1') {
-                pData.push({ name, talla, cant_real, fecha }); 
-            } else {
-                let existingIndex = pData.findIndex(e => e.name === nameOriginal);
-                if(existingIndex !== -1) pData[existingIndex] = { name, talla, cant_real, fecha };
-                else pData.push({ name, talla, cant_real, fecha }); 
+            // Actualiza o inserta en la lista Global
+            let globalList = [...(state.eppsGlobal || [])];
+            if (nameOriginal !== '-1' && nameOriginal !== name) {
+                let idx = globalList.findIndex(e => e.name === nameOriginal);
+                if(idx !== -1) globalList[idx].name = name;
+                await updateDoc(doc(db, "config", "epps_global_v2"), { items: globalList });
+            } else if (nameOriginal === '-1' && !globalList.find(e => e.name === name)) {
+                globalList.push({ name: name, cant_cont: 0 });
+                await updateDoc(doc(db, "config", "epps_global_v2"), { items: globalList });
             }
+
+            // Actualiza en el usuario
+            let pData = [...(state.personal[state.selectedEppId].epps_data || [])];
+            let existingIndex = pData.findIndex(e => e.name === (nameOriginal !== '-1' ? nameOriginal : name));
+            if(existingIndex !== -1) pData[existingIndex] = { name, talla, cant_real, fecha };
+            else pData.push({ name, talla, cant_real, fecha }); 
 
             try { await updateDoc(doc(db, "personal", state.selectedEppId), { epps_data: pData }); window.cerrarModal('modal-epp'); } 
             catch (error) { alert("Error al actualizar la base de datos."); }
@@ -2007,27 +2010,28 @@
             e.preventDefault(); if(!state.selectedEppId) return;
 
             const nameOriginal = document.getElementById('fe-est-idx').value;
-            const name = document.getElementById('fe-est-name').value.trim(); const marca = document.getElementById('fe-est-marca').value.trim();
-            const modelo = document.getElementById('fe-est-modelo').value.trim(); const ffab = document.getElementById('fe-est-ffab').value;
-            const talla = document.getElementById('fe-est-talla').value.trim(); const cant_real = document.getElementById('fe-est-creal').value; const fecha = document.getElementById('fe-est-fecha').value;
-            let currentGlobalCant = state.eppsEstGlobal[nameOriginal] || 1;
+            const name = document.getElementById('fe-est-name').value.trim(); 
+            const marca = document.getElementById('fe-est-marca').value.trim();
+            const modelo = document.getElementById('fe-est-modelo').value.trim(); 
+            const ffab = document.getElementById('fe-est-ffab').value;
+            const talla = document.getElementById('fe-est-talla').value.trim(); 
+            const cant_real = document.getElementById('fe-est-creal').value; 
+            const fecha = document.getElementById('fe-est-fecha').value;
 
-            try { 
-                if (nameOriginal !== '-1' && nameOriginal !== name) {
-                    await updateDoc(doc(db, "config", "epps_est_global"), { [nameOriginal]: deleteField(), [name]: currentGlobalCant });
-                } else if (nameOriginal === '-1' && !state.eppsEstGlobal[name]) {
-                    await updateDoc(doc(db, "config", "epps_est_global"), { [name]: 1 });
-                }
-            } catch(error) {}
-
-            let pData = state.personal[state.selectedEppId].epps_est_data || [];
-            if(nameOriginal === '-1') {
-                pData.push({ name, marca, modelo, ffab, talla, cant_real, fecha }); 
-            } else {
-                let existingIndex = pData.findIndex(e => e.name === nameOriginal);
-                if(existingIndex !== -1) pData[existingIndex] = { name, marca, modelo, ffab, talla, cant_real, fecha };
-                else pData.push({ name, marca, modelo, ffab, talla, cant_real, fecha }); 
+            let globalList = [...(state.eppsEstGlobal || [])];
+            if (nameOriginal !== '-1' && nameOriginal !== name) {
+                let idx = globalList.findIndex(e => e.name === nameOriginal);
+                if(idx !== -1) globalList[idx].name = name;
+                await updateDoc(doc(db, "config", "epps_est_global_v2"), { items: globalList });
+            } else if (nameOriginal === '-1' && !globalList.find(e => e.name === name)) {
+                globalList.push({ name: name, cant_cont: 0 });
+                await updateDoc(doc(db, "config", "epps_est_global_v2"), { items: globalList });
             }
+
+            let pData = [...(state.personal[state.selectedEppId].epps_est_data || [])];
+            let existingIndex = pData.findIndex(e => e.name === (nameOriginal !== '-1' ? nameOriginal : name));
+            if(existingIndex !== -1) pData[existingIndex] = { name, marca, modelo, ffab, talla, cant_real, fecha };
+            else pData.push({ name, marca, modelo, ffab, talla, cant_real, fecha }); 
 
             try { await updateDoc(doc(db, "personal", state.selectedEppId), { epps_est_data: pData }); window.cerrarModal('modal-epp-est'); } 
             catch (error) { alert("Error al actualizar la base de datos."); }
@@ -2053,8 +2057,6 @@
         window.renderResumen = () => {
             let activos = 0, bajas = 0, criticas = 0;
             let totalContratoEPP = 0, totalRealEPP = 0;
-            let globalKeys = Object.keys(state.eppsGlobal || {});
-            let globalEstKeys = Object.keys(state.eppsEstGlobal || {});
 
             const tbAlt = document.getElementById('tbody-alertas'); 
             if(!tbAlt) return;
@@ -2064,17 +2066,21 @@
                 if(p.baja){ bajas++; return;} 
                 activos++;
 
-                globalKeys.forEach(eppName => {
-                    let cantReq = Number(state.eppsGlobal[eppName]) || 0; totalContratoEPP += cantReq;
-                    let persEpp = p.epps_data ? p.epps_data.find(e => e.name === eppName) : null;
+                (state.eppsGlobal || []).forEach(globalItem => {
+                    let cantReq = Number(globalItem.cant_cont) || 0; 
+                    totalContratoEPP += cantReq;
+                    let persEpp = p.epps_data ? p.epps_data.find(e => e.name === globalItem.name) : null;
                     let cantEnt = persEpp ? (Number(persEpp.cant_real) || 0) : 0;
-                    if(cantEnt > cantReq) cantEnt = cantReq; totalRealEPP += cantEnt;
+                    if(cantEnt > cantReq) cantEnt = cantReq; 
+                    totalRealEPP += cantEnt;
                 });
-                globalEstKeys.forEach(eppName => {
-                    let cantReq = Number(state.eppsEstGlobal[eppName]) || 0; totalContratoEPP += cantReq;
-                    let persEpp = p.epps_est_data ? p.epps_est_data.find(e => e.name === eppName) : null;
+                (state.eppsEstGlobal || []).forEach(globalItem => {
+                    let cantReq = Number(globalItem.cant_cont) || 0; 
+                    totalContratoEPP += cantReq;
+                    let persEpp = p.epps_est_data ? p.epps_est_data.find(e => e.name === globalItem.name) : null;
                     let cantEnt = persEpp ? (Number(persEpp.cant_real) || 0) : 0;
-                    if(cantEnt > cantReq) cantEnt = cantReq; totalRealEPP += cantEnt;
+                    if(cantEnt > cantReq) cantEnt = cantReq; 
+                    totalRealEPP += cantEnt;
                 });
 
                 const procAlt = (arr, data, isP) => {
@@ -2082,7 +2088,9 @@
                         const name = isP ? (c.id || c) : c;
                         const vig = isP ? (c.v || 1) : 1;
                         const dt = data?.[i]; 
-                        const res = generarAlerta(dt, vig);
+                        const isNoVence = CURSOS_NO_VENCEN.includes(name);
+                        
+                        const res = generarAlerta(dt, vig, isNoVence);
                         if(res.isCrit) {
                             criticas++;
                             tbAlt.insertAdjacentHTML('beforeend',`<tr><td><b>${p.apellidos}, ${p.nombres}</b><br><span style="font-size:10px;">${p.puesto}</span></td><td>${name}</td><td>${dt || 'S/I'}</td><td>${res.txt.replace(/[^0-9-]/g,'')}</td><td><span class="badge ${res.bg}">${res.txt.split('(')[0]}</span></td></tr>`);
@@ -2342,7 +2350,10 @@
                             if(!itemDate) { doc.setTextColor(220, 38, 38); doc.text("Pendiente", col === 1 ? 95 : 190, y, { align: "right" }); } 
                             else {
                                 hasData = true; 
-                                const vig = typeof item === 'string' ? 1 : item.v; const res = generarAlerta(itemDate, vig);
+                                const vig = typeof item === 'string' ? 1 : item.v; 
+                                const isNoVence = CURSOS_NO_VENCEN.includes(itemName);
+                                const res = generarAlerta(itemDate, vig, isNoVence);
+                                
                                 if (res.isCrit && res.bg === 'bg-danger') doc.setTextColor(220, 38, 38); else if (res.isCrit && res.bg === 'bg-warning') doc.setTextColor(217, 119, 6); else doc.setTextColor(5, 150, 105);
                                 doc.text(itemDate, col === 1 ? 95 : 190, y, { align: "right" });
                             }
