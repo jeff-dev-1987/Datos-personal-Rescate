@@ -555,7 +555,6 @@
 
     </div>
 
-    <!-- MODAL PERSONAL -->
     <div id="modal-personal" class="modal">
         <div class="modal-content">
             <h2 style="color:var(--mcp-blue); margin-bottom: 20px; font-size: 18px; border-bottom:2px solid var(--border); padding-bottom:10px;">Formulario de Legajo Físico y Digital</h2>
@@ -626,7 +625,6 @@
         </div>
     </div>
 
-    <!-- MODAL CONFIG EPPS GLOBALES -->
     <div id="modal-config-epps" class="modal">
         <div class="modal-content modal-sm">
             <h2 id="config-epps-title" style="color:var(--mcp-blue); margin-bottom: 20px; font-size:18px;">Configuración Global</h2>
@@ -641,7 +639,6 @@
         </div>
     </div>
 
-    <!-- MODAL EPP INDIVIDUAL BÁSICO -->
     <div id="modal-epp" class="modal">
         <div class="modal-content modal-sm">
             <h2 style="color:var(--mcp-blue); margin-bottom: 20px; font-size:18px;" id="modal-epp-title">Gestionar EPP Básico</h2>
@@ -664,7 +661,6 @@
         </div>
     </div>
 
-    <!-- MODAL EPP INDIVIDUAL ESTRUCTURAL -->
     <div id="modal-epp-est" class="modal">
         <div class="modal-content modal-sm" style="max-width: 600px;">
             <h2 style="color:var(--mcp-blue); margin-bottom: 20px; font-size:18px;" id="modal-epp-est-title">Gestionar EPP Estructural</h2>
@@ -697,7 +693,10 @@
             <h2 style="color:var(--success); margin-bottom: 20px; font-size:18px;">Ficha de Evaluación Nutricional</h2>
             <form id="form-nutricion">
                 <input type="hidden" id="fn-idx" value="-1">
-                <div class="field"><label>Fecha de Evaluación</label><input type="date" id="fn-fecha" class="form-control" required></div>
+                <div class="grid-2" style="margin-bottom:10px;">
+                    <div class="field"><label>Fecha de Evaluación</label><input type="date" id="fn-fecha" class="form-control" required></div>
+                    <div class="field"><label>Edad Real (Años)</label><input type="number" id="fn-edadreal" class="form-control" readonly></div>
+                </div>
                 <div class="grid-2">
                     <div class="field"><label>Talla (metros)</label><input type="number" step="0.01" id="fn-talla" class="form-control" oninput="window.calcNutricion()" required></div>
                     <div class="field"><label>Peso (kg)</label><input type="number" step="0.1" id="fn-peso" class="form-control" oninput="window.calcNutricion()" required></div>
@@ -718,12 +717,12 @@
                     <div class="field"><label>ICC (Auto)</label><input type="text" id="fn-icc" class="form-control" readonly></div>
                 </div>
                 <div class="grid-2" style="margin-top:10px;">
-                    <div class="field"><label>Edad Corporal</label><input type="number" id="fn-edadc" class="form-control" oninput="window.calcNutricion()"></div>
+                    <div class="field"><label>Edad Corporal (Auto)</label><input type="number" id="fn-edadc" class="form-control" readonly></div>
                     <div class="field"><label>Cant. Calorías</label><input type="number" id="fn-calorias" class="form-control" oninput="window.calcNutricion()"></div>
                 </div>
                 <div class="field" style="margin-top:10px;">
-                    <label>Análisis de Evaluación (Auto-sugerido)</label>
-                    <textarea id="fn-analisis" class="form-control" rows="4"></textarea>
+                    <label>Análisis de Evaluación (Auto-Generado)</label>
+                    <textarea id="fn-analisis" class="form-control" rows="8"></textarea>
                 </div>
                 <div class="field"><label>Siguiente Evaluación</label><input type="date" id="fn-fsig" class="form-control"></div>
                 
@@ -1373,7 +1372,7 @@
             }
         });
 
-        // ================= VISTA: ESTADO FISICO ================= //
+        // ================= VISTA: ESTADO FISICO Y SISTEMA EXPERTO NUTRICIONAL ================= //
         window.renderListaFisico = () => {
             const searchEl = document.getElementById('search-fisico');
             if(!searchEl) return;
@@ -1478,6 +1477,7 @@
             let pabd = parseFloat(document.getElementById('fn-pabd').value) || 0;
             let pcad = parseFloat(document.getElementById('fn-pcad').value) || 0;
             let cal = parseInt(document.getElementById('fn-calorias').value) || 0;
+            let edadReal = parseInt(document.getElementById('fn-edadreal').value) || 0;
 
             let imc = 0; let cimc = "Normal";
             if(p > 0 && t > 0) {
@@ -1511,68 +1511,130 @@
                 document.getElementById('fn-icc').value = icc;
             }
 
-            // AUTO ANALYSIS GENERATOR
+            // AUTO-CÁLCULO DE EDAD CORPORAL
+            let edadC = 0;
+            if(edadReal > 0 && gcorp > 0 && musc > 0) {
+                let idealFat = 15;
+                let idealMusc = 42;
+                let fatPenalty = (gcorp - idealFat) * 0.4;
+                let muscPenalty = (idealMusc - musc) * 0.4;
+                let edadCorpCalc = Math.round(edadReal + fatPenalty + muscPenalty);
+                
+                // Límites lógicos para evitar edades irracionales
+                if(edadCorpCalc < edadReal - 10) edadCorpCalc = edadReal - 10;
+                if(edadCorpCalc > edadReal + 20) edadCorpCalc = edadReal + 20;
+                
+                edadC = Math.max(18, edadCorpCalc);
+                document.getElementById('fn-edadc').value = edadC;
+            } else {
+                edadC = parseInt(document.getElementById('fn-edadc').value) || 0;
+            }
+
+            // SISTEMA EXPERTO - AUTO ANALYSIS GENERATOR
             if (state.selectedFisicoId) {
                 const pers = state.personal[state.selectedFisicoId];
-                let gymCount = 0;
+                
+                // Promedio de gimnasio correcto (últimos 3 meses registrados)
+                let gymAvg = 0;
                 if (pers && pers.gym && pers.gym.length > 0) {
                     let sortedGym = [...pers.gym].sort((a,b) => b.mes.localeCompare(a.mes));
-                    gymCount = sortedGym[0].count; 
+                    let recentGym = sortedGym.slice(0, 3);
+                    let sum = recentGym.reduce((acc, curr) => acc + curr.count, 0);
+                    gymAvg = Math.round(sum / recentGym.length);
+                }
+
+                // Identificar evaluación previa cronológicamente
+                let nArr = pers.nutricion ? [...pers.nutricion] : [];
+                nArr.sort((a,b) => a.fecha.localeCompare(b.fecha));
+                let prevEval = null;
+                let idx = parseInt(document.getElementById('fn-idx').value);
+                if (idx > 0 && nArr.length > 0) {
+                    prevEval = nArr[idx - 1];
+                } else if (idx === -1 && nArr.length > 0) {
+                    prevEval = nArr[nArr.length - 1]; // Toma la más reciente guardada
                 }
 
                 let anal = [];
-                let riesgos = 0;
+                let gymStr = gymAvg === 0 ? "nula (0 asistencias/mes)" : `${gymAvg} asistencias/mes en promedio`;
 
-                if(cimc === "Obeso" || cgcorp === "Muy Alto" || cgvisc === "Muy Alto") {
-                    anal.push("Riesgo cardiovascular alto (revisar dieta y priorizar déficit calórico).");
-                    riesgos++;
-                } else if(cimc === "Sobrepeso" || cgcorp === "Alto" || cgvisc === "Alto") {
-                    anal.push("Ligero exceso de masa lipídica (enfocarse en cardio y reducción de carbohidratos).");
-                    riesgos++;
-                } else if(cimc === "Bajo Peso" || cgcorp === "Muy Bajo") {
-                    anal.push("Déficit de peso/grasa. Sugerimos dieta hipercalórica controlada.");
+                // 1. COMPARATIVA HISTÓRICA
+                if (prevEval) {
+                    let diffPeso = (p - parseFloat(prevEval.peso)).toFixed(1);
+                    let diffGrasa = gcorp > 0 ? (gcorp - parseFloat(prevEval.grasa)).toFixed(1) : 0;
+                    let diffMusc = musc > 0 ? (musc - parseFloat(prevEval.musc)).toFixed(1) : 0;
+                    
+                    let compStr = "► EVOLUCIÓN: ";
+                    if (Math.abs(diffPeso) > 0.5) compStr += `Variación de peso de ${diffPeso > 0 ? '+' : ''}${diffPeso} kg. `;
+                    else compStr += "Peso corporal estable. ";
+                    
+                    if (gcorp > 0 && prevEval.grasa) {
+                        if (diffGrasa <= -0.5) compStr += `Excelente reducción de grasa corporal (${diffGrasa}%). `;
+                        else if (diffGrasa >= 0.5) compStr += `Alerta: Incremento de masa lipídica (${diffGrasa > 0 ? '+' : ''}${diffGrasa}%). `;
+                    }
+                    if (musc > 0 && prevEval.musc) {
+                        if (diffMusc >= 0.5) compStr += `Desarrollo positivo de masa muscular (${diffMusc > 0 ? '+' : ''}${diffMusc}%). `;
+                        else if (diffMusc <= -0.5) compStr += `Atención: Pérdida de masa muscular detectada (${diffMusc}%). `;
+                    }
+                    anal.push(compStr);
+                }
+
+                // 2. EDAD METABÓLICA VS REAL
+                if (edadReal > 0 && edadC > 0) {
+                    if (edadC > edadReal + 3) anal.push(`► METABOLISMO: La edad corporal calculada (${edadC} años) supera su edad cronológica (${edadReal} años), indicando desgaste metabólico celular acelerado o malos hábitos.`);
+                    else if (edadC < edadReal - 3) anal.push(`► METABOLISMO: Sobresaliente edad metabólica (${edadC} años), reflejando un estado físico rejuvenecido respecto a su edad cronológica.`);
+                    else anal.push(`► METABOLISMO: Edad metabólica (${edadC} años) en equilibrio con su edad cronológica (${edadReal} años).`);
+                }
+
+                // 3. RIESGOS CARDIOVASCULARES Y COMPOSICIÓN
+                let riesgosCardio = 0;
+                if (cimc === "Obeso" || cgcorp === "Alto" || cgcorp === "Muy Alto") riesgosCardio++;
+                if (cgvisc === "Alto" || cgvisc === "Muy Alto") riesgosCardio++;
+                if (icc > 0.90) riesgosCardio++;
+
+                if (riesgosCardio >= 2) anal.push(`► RIESGO CLÍNICO: ALERTA ROJA. Alto riesgo cardiovascular combinado por alteraciones severas en IMC, Grasa Visceral o ICC. Requiere intervención dietética inmediata.`);
+                else if (riesgosCardio === 1) anal.push(`► RIESGO CLÍNICO: ALERTA AMARILLA. Vigilar de cerca los marcadores de riesgo cardiovascular (tendencia elevada en composición lipídica).`);
+                else anal.push(`► RIESGO CLÍNICO: Marcadores cardiovasculares, perímetro de cintura y composición de grasa en rangos fisiológicamente saludables.`);
+
+                if (cmusc === "Bajo") anal.push(`► CONDICIÓN MUSCULAR: Déficit severo en masa magra. Es mandatorio prescribir rutinas de fuerza/hipertrofia y elevar el umbral proteico.`);
+
+                // 4. ENTRENAMIENTO Y CALORÍAS
+                if (gymAvg < 4) {
+                    anal.push(`► ENTRENAMIENTO: Asistencia al gimnasio crítica y ${gymStr}. Urge fomentar una disciplina deportiva estricta para garantizar la operatividad en el área de rescate.`);
+                } else if (gymAvg < 8) {
+                    anal.push(`► ENTRENAMIENTO: Asistencia al gimnasio moderada (${gymStr}). Se sugiere incrementar la frecuencia semanal para promover mejores adaptaciones cardiorrespiratorias.`);
                 } else {
-                    anal.push("Composición de grasa e IMC en rangos saludables.");
+                    anal.push(`► ENTRENAMIENTO: Óptima adherencia al plan de acondicionamiento físico (${gymStr}). Nivel operativo garantizado.`);
                 }
 
-                if(cmusc === "Bajo") {
-                    anal.push("Masa muscular deficiente. Requiere rutina de hipertrofia y mayor ingesta proteica.");
-                    riesgos++;
-                } else if(cmusc === "Alto") {
-                    anal.push("Excelente desarrollo muscular.");
+                if (cal > 0) {
+                    if (cimc === "Obeso" || cgcorp === "Alto" || cgcorp === "Muy Alto") {
+                        if (cal > 2000) anal.push(`► NUTRICIÓN: La ingesta de ${cal} kcal/día es incompatible con la meta prioritaria de pérdida de grasa. Se sugiere aplicar déficit calórico progresivo.`);
+                    } else if (cmusc === "Bajo" || cimc === "Bajo Peso") {
+                        if (cal < 2500) anal.push(`► NUTRICIÓN: Para optimizar la hipertrofia muscular, la ingesta de ${cal} kcal/día podría requerir un ligero superávit calórico controlado y ajuste de macronutrientes.`);
+                    } else {
+                        anal.push(`► NUTRICIÓN: Ingesta reportada (${cal} kcal/día) congruente y adecuada para el mantenimiento de su tasa metabólica basal actual.`);
+                    }
                 }
 
-                if(icc > 0.90) {
-                    anal.push("Índice Cintura/Cadera advierte acumulación de grasa abdominal central.");
-                    riesgos++;
-                }
-
-                if (cal > 2500 && riesgos > 0) {
-                    anal.push(`Ingesta calórica actual (${cal} kcal) parece excesiva para los objetivos de salud.`);
-                }
-
-                if(gymCount < 5) {
-                    anal.push(`Asistencia al gimnasio crítica (${gymCount} vez/mes). Urge fomentar disciplina de entrenamiento.`);
-                } else if (gymCount >= 10 && riesgos > 0) {
-                    anal.push(`Buena asistencia al gym (${gymCount} veces/mes), pero sin resultados físicos óptimos. Revisar calidad del entrenamiento y dieta.`);
-                } else {
-                    anal.push(`Asistencia al gimnasio consistente y favorable (${gymCount} veces/mes).`);
-                }
-
-                document.getElementById('fn-analisis').value = anal.join(' ');
+                document.getElementById('fn-analisis').value = anal.join('\n\n');
             }
         };
 
         window.abrirModalNutricionNueva = () => { 
             document.getElementById('form-nutricion').reset(); 
             document.getElementById('fn-idx').value = "-1";
+            let p = state.personal[state.selectedFisicoId];
+            document.getElementById('fn-edadreal').value = p.edad || 0;
+            document.getElementById('fn-analisis').value = '';
             window.abrirModal('modal-nutricion'); 
         };
 
         window.editarNutricion = (idx) => {
-            const n = state.personal[state.selectedFisicoId].nutricion[idx];
+            const p = state.personal[state.selectedFisicoId];
+            const n = p.nutricion[idx];
             document.getElementById('form-nutricion').reset();
             document.getElementById('fn-idx').value = idx;
+            document.getElementById('fn-edadreal').value = p.edad || 0;
             document.getElementById('fn-fecha').value = n.fecha || '';
             document.getElementById('fn-talla').value = n.talla || '';
             document.getElementById('fn-peso').value = n.peso || '';
@@ -1585,7 +1647,7 @@
             document.getElementById('fn-calorias').value = n.calorias || '';
             document.getElementById('fn-fsig').value = n.fsig || '';
             window.calcNutricion(); 
-            if(n.analisis) document.getElementById('fn-analisis').value = n.analisis; // override if saved
+            if(n.analisis) document.getElementById('fn-analisis').value = n.analisis; // Carga el que fue guardado en su momento
             window.abrirModal('modal-nutricion');
         };
 
