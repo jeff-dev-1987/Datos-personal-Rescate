@@ -555,6 +555,7 @@
 
     </div>
 
+    <!-- MODAL PERSONAL -->
     <div id="modal-personal" class="modal">
         <div class="modal-content">
             <h2 style="color:var(--mcp-blue); margin-bottom: 20px; font-size: 18px; border-bottom:2px solid var(--border); padding-bottom:10px;">Formulario de Legajo Físico y Digital</h2>
@@ -625,6 +626,7 @@
         </div>
     </div>
 
+    <!-- MODAL CONFIG EPPS GLOBALES -->
     <div id="modal-config-epps" class="modal">
         <div class="modal-content modal-sm">
             <h2 id="config-epps-title" style="color:var(--mcp-blue); margin-bottom: 20px; font-size:18px;">Configuración Global</h2>
@@ -639,6 +641,7 @@
         </div>
     </div>
 
+    <!-- MODAL EPP INDIVIDUAL BÁSICO -->
     <div id="modal-epp" class="modal">
         <div class="modal-content modal-sm">
             <h2 style="color:var(--mcp-blue); margin-bottom: 20px; font-size:18px;" id="modal-epp-title">Gestionar EPP Básico</h2>
@@ -661,6 +664,7 @@
         </div>
     </div>
 
+    <!-- MODAL EPP INDIVIDUAL ESTRUCTURAL -->
     <div id="modal-epp-est" class="modal">
         <div class="modal-content modal-sm" style="max-width: 600px;">
             <h2 style="color:var(--mcp-blue); margin-bottom: 20px; font-size:18px;" id="modal-epp-est-title">Gestionar EPP Estructural</h2>
@@ -907,10 +911,10 @@
         const CURSOS_PERFIL = [{id:"ACTUALIZACION NORMATIVA DE TRANSITO",v:5},{id:"TÉCNICO MATPEL",v:1},{id:"LOTE DE CUERDAS DE RESCATE",v:2},{id:"RESCATE EN ESPACIOS CONFINADOS",v:2},{id:"RESCATE VEHICULAR",v:2},{id:"LUCHA CONTRA INCENDIOS",v:2},{id:"PRIMEROS AUXILIOS AVANZADOS",v:2},{id:"SOPORTE DE TRAUMA AVANZADO",v:4},{id:"MANEJO DEF. VEHICULOS LIVIANOS/PESADOS",v:2},{id:"SISTEMA COMANDO INCIDENTES",v:2}];
         const INDUCCIONES = ["ANEXO 5", "IPERC LÍNEA BASE", "RIT", "RISST", "MOF / PERFIL", "PETS DEL SERVICIO", "MAPAS DE RIESGO", "EPP’s BASICOS", "EPP ESTRUCTURAL", "POLITICA DE SERVICIO", "PLAN DE PREPARACIÓN EMERG.", "ESTANDAR MCP 017 EXTINTORES", "ESTANDAR MCP 018 ALARMAS", "ESTANDAR MCP 021 DETECCIÓN", "ESTANDAR MCP 022 KITS", "CARTA COMPROMISO GIMNASIO"];
         
-        // CURSOS SIN VENCIMIENTO - SOLUCIÓN REQUERIMIENTO 1
+        // CURSOS SIN VENCIMIENTO
         const CURSOS_NO_VENCEN = ["FRANJA VERDE (CANTERA)", "FRANJA VERDE (MINA)", "INGRESO A OP. CANTERA", "INGRESO A OP. MINA"];
 
-        // CONFIGURACIÓN DE LISTAS GLOBALES - SOLUCIÓN REQUERIMIENTO 3, 4 y 5
+        // CONFIGURACIÓN DE LISTAS GLOBALES
         const DEFAULT_EPPS_CONFIG = [
             { name: "Casco certificado para labores de rescate color blanco (supervisión), color rojo (oficial de rescate), dieléctrico, certificaciones CE, EN 397, EN 12492 (1), EN 50365, ANSI Z89.1 Type I Class E, EAC, UKCA, AS/NZS 1801.", cant_cont: 0 },
             { name: "Lentes / sobrelentes oscuros de seguridad", cant_cont: 0 },
@@ -1068,7 +1072,6 @@
         }
 
         function conectarBaseDatosFirestore() {
-            // Se utiliza epps_global_v2 para forzar el arreglo y borrar la visualización del formato antiguo
             onSnapshot(doc(db, 'config', 'epps_global_v2'), (docSnap) => {
                 if(docSnap.exists() && docSnap.data().items) { state.eppsGlobal = docSnap.data().items; } 
                 else {
@@ -1195,17 +1198,38 @@
             const divS = document.getElementById('form-cursos-sso');
             if(divS) {
                 divS.innerHTML = '';
-                CURSOS_SSO.forEach((c,i)=>divS.insertAdjacentHTML('beforeend',`<div class="field"><label>${c}</label><input type="date" id="fc-sso-${i}" class="form-control"></div>`));
+                CURSOS_SSO.forEach((c,i)=>divS.insertAdjacentHTML('beforeend',`
+                    <div class="field">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <label>${c}</label>
+                            <label class="admin-only admin-hidden" style="font-size:9px; font-weight:normal; color:var(--text-light); text-transform:none; cursor:pointer;"><input type="checkbox" id="chk-exc-sso-${i}"> No Alertar</label>
+                        </div>
+                        <input type="date" id="fc-sso-${i}" class="form-control">
+                    </div>`));
             }
             const divP = document.getElementById('form-cursos-perfil');
             if(divP) {
                 divP.innerHTML = '';
-                CURSOS_PERFIL.forEach((c,i)=>divP.insertAdjacentHTML('beforeend',`<div class="field"><label>${c.id}</label><input type="date" id="fc-perf-${i}" class="form-control"></div>`));
+                CURSOS_PERFIL.forEach((c,i)=>divP.insertAdjacentHTML('beforeend',`
+                    <div class="field">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <label>${c.id}</label>
+                            <label class="admin-only admin-hidden" style="font-size:9px; font-weight:normal; color:var(--text-light); text-transform:none; cursor:pointer;"><input type="checkbox" id="chk-exc-perf-${i}"> No Alertar</label>
+                        </div>
+                        <input type="date" id="fc-perf-${i}" class="form-control">
+                    </div>`));
             }
             const divI = document.getElementById('form-inducciones');
             if(divI) {
                 divI.innerHTML = '';
-                INDUCCIONES.forEach((c,i)=>divI.insertAdjacentHTML('beforeend',`<div class="field"><label>${c}</label><input type="date" id="fi-ind-${i}" class="form-control"></div>`));
+                INDUCCIONES.forEach((c,i)=>divI.insertAdjacentHTML('beforeend',`
+                    <div class="field">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <label>${c}</label>
+                            <label class="admin-only admin-hidden" style="font-size:9px; font-weight:normal; color:var(--text-light); text-transform:none; cursor:pointer;"><input type="checkbox" id="chk-exc-ind-${i}"> No Alertar</label>
+                        </div>
+                        <input type="date" id="fi-ind-${i}" class="form-control">
+                    </div>`));
             }
         } inyectarForms();
 
@@ -1237,6 +1261,7 @@
             document.getElementById('acta-container').innerHTML = renderFileHTML(p.actaInduccion, 'actaInduccion', id);
 
             let hasSso = false, hasPerf = false, hasInd = false;
+            const exc = p.excluidos || [];
 
             const fillCr = (arr, valArr, isP, domId) => {
                 const dom = document.getElementById(domId); 
@@ -1252,7 +1277,11 @@
                     
                     if(state.filterActive && !res.isCrit) return; 
                     if(isP) hasPerf = true; else hasSso = true;
-                    dom.insertAdjacentHTML('beforeend', `<div class="field"><label>${name}</label><div class="val" style="margin-bottom:3px;">${dt||'S/I'}</div><span class="badge ${res.bg}">${res.txt}</span></div>`);
+                    
+                    const isExc = exc.includes(name);
+                    const excIcon = isExc ? ' <i class="fa-solid fa-bell-slash text-light" title="Excluido de Alertas Globales"></i>' : '';
+                    
+                    dom.insertAdjacentHTML('beforeend', `<div class="field"><label>${name}${excIcon}</label><div class="val" style="margin-bottom:3px;">${dt||'S/I'}</div><span class="badge ${res.bg}">${res.txt}</span></div>`);
                 });
             };
             fillCr(CURSOS_SSO, p.csso, false, 'det-cursos-sso');
@@ -1265,7 +1294,9 @@
                     const isPending = !p.inds?.[i];
                     if(state.filterActive && !isPending) return;
                     hasInd = true;
-                    divI.insertAdjacentHTML('beforeend',`<div class="field"><label>${c}</label><div class="val">${!isPending?`<span class="text-success"><i class="fa-solid fa-check"></i> ${p.inds[i]}</span>`:'<span class="text-light">Pendiente</span>'}</div></div>`);
+                    const isExcInd = exc.includes(c);
+                    const excIconInd = isExcInd ? ' <i class="fa-solid fa-bell-slash text-light" title="Excluido de Alertas Globales"></i>' : '';
+                    divI.insertAdjacentHTML('beforeend',`<div class="field"><label>${c}${excIconInd}</label><div class="val">${!isPending?`<span class="text-success"><i class="fa-solid fa-check"></i> ${p.inds[i]}</span>`:'<span class="text-light">Pendiente</span>'}</div></div>`);
                 });
             }
 
@@ -1318,9 +1349,20 @@
             document.getElementById('f-contactoem').value = p.contactoem||''; document.getElementById('f-numcontacto').value = p.numcontacto||''; document.getElementById('f-parentesco').value = p.parentesco||'';
             document.getElementById('f-fingreso').value = p.fingreso||''; document.getElementById('f-ffin').value = p.ffin||''; document.getElementById('f-finduccion').value = p.finduccion||''; document.getElementById('f-vdni').value = p.vdni||'';
             document.getElementById('f-vmtc').value = p.vmtc||''; document.getElementById('f-vmcp').value = p.vmcp||''; document.getElementById('f-vsalud').value = p.vsalud||''; document.getElementById('f-vehiculos').value = p.vehiculos||''; document.getElementById('f-obsclinica').value = p.obsclinica||'';
-            CURSOS_SSO.forEach((_,i)=>{ const el = document.getElementById(`fc-sso-${i}`); if(el) el.value=p.csso?.[i]||''; });
-            CURSOS_PERFIL.forEach((_,i)=>{ const el = document.getElementById(`fc-perf-${i}`); if(el) el.value=p.cperf?.[i]||''; });
-            INDUCCIONES.forEach((_,i)=>{ const el = document.getElementById(`fi-ind-${i}`); if(el) el.value=p.inds?.[i]||''; });
+            
+            let exc = p.excluidos || [];
+            CURSOS_SSO.forEach((c,i)=>{ 
+                const el = document.getElementById(`fc-sso-${i}`); if(el) el.value=p.csso?.[i]||''; 
+                const chk = document.getElementById(`chk-exc-sso-${i}`); if(chk) chk.checked = exc.includes(c);
+            });
+            CURSOS_PERFIL.forEach((c,i)=>{ 
+                const el = document.getElementById(`fc-perf-${i}`); if(el) el.value=p.cperf?.[i]||''; 
+                const chk = document.getElementById(`chk-exc-perf-${i}`); if(chk) chk.checked = exc.includes(c.id);
+            });
+            INDUCCIONES.forEach((c,i)=>{ 
+                const el = document.getElementById(`fi-ind-${i}`); if(el) el.value=p.inds?.[i]||''; 
+                const chk = document.getElementById(`chk-exc-ind-${i}`); if(chk) chk.checked = exc.includes(c);
+            });
             window.abrirModal('modal-personal');
         };
 
@@ -1334,6 +1376,11 @@
             try {
                 let id = document.getElementById('f-id').value;
                 if(!id) { id = 'p_' + Date.now(); }
+
+                let excluidos = [];
+                CURSOS_SSO.forEach((c,i) => { if(document.getElementById(`chk-exc-sso-${i}`)?.checked) excluidos.push(c); });
+                CURSOS_PERFIL.forEach((c,i) => { if(document.getElementById(`chk-exc-perf-${i}`)?.checked) excluidos.push(c.id); });
+                INDUCCIONES.forEach((c,i) => { if(document.getElementById(`chk-exc-ind-${i}`)?.checked) excluidos.push(c); });
 
                 const data = {
                     apellidos: document.getElementById('f-apellidos').value.toUpperCase(), nombres: document.getElementById('f-nombres').value.toUpperCase(),
@@ -1350,7 +1397,8 @@
                     obsclinica: document.getElementById('f-obsclinica').value,
                     csso: CURSOS_SSO.map((_,i)=>document.getElementById(`fc-sso-${i}`)?.value||''), 
                     cperf: CURSOS_PERFIL.map((_,i)=>document.getElementById(`fc-perf-${i}`)?.value||''),
-                    inds: INDUCCIONES.map((_,i)=>document.getElementById(`fi-ind-${i}`)?.value||'')
+                    inds: INDUCCIONES.map((_,i)=>document.getElementById(`fi-ind-${i}`)?.value||''),
+                    excluidos: excluidos
                 };
                 
                 if(state.personal[id]) { 
@@ -2148,6 +2196,10 @@
                 const procAlt = (arr, data, isP) => {
                     arr.forEach((c,i)=>{
                         const name = isP ? (c.id || c) : c;
+                        
+                        // Si el curso está excluido para este personal, lo salta en las alertas globales
+                        if(p.excluidos && p.excluidos.includes(name)) return;
+                        
                         const vig = isP ? (c.v || 1) : 1;
                         const dt = data?.[i]; 
                         const isNoVence = CURSOS_NO_VENCEN.includes(name);
@@ -2402,6 +2454,7 @@
 
                 const printListSection = (title, listDef, dataObj) => {
                     printSectionTitle(title); let col = 1; let hasData = false; doc.setFontSize(9);
+                    const exc = p.excluidos || [];
                     if (dataObj) {
                         listDef.forEach((item, i) => {
                             let itemName = typeof item === 'string' ? item : item.id; let itemDate = dataObj[i];
@@ -2416,8 +2469,14 @@
                                 const isNoVence = CURSOS_NO_VENCEN.includes(itemName);
                                 const res = generarAlerta(itemDate, vig, isNoVence);
                                 
-                                if (res.isCrit && res.bg === 'bg-danger') doc.setTextColor(220, 38, 38); else if (res.isCrit && res.bg === 'bg-warning') doc.setTextColor(217, 119, 6); else doc.setTextColor(5, 150, 105);
-                                doc.text(itemDate, col === 1 ? 95 : 190, y, { align: "right" });
+                                // Si está excluido, lo imprimimos grisáceo en el PDF
+                                if(exc.includes(itemName)) {
+                                    doc.setTextColor(...grayText);
+                                    doc.text("No Alertar", col === 1 ? 95 : 190, y, { align: "right" });
+                                } else {
+                                    if (res.isCrit && res.bg === 'bg-danger') doc.setTextColor(220, 38, 38); else if (res.isCrit && res.bg === 'bg-warning') doc.setTextColor(217, 119, 6); else doc.setTextColor(5, 150, 105);
+                                    doc.text(itemDate, col === 1 ? 95 : 190, y, { align: "right" });
+                                }
                             }
                             if (col === 2) { y += 6; col = 1; } else { col = 2; }
                         });
