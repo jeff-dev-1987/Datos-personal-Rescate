@@ -555,7 +555,6 @@
 
     </div>
 
-    <!-- MODAL PERSONAL -->
     <div id="modal-personal" class="modal">
         <div class="modal-content">
             <h2 style="color:var(--mcp-blue); margin-bottom: 20px; font-size: 18px; border-bottom:2px solid var(--border); padding-bottom:10px;">Formulario de Legajo Físico y Digital</h2>
@@ -599,10 +598,35 @@
                     <div class="field"><label>Ingreso Servicio</label><input type="date" id="f-fingreso" class="form-control"></div>
                     <div class="field"><label>Fin Contrato</label><input type="date" id="f-ffin" class="form-control"></div>
                     <div class="field"><label>Inducción H. Nuevo</label><input type="date" id="f-finduccion" class="form-control"></div>
-                    <div class="field"><label>Venc. DNI</label><input type="date" id="f-vdni" class="form-control"></div>
-                    <div class="field"><label>Venc. Lic MTC</label><input type="date" id="f-vmtc" class="form-control"></div>
-                    <div class="field"><label>Venc. Lic MCP</label><input type="date" id="f-vmcp" class="form-control"></div>
-                    <div class="field"><label>Venc. Salud EMO</label><input type="date" id="f-vsalud" class="form-control"></div>
+                    
+                    <div class="field">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <label>Vencimiento DNI</label>
+                            <label class="admin-only admin-hidden" style="font-size:9px; font-weight:normal; color:var(--text-light); text-transform:none; cursor:pointer;"><input type="checkbox" id="chk-exc-vdni"> No Alertar</label>
+                        </div>
+                        <input type="date" id="f-vdni" class="form-control">
+                    </div>
+                    <div class="field">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <label>Venc. Lic MTC</label>
+                            <label class="admin-only admin-hidden" style="font-size:9px; font-weight:normal; color:var(--text-light); text-transform:none; cursor:pointer;"><input type="checkbox" id="chk-exc-vmtc"> No Alertar</label>
+                        </div>
+                        <input type="date" id="f-vmtc" class="form-control">
+                    </div>
+                    <div class="field">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <label>Venc. Lic MCP</label>
+                            <label class="admin-only admin-hidden" style="font-size:9px; font-weight:normal; color:var(--text-light); text-transform:none; cursor:pointer;"><input type="checkbox" id="chk-exc-vmcp"> No Alertar</label>
+                        </div>
+                        <input type="date" id="f-vmcp" class="form-control">
+                    </div>
+                    <div class="field">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <label>Venc. Salud EMO</label>
+                            <label class="admin-only admin-hidden" style="font-size:9px; font-weight:normal; color:var(--text-light); text-transform:none; cursor:pointer;"><input type="checkbox" id="chk-exc-vsalud"> No Alertar</label>
+                        </div>
+                        <input type="date" id="f-vsalud" class="form-control">
+                    </div>
                 </div>
                 <div class="grid-2" style="margin-top:10px;">
                     <div class="field"><label>Vehículos Autorizados</label><input type="text" id="f-vehiculos" class="form-control"></div>
@@ -626,7 +650,6 @@
         </div>
     </div>
 
-    <!-- MODAL CONFIG EPPS GLOBALES -->
     <div id="modal-config-epps" class="modal">
         <div class="modal-content modal-sm">
             <h2 id="config-epps-title" style="color:var(--mcp-blue); margin-bottom: 20px; font-size:18px;">Configuración Global</h2>
@@ -641,7 +664,6 @@
         </div>
     </div>
 
-    <!-- MODAL EPP INDIVIDUAL BÁSICO -->
     <div id="modal-epp" class="modal">
         <div class="modal-content modal-sm">
             <h2 style="color:var(--mcp-blue); margin-bottom: 20px; font-size:18px;" id="modal-epp-title">Gestionar EPP Básico</h2>
@@ -664,7 +686,6 @@
         </div>
     </div>
 
-    <!-- MODAL EPP INDIVIDUAL ESTRUCTURAL -->
     <div id="modal-epp-est" class="modal">
         <div class="modal-content modal-sm" style="max-width: 600px;">
             <h2 style="color:var(--mcp-blue); margin-bottom: 20px; font-size:18px;" id="modal-epp-est-title">Gestionar EPP Estructural</h2>
@@ -907,6 +928,15 @@
         const appSecundaria = initializeApp(firebaseConfig, "AppSecundaria");
         const authSecundario = getAuth(appSecundaria);
 
+        // FUNCIÓN GLOBAL PARA FORMATO DE FECHA (DD-MM-YYYY)
+        window.formatD = (dateStr) => {
+            if (!dateStr) return '';
+            const parts = dateStr.split('-');
+            if (parts.length === 3) return `${parts[2]}-${parts[1]}-${parts[0]}`;
+            if (parts.length === 2) return `${parts[1]}-${parts[0]}`;
+            return dateStr;
+        };
+
         const CURSOS_SSO = ["FRANJA VERDE (CANTERA)", "FRANJA VERDE (MINA)", "INGRESO A OP. CANTERA", "INGRESO A OP. MINA", "BLOQUEO TEÓRICO", "BLOQUEO PRÁCTICO", "TRABAJOS EN ALTURA TEÓRICO", "TRABAJOS EN ALTURA PRÁCTICO", "TRABAJOS EN ESPACIOS CONFINADOS", "TRABAJOS EN CALIENTE", "INGRESO A SALAS ELÉCTRICAS", "SEGURIDAD EN USO DE HERRAMIENTAS", "PREVENCIÓN Y RESPUESTA CON SUSTANCIAS PELIGROSAS", "PREVENCIÓN Y RESCATE EN AGUAS PROFUNDAS", "INGRESO A FLOTACIÓN ROUGHER BULK", "INGRESO A PATIO DE TRENES – CGNO"];
         const CURSOS_PERFIL = [{id:"ACTUALIZACION NORMATIVA DE TRANSITO",v:5},{id:"TÉCNICO MATPEL",v:1},{id:"LOTE DE CUERDAS DE RESCATE",v:2},{id:"RESCATE EN ESPACIOS CONFINADOS",v:2},{id:"RESCATE VEHICULAR",v:2},{id:"LUCHA CONTRA INCENDIOS",v:2},{id:"PRIMEROS AUXILIOS AVANZADOS",v:2},{id:"SOPORTE DE TRAUMA AVANZADO",v:4},{id:"MANEJO DEF. VEHICULOS LIVIANOS/PESADOS",v:2},{id:"SISTEMA COMANDO INCIDENTES",v:2}];
         const INDUCCIONES = ["ANEXO 5", "IPERC LÍNEA BASE", "RIT", "RISST", "MOF / PERFIL", "PETS DEL SERVICIO", "MAPAS DE RIESGO", "EPP’s BASICOS", "EPP ESTRUCTURAL", "POLITICA DE SERVICIO", "PLAN DE PREPARACIÓN EMERG.", "ESTANDAR MCP 017 EXTINTORES", "ESTANDAR MCP 018 ALARMAS", "ESTANDAR MCP 021 DETECCIÓN", "ESTANDAR MCP 022 KITS", "CARTA COMPROMISO GIMNASIO"];
@@ -1127,9 +1157,10 @@
             const fv = new Date(fechaToma); fv.setFullYear(fv.getFullYear() + vigenciaAños);
             const diff = Math.ceil((fv - new Date()) / (1000*60*60*24));
             const strD = fv.toISOString().split('T')[0];
-            if(diff < 0) return { txt: `Vencido (${strD})`, bg: 'bg-danger', isCrit: true, faltante: false };
-            if(diff <= 30) return { txt: `Alerta (${strD})`, bg: 'bg-warning', isCrit: true, faltante: false };
-            return { txt: `Vigente (${strD})`, bg: 'bg-success', isCrit: false, faltante: false };
+            const displayD = window.formatD(strD);
+            if(diff < 0) return { txt: `Vencido (${displayD})`, bg: 'bg-danger', isCrit: true, faltante: false };
+            if(diff <= 30) return { txt: `Alerta (${displayD})`, bg: 'bg-warning', isCrit: true, faltante: false };
+            return { txt: `Vigente (${displayD})`, bg: 'bg-success', isCrit: false, faltante: false };
         }
 
         window.subirArchivo = async (input, tipo, pId, sancId = null) => {
@@ -1177,7 +1208,7 @@
                 const alertHtml = isExpired ? `<span class="badge bg-danger" style="margin-left:5px;">Vencido (>1 año)</span>` : '';
                 return `
                     <div style="display:inline-flex; align-items:center; flex-wrap:wrap; gap:5px; padding: 4px; border:1px solid var(--border); border-radius:4px; background:#fafbfc;">
-                        <span class="${isExpired ? 'text-danger' : 'text-success'}" style="font-weight:600;"><i class="fa-solid fa-file-pdf"></i> ${fileObj.fecha}</span> ${alertHtml}
+                        <span class="${isExpired ? 'text-danger' : 'text-success'}" style="font-weight:600;"><i class="fa-solid fa-file-pdf"></i> ${window.formatD(fileObj.fecha)}</span> ${alertHtml}
                         <a href="${fileObj.url}" target="_blank" class="btn btn-sm btn-sec" title="Descargar PDF"><i class="fa-solid fa-download"></i></a>
                         <label class="btn btn-sm btn-warning btn-editor" style="margin:0; cursor:pointer;" title="Actualizar PDF"><i class="fa-solid fa-rotate"></i><input type="file" hidden accept=".pdf" onchange="window.subirArchivo(this, '${tipoStr}', '${id}')"></label>
                         <button class="btn btn-sm btn-danger btn-editor" title="Eliminar Archivo" onclick="window.eliminarArchivo('${tipoStr}', '${id}')"><i class="fa-solid fa-trash"></i></button>
@@ -1251,7 +1282,36 @@
             document.getElementById('msg-no-selection').classList.add('hidden');
             document.getElementById('panel-detalles').classList.remove('hidden');
 
-            const mapeo = { 'det-nombres':`${p.apellidos}, ${p.nombres}`,'det-puesto':p.puesto,'d-fnac':p.f_nac,'d-edad':p.edad?p.edad+' años':'','d-dni':p.dni,'d-ubigeo':p.ubigeo,'d-estcivil':p.estcivil,'d-hijos':p.hijos,'d-telefono':p.telefono,'d-email':p.email,'d-licmtc':p.licmtc,'d-catmtc':p.catmtc,'d-restcon':p.restcon,'d-sangre':p.sangre,'d-direccion':p.direccion,'d-lugarnac':p.lugarnac,'d-grado':p.grado,'d-especialidad':p.especialidad,'d-contactoem':p.contactoem,'d-numcontacto':p.numcontacto,'d-parentesco':p.parentesco,'d-fingreso':p.fingreso,'d-ffin':p.ffin,'d-licint':p.licint,'d-finduccion':p.finduccion,'d-vdni':p.vdni,'d-vmtc':p.vmtc,'d-vmcp':p.vmcp,'d-vsalud':p.vsalud,'d-vehiculos':p.vehiculos,'d-obsclinica':p.obsclinica };
+            const mapeo = { 
+                'det-nombres':`${p.apellidos}, ${p.nombres}`,
+                'det-puesto':p.puesto,
+                'd-fnac':window.formatD(p.f_nac),
+                'd-edad':p.edad?p.edad+' años':'',
+                'd-dni':p.dni,
+                'd-ubigeo':p.ubigeo,
+                'd-estcivil':p.estcivil,
+                'd-hijos':p.hijos,
+                'd-telefono':p.telefono,
+                'd-email':p.email,
+                'd-licmtc':p.licmtc,
+                'd-catmtc':p.catmtc,
+                'd-restcon':p.restcon,
+                'd-sangre':p.sangre,
+                'd-direccion':p.direccion,
+                'd-lugarnac':p.lugarnac,
+                'd-grado':p.grado,
+                'd-especialidad':p.especialidad,
+                'd-contactoem':p.contactoem,
+                'd-numcontacto':p.numcontacto,
+                'd-parentesco':p.parentesco,
+                'd-fingreso':window.formatD(p.fingreso),
+                'd-ffin':window.formatD(p.ffin),
+                'd-licint':p.licint,
+                'd-finduccion':window.formatD(p.finduccion),
+                'd-vehiculos':p.vehiculos,
+                'd-obsclinica':p.obsclinica 
+            };
+
             for(let key in mapeo) {
                 const el = document.getElementById(key);
                 if(el) el.innerText = mapeo[key] || '-';
@@ -1281,7 +1341,7 @@
                     const isExc = exc.includes(name);
                     const excIcon = isExc ? ' <i class="fa-solid fa-bell-slash text-light" title="Excluido de Alertas Globales"></i>' : '';
                     
-                    dom.insertAdjacentHTML('beforeend', `<div class="field"><label>${name}${excIcon}</label><div class="val" style="margin-bottom:3px;">${dt||'S/I'}</div><span class="badge ${res.bg}">${res.txt}</span></div>`);
+                    dom.insertAdjacentHTML('beforeend', `<div class="field"><label>${name}${excIcon}</label><div class="val" style="margin-bottom:3px;">${window.formatD(dt)||'S/I'}</div><span class="badge ${res.bg}">${res.txt}</span></div>`);
                 });
             };
             fillCr(CURSOS_SSO, p.csso, false, 'det-cursos-sso');
@@ -1296,13 +1356,42 @@
                     hasInd = true;
                     const isExcInd = exc.includes(c);
                     const excIconInd = isExcInd ? ' <i class="fa-solid fa-bell-slash text-light" title="Excluido de Alertas Globales"></i>' : '';
-                    divI.insertAdjacentHTML('beforeend',`<div class="field"><label>${c}${excIconInd}</label><div class="val">${!isPending?`<span class="text-success"><i class="fa-solid fa-check"></i> ${p.inds[i]}</span>`:'<span class="text-light">Pendiente</span>'}</div></div>`);
+                    divI.insertAdjacentHTML('beforeend',`<div class="field"><label>${c}${excIconInd}</label><div class="val">${!isPending?`<span class="text-success"><i class="fa-solid fa-check"></i> ${window.formatD(p.inds[i])}</span>`:'<span class="text-light">Pendiente</span>'}</div></div>`);
                 });
             }
 
             document.getElementById('card-cursos-sso').style.display = (state.filterActive && !hasSso) ? 'none' : 'block';
             document.getElementById('card-cursos-perfil').style.display = (state.filterActive && !hasPerf) ? 'none' : 'block';
             document.getElementById('card-inducciones').style.display = (state.filterActive && !hasInd) ? 'none' : 'block';
+
+            // Actualización de Fechas Contractuales en la vista detalle
+            const fechasVenc = [
+                { id: 'Vencimiento DNI', val: p.vdni, domId: 'd-vdni' },
+                { id: 'Venc. Lic MTC', val: p.vmtc, domId: 'd-vmtc' },
+                { id: 'Venc. Lic MCP', val: p.vmcp, domId: 'd-vmcp' },
+                { id: 'Venc. Salud EMO', val: p.vsalud, domId: 'd-vsalud' }
+            ];
+
+            fechasVenc.forEach(item => {
+                const dom = document.getElementById(item.domId);
+                if(dom) {
+                    const isExc = exc.includes(item.id);
+                    const excIcon = isExc ? ' <i class="fa-solid fa-bell-slash text-light" title="Excluido de Alertas Globales"></i>' : '';
+                    const labelDom = dom.previousElementSibling;
+                    if (labelDom) labelDom.innerHTML = item.id + excIcon;
+
+                    const res = generarAlerta(item.val, 0, false);
+                    
+                    dom.innerHTML = window.formatD(item.val) || 'S/I';
+                    dom.style.marginBottom = '3px';
+                    
+                    let nextBadge = dom.nextElementSibling;
+                    if(nextBadge && nextBadge.classList.contains('badge')) {
+                        nextBadge.remove();
+                    }
+                    dom.insertAdjacentHTML('afterend', `<span class="badge ${res.bg}">${res.txt}</span>`);
+                }
+            });
 
             const tbSanc = document.getElementById('tbody-amonestaciones'); 
             if(tbSanc) {
@@ -1314,11 +1403,11 @@
                                  <a href="${s.file.url}" target="_blank" class="btn btn-sm btn-sec" title="Descargar"><i class="fa-solid fa-download"></i></a>
                                  <label class="btn btn-sm btn-warning btn-editor" style="margin:0; cursor:pointer;" title="Actualizar"><i class="fa-solid fa-rotate"></i><input type="file" hidden accept=".pdf" onchange="window.subirArchivo(this, 'sanciones', '${id}', '${k}')"></label>
                                  <button class="btn btn-sm btn-danger btn-editor" title="Eliminar PDF" onclick="window.eliminarArchivo('sanciones', '${id}', '${k}')"><i class="fa-solid fa-trash"></i></button>
-                               </div><div style="font-size:10px; color:var(--text-light); margin-top:4px;">Subido: ${s.file.fecha}</div>`
+                               </div><div style="font-size:10px; color:var(--text-light); margin-top:4px;">Subido: ${window.formatD(s.file.fecha)}</div>`
                             : `<label class="btn btn-sm btn-sec btn-editor" style="margin:0;"><i class="fa-solid fa-upload"></i> Subir PDF<input type="file" hidden accept=".pdf" onchange="window.subirArchivo(this, 'sanciones', '${id}', '${k}')"></label>`;
 
                         tbSanc.insertAdjacentHTML('beforeend',`<tr>
-                            <td>${s.fecha}</td>
+                            <td>${window.formatD(s.fecha)}</td>
                             <td>${s.motivo}</td>
                             <td>${fileCell}</td>
                             <td class="btn-editor">
@@ -1351,6 +1440,12 @@
             document.getElementById('f-vmtc').value = p.vmtc||''; document.getElementById('f-vmcp').value = p.vmcp||''; document.getElementById('f-vsalud').value = p.vsalud||''; document.getElementById('f-vehiculos').value = p.vehiculos||''; document.getElementById('f-obsclinica').value = p.obsclinica||'';
             
             let exc = p.excluidos || [];
+            
+            const chkVdni = document.getElementById('chk-exc-vdni'); if(chkVdni) chkVdni.checked = exc.includes('Vencimiento DNI');
+            const chkVmtc = document.getElementById('chk-exc-vmtc'); if(chkVmtc) chkVmtc.checked = exc.includes('Venc. Lic MTC');
+            const chkVmcp = document.getElementById('chk-exc-vmcp'); if(chkVmcp) chkVmcp.checked = exc.includes('Venc. Lic MCP');
+            const chkVsalud = document.getElementById('chk-exc-vsalud'); if(chkVsalud) chkVsalud.checked = exc.includes('Venc. Salud EMO');
+
             CURSOS_SSO.forEach((c,i)=>{ 
                 const el = document.getElementById(`fc-sso-${i}`); if(el) el.value=p.csso?.[i]||''; 
                 const chk = document.getElementById(`chk-exc-sso-${i}`); if(chk) chk.checked = exc.includes(c);
@@ -1378,6 +1473,12 @@
                 if(!id) { id = 'p_' + Date.now(); }
 
                 let excluidos = [];
+                
+                if(document.getElementById('chk-exc-vdni')?.checked) excluidos.push('Vencimiento DNI');
+                if(document.getElementById('chk-exc-vmtc')?.checked) excluidos.push('Venc. Lic MTC');
+                if(document.getElementById('chk-exc-vmcp')?.checked) excluidos.push('Venc. Lic MCP');
+                if(document.getElementById('chk-exc-vsalud')?.checked) excluidos.push('Venc. Salud EMO');
+
                 CURSOS_SSO.forEach((c,i) => { if(document.getElementById(`chk-exc-sso-${i}`)?.checked) excluidos.push(c); });
                 CURSOS_PERFIL.forEach((c,i) => { if(document.getElementById(`chk-exc-perf-${i}`)?.checked) excluidos.push(c.id); });
                 INDUCCIONES.forEach((c,i) => { if(document.getElementById(`chk-exc-ind-${i}`)?.checked) excluidos.push(c); });
@@ -1451,7 +1552,7 @@
                 theadN.innerHTML = '';
                 tbodyN.innerHTML = '<tr><td style="text-align:center; padding: 20px;">No hay evaluaciones nutricionales registradas.</td></tr>';
             } else {
-                theadN.innerHTML = `<tr><th style="min-width:180px;">Métrica Registrada</th>${nArr.map(n => `<th style="text-align:center;">${n.fecha}</th>`).join('')}</tr>`;
+                theadN.innerHTML = `<tr><th style="min-width:180px;">Métrica Registrada</th>${nArr.map(n => `<th style="text-align:center;">${window.formatD(n.fecha)}</th>`).join('')}</tr>`;
                 
                 const rowsConfig = [
                     {lbl: "Peso (kg)", k: "peso"}, {lbl: "IMC", k: "imc"}, {lbl: "Clasificación IMC", k: "cimc"},
@@ -1465,6 +1566,8 @@
                 tbodyN.innerHTML = rowsConfig.map(row => {
                     return `<tr><td><b>${row.lbl}</b></td>` + nArr.map((nData, idx) => {
                         let val = nData[row.k] || '-';
+                        if(row.k === 'fsig' && val !== '-') val = window.formatD(val);
+
                         let indicator = '';
                         if(row.k === 'analisis' && idx > 0) {
                             let currIMC = parseFloat(nData.imc); let prevIMC = parseFloat(nArr[idx-1].imc);
@@ -1507,7 +1610,7 @@
                     let obs = g.count < 5 ? `<span class="badge bg-danger">Riesgo (Menor a 5)</span>` : `<span class="badge bg-success">Cumple</span>`;
                     
                     tbG.insertAdjacentHTML('beforeend', `<tr>
-                        <td><b>${g.mes}</b></td><td style="text-align:center;">${g.count}</td><td style="text-align:center;">${trend}</td><td>${obs}</td>
+                        <td><b>${g.mes.split('-').reverse().join('-')}</b></td><td style="text-align:center;">${g.count}</td><td style="text-align:center;">${trend}</td><td>${obs}</td>
                         <td class="btn-editor"><button class="btn btn-sm btn-danger" onclick="window.eliminarGym(${i})"><i class="fa-solid fa-trash"></i></button></td>
                     </tr>`);
                 });
@@ -1775,7 +1878,7 @@
 
                 let gArr = [...(state.personal[state.selectedFisicoId].gym || [])];
                 gArr.sort((a,b) => a.mes.localeCompare(b.mes)); 
-                labels = gArr.map(g => g.mes);
+                labels = gArr.map(g => g.mes.split('-').reverse().join('-'));
                 data = gArr.map(g => g.count);
             } else {
                 labelTitle = "Promedio Global del Servicio (Activos)";
@@ -1796,13 +1899,13 @@
                 });
 
                 let keys = Object.keys(agg).sort();
-                labels = keys;
+                labels = keys.map(k => k.split('-').reverse().join('-'));
                 data = keys.map(k => actCount > 0 ? (agg[k] / actCount).toFixed(1) : 0);
 
                 let allMonths = Array.from(allMonthsSet).sort((a,b) => b.localeCompare(a));
                 let last6Months = allMonths.slice(0, 6).sort((a,b) => a.localeCompare(b));
 
-                let thHtml = `<tr><th style="min-width: 150px;">Personal</th>` + last6Months.map(m => `<th style="text-align:center;">${m}</th>`).join('') + `</tr>`;
+                let thHtml = `<tr><th style="min-width: 150px;">Personal</th>` + last6Months.map(m => `<th style="text-align:center;">${m.split('-').reverse().join('-')}</th>`).join('') + `</tr>`;
                 document.getElementById('chart-table-head').innerHTML = thHtml;
 
                 activeUsers.sort((a,b) => (a.apellidos||'').localeCompare(b.apellidos||''));
@@ -1898,7 +2001,7 @@
 
             document.getElementById('epp-nombres').innerText = `${p.apellidos}, ${p.nombres}`;
             document.getElementById('epp-puesto').innerText = p.puesto;
-            document.getElementById('epp-ingreso').innerText = `Ingreso: ${p.fingreso || 'S/I'}`;
+            document.getElementById('epp-ingreso').innerText = `Ingreso: ${window.formatD(p.fingreso) || 'S/I'}`;
 
             document.getElementById('cargo-epp-container').innerHTML = renderFileHTML(p.cargoEpp, 'cargoEpp', id);
             document.getElementById('cargo-epp-est-container').innerHTML = renderFileHTML(p.cargoEppEst, 'cargoEppEst', id);
@@ -1924,7 +2027,7 @@
                         <td><span class="badge bg-gray">${epp.talla || '-'}</span></td>
                         <td style="text-align:center;"><b>${epp.globalContrato}</b></td>
                         <td style="text-align:center;">${deficit && Number(epp.globalContrato) > 0 ? `<i class="fa-solid fa-triangle-exclamation text-danger" title="Menor a contrato"></i>` : ''} <b>${epp.cant_real || '0'}</b></td>
-                        <td><div style="margin-bottom:3px;">${epp.fecha || 'Sin fecha'}</div>${epp.fecha ? `<span class="badge ${res.bg}">${res.txt}</span>` : ''}</td>
+                        <td><div style="margin-bottom:3px;">${window.formatD(epp.fecha) || 'Sin fecha'}</div>${epp.fecha ? `<span class="badge ${res.bg}">${res.txt}</span>` : ''}</td>
                         <td class="btn-editor">
                             <button class="btn btn-sm btn-sec" onclick="window.abrirModalEppEditar('${encodeURIComponent(epp.name)}')"><i class="fa-solid fa-pen"></i></button>
                             <button class="btn btn-sm btn-danger" onclick="window.eliminarFilaEpp('${encodeURIComponent(epp.name)}')"><i class="fa-solid fa-trash"></i></button>
@@ -1954,11 +2057,11 @@
                         <td style="font-weight:500;">${epp.name}</td>
                         <td><span class="badge bg-gray">${epp.marca || '-'}</span></td>
                         <td><span class="badge bg-gray">${epp.modelo || '-'}</span></td>
-                        <td><div style="margin-bottom:3px;">${epp.ffab || '-'}</div>${epp.ffab ? `<span class="badge ${res.bg}">${res.txt}</span>` : ''}</td>
+                        <td><div style="margin-bottom:3px;">${window.formatD(epp.ffab) || '-'}</div>${epp.ffab ? `<span class="badge ${res.bg}">${res.txt}</span>` : ''}</td>
                         <td><span class="badge bg-gray">${epp.talla || '-'}</span></td>
                         <td style="text-align:center;"><b>${epp.globalContrato}</b></td>
                         <td style="text-align:center;">${deficit && Number(epp.globalContrato) > 0 ? `<i class="fa-solid fa-triangle-exclamation text-danger"></i>` : ''} <b>${epp.cant_real || '0'}</b></td>
-                        <td>${epp.fecha || 'Sin fecha'}</td>
+                        <td>${window.formatD(epp.fecha) || 'Sin fecha'}</td>
                         <td class="btn-editor">
                             <button class="btn btn-sm btn-sec" onclick="window.abrirModalEppEstEditar('${encodeURIComponent(epp.name)}')"><i class="fa-solid fa-pen"></i></button>
                             <button class="btn btn-sm btn-danger" onclick="window.eliminarFilaEppEst('${encodeURIComponent(epp.name)}')"><i class="fa-solid fa-trash"></i></button>
@@ -2207,11 +2310,29 @@
                         const res = generarAlerta(dt, vig, isNoVence);
                         if(res.isCrit) {
                             criticas++;
-                            tbAlt.insertAdjacentHTML('beforeend',`<tr><td><b>${p.apellidos}, ${p.nombres}</b><br><span style="font-size:10px;">${p.puesto}</span></td><td>${name}</td><td>${dt || 'S/I'}</td><td>${res.txt.replace(/[^0-9-]/g,'')}</td><td><span class="badge ${res.bg}">${res.txt.split('(')[0]}</span></td></tr>`);
+                            tbAlt.insertAdjacentHTML('beforeend',`<tr><td><b>${p.apellidos}, ${p.nombres}</b><br><span style="font-size:10px;">${p.puesto}</span></td><td>${name}</td><td>${window.formatD(dt) || 'S/I'}</td><td>${res.txt.replace(/[^0-9-]/g,'')}</td><td><span class="badge ${res.bg}">${res.txt.split('(')[0]}</span></td></tr>`);
                         }
                     });
                 };
                 procAlt(CURSOS_SSO, p.csso, false); procAlt(CURSOS_PERFIL, p.cperf, true);
+
+                // FECHAS MEDICAS Y CONTRACTUALES ALERTS
+                const fechasEspeciales = [
+                    { id: 'Vencimiento DNI', val: p.vdni },
+                    { id: 'Venc. Lic MTC', val: p.vmtc },
+                    { id: 'Venc. Lic MCP', val: p.vmcp },
+                    { id: 'Venc. Salud EMO', val: p.vsalud }
+                ];
+
+                fechasEspeciales.forEach(f => {
+                    if(p.excluidos && p.excluidos.includes(f.id)) return;
+                    const res = generarAlerta(f.val, 0, false);
+                    if(res.isCrit) {
+                        criticas++;
+                        tbAlt.insertAdjacentHTML('beforeend',`<tr><td><b>${p.apellidos}, ${p.nombres}</b><br><span style="font-size:10px;">${p.puesto}</span></td><td>${f.id}</td><td>-</td><td>${res.txt.replace(/[^0-9-]/g,'')}</td><td><span class="badge ${res.bg}">${res.txt.split('(')[0]}</span></td></tr>`);
+                    }
+                });
+
             });
             
             document.getElementById('dash-activos').innerText = activos; 
@@ -2251,8 +2372,8 @@
                     <td>${idx++}</td>
                     <td><b>${p.apellidos||''}, ${p.nombres||''}</b><br><small class="text-light">DNI: ${p.dni || 'S/I'}</small></td>
                     <td>${p.empresa_baja || 'S/I'}</td>
-                    <td>${p.fingreso || '-'}</td>
-                    <td style="color:var(--danger); font-weight:600;">${p.fbaja}</td>
+                    <td>${window.formatD(p.fingreso) || '-'}</td>
+                    <td style="color:var(--danger); font-weight:600;">${window.formatD(p.fbaja)}</td>
                     <td>${p.mbaja}</td>
                     <td><span class="badge ${badgeClass}">${badgeTxt}</span></td>
                     <td class="btn-editor">
@@ -2440,17 +2561,39 @@
                 const printField = (label, value, x1, x2) => { doc.setFont("helvetica", "bold"); doc.setTextColor(...blackText); doc.setFontSize(9); doc.text(label + ":", x1, y); doc.setFont("helvetica", "normal"); doc.setTextColor(...grayText); doc.text(String(value || '-'), x2, y); };
 
                 printSectionTitle("Datos Personales y Contacto"); checkPageBreak(25);
-                printField("DNI", p.dni, 15, 42); printField("F. Nacimiento", p.f_nac, 105, 135); y += 6;
+                printField("DNI", p.dni, 15, 42); printField("F. Nacimiento", window.formatD(p.f_nac), 105, 135); y += 6;
                 printField("Edad", p.edad ? p.edad + ' años' : '', 15, 42); printField("Grupo Sang.", p.sangre, 105, 135); y += 6;
                 printField("Estado Civil", p.estcivil, 15, 42); printField("Teléfono", p.telefono, 105, 135); y += 6;
                 printField("Correo", p.email, 15, 42); printField("Dirección", p.direccion, 105, 135); y += 6;
                 printField("Contacto Eme.", p.contactoem, 15, 42); printField("N° Emergencia", `${p.numcontacto || '-'} (${p.parentesco || '-'})`, 105, 135); y += 12;
 
+                const printAlertField = (label, value, x1, x2) => {
+                    doc.setFont("helvetica", "bold"); doc.setTextColor(...blackText); doc.setFontSize(9); 
+                    const isExc = (p.excluidos || []).includes(label);
+                    const excText = isExc ? " (No Alertar)" : "";
+                    doc.text(label + excText + ":", x1, y); 
+                    doc.setFont("helvetica", "normal"); 
+                    
+                    if(!value) {
+                        doc.setTextColor(220, 38, 38); doc.text("Pendiente", x2, y);
+                    } else {
+                        const res = generarAlerta(value, 0, false);
+                        const displayVal = window.formatD(value);
+                        if(isExc) {
+                            doc.setTextColor(...grayText);
+                            doc.text(displayVal, x2, y);
+                        } else {
+                            if (res.isCrit && res.bg === 'bg-danger') doc.setTextColor(220, 38, 38); else if (res.isCrit && res.bg === 'bg-warning') doc.setTextColor(217, 119, 6); else doc.setTextColor(5, 150, 105);
+                            doc.text(displayVal + " - " + res.txt.split('(')[0].trim(), x2, y);
+                        }
+                    }
+                };
+
                 printSectionTitle("Datos Operativos y Contractuales"); checkPageBreak(25);
-                printField("Ingreso", p.fingreso, 15, 42); printField("Fin Contrato", p.ffin, 105, 135); y += 6;
-                printField("Lic. MTC", p.licmtc, 15, 42); printField("Categoría", p.catmtc, 105, 135); y += 6;
-                printField("Lic. Interna", p.licint, 15, 42); printField("Venc. Salud", p.vsalud, 105, 135); y += 6;
-                printField("Especialidad", p.especialidad, 15, 42); printField("Vehículos", p.vehiculos, 105, 135); y += 12;
+                printField("Ingreso", window.formatD(p.fingreso), 15, 42); printField("Fin Contrato", window.formatD(p.ffin), 105, 135); y += 6;
+                printAlertField("Vencimiento DNI", p.vdni, 15, 42); printAlertField("Venc. Salud EMO", p.vsalud, 105, 135); y += 6;
+                printAlertField("Venc. Lic MTC", p.vmtc, 15, 42); printAlertField("Venc. Lic MCP", p.vmcp, 105, 135); y += 6;
+                printField("Lic. Interna", p.licint, 15, 42); printField("Vehículos", p.vehiculos, 105, 135); y += 12;
 
                 const printListSection = (title, listDef, dataObj) => {
                     printSectionTitle(title); let col = 1; let hasData = false; doc.setFontSize(9);
@@ -2468,6 +2611,7 @@
                                 const vig = typeof item === 'string' ? 1 : item.v; 
                                 const isNoVence = CURSOS_NO_VENCEN.includes(itemName);
                                 const res = generarAlerta(itemDate, vig, isNoVence);
+                                const displayItemDate = window.formatD(itemDate);
                                 
                                 // Si está excluido, lo imprimimos grisáceo en el PDF
                                 if(exc.includes(itemName)) {
@@ -2475,7 +2619,7 @@
                                     doc.text("No Alertar", col === 1 ? 95 : 190, y, { align: "right" });
                                 } else {
                                     if (res.isCrit && res.bg === 'bg-danger') doc.setTextColor(220, 38, 38); else if (res.isCrit && res.bg === 'bg-warning') doc.setTextColor(217, 119, 6); else doc.setTextColor(5, 150, 105);
-                                    doc.text(itemDate, col === 1 ? 95 : 190, y, { align: "right" });
+                                    doc.text(displayItemDate, col === 1 ? 95 : 190, y, { align: "right" });
                                 }
                             }
                             if (col === 2) { y += 6; col = 1; } else { col = 2; }
