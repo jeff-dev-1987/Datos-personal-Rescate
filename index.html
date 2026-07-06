@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 
@@ -799,7 +800,10 @@
                 </div>
             </div>
 
-            <div style="margin-top:20px; text-align:right;"><button type="button" class="btn btn-sec btn-sm" onclick="window.cerrarModal('modal-chart')">Cerrar</button></div>
+            <div style="margin-top:20px; text-align:right; display:flex; justify-content:flex-end; gap:10px;">
+                <button type="button" id="btn-export-gym" class="btn btn-primary btn-sm" style="display:none;" onclick="window.exportarGraficaGymGlobal()"><i class="fa-solid fa-file-pdf"></i> Descargar PDF</button>
+                <button type="button" class="btn btn-sec btn-sm" onclick="window.cerrarModal('modal-chart')">Cerrar</button>
+            </div>
         </div>
     </div>
 
@@ -1377,19 +1381,15 @@
                 if(dom) {
                     const isExc = exc.includes(item.id);
                     const excIcon = isExc ? ' <i class="fa-solid fa-bell-slash text-light" title="Excluido de Alertas Globales"></i>' : '';
-                    const labelDom = dom.previousElementSibling;
-                    if (labelDom) labelDom.innerHTML = item.id + excIcon;
-
-                    const res = generarAlerta(item.val, 0, false);
                     
-                    dom.innerHTML = window.formatD(item.val) || 'S/I';
-                    dom.style.marginBottom = '3px';
-                    
-                    let nextBadge = dom.nextElementSibling;
-                    if(nextBadge && nextBadge.classList.contains('badge')) {
-                        nextBadge.remove();
+                    const parentDiv = dom.parentElement;
+                    if(parentDiv) {
+                        parentDiv.innerHTML = `
+                            <label>${item.id}${excIcon}</label>
+                            <div class="val" style="margin-bottom:3px;">${window.formatD(item.val)||'S/I'}</div>
+                            <span class="badge ${generarAlerta(item.val, 0, false).bg}">${generarAlerta(item.val, 0, false).txt}</span>
+                        `;
                     }
-                    dom.insertAdjacentHTML('afterend', `<span class="badge ${res.bg}">${res.txt}</span>`);
                 }
             });
 
@@ -1870,11 +1870,13 @@
 
             let labels = []; let data = []; let labelTitle = "";
             let tableContainer = document.getElementById('chart-table-container');
+            const btnExport = document.getElementById('btn-export-gym');
             
             if(!isGlobal) {
                 if(!state.selectedFisicoId) return;
                 labelTitle = "Asistencia Individual (Meses)";
                 tableContainer.style.display = 'none';
+                if(btnExport) btnExport.style.display = 'none';
 
                 let gArr = [...(state.personal[state.selectedFisicoId].gym || [])];
                 gArr.sort((a,b) => a.mes.localeCompare(b.mes)); 
@@ -1883,6 +1885,7 @@
             } else {
                 labelTitle = "Promedio Global del Servicio (Activos)";
                 tableContainer.style.display = 'block';
+                if(btnExport) btnExport.style.display = 'inline-flex';
 
                 let agg = {}; let actCount = 0;
                 let allMonthsSet = new Set();
@@ -1978,6 +1981,90 @@
                     scales: { y: { beginAtZero: true, suggestedMin: 0 } }
                 }
             });
+        };
+
+        window.exportarGraficaGymGlobal = async () => {
+            const btn = document.getElementById('btn-export-gym');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generando PDF...';
+            btn.disabled = true;
+
+            try {
+                if(typeof window.jspdf === 'undefined' || typeof html2canvas === 'undefined') { 
+                    alert("Cargando librerías, intente nuevamente en unos segundos."); 
+                    btn.innerHTML = originalText; btn.disabled = false;
+                    return; 
+                }
+                const { jsPDF } = window.jspdf;
+                
+                const modalContent = document.querySelector('#modal-chart .modal-content');
+                const actionsDiv = modalContent.querySelector('div[style*="text-align:right"]');
+                
+                // Guardar estilos originales
+                const origHeight = modalContent.style.height;
+                const origMaxHeight = modalContent.style.maxHeight;
+                const origOverflow = modalContent.style.overflow;
+                
+                // Expandir modal para captura completa a prueba de scroll
+                if(actionsDiv) actionsDiv.style.display = 'none';
+                modalContent.style.height = 'auto';
+                modalContent.style.maxHeight = 'none';
+                modalContent.style.overflow = 'visible';
+
+                const canvas = await html2canvas(modalContent, {
+                    scale: 2, 
+                    backgroundColor: '#ffffff',
+                    useCORS: true
+                });
+
+                // Restaurar estilos
+                if(actionsDiv) actionsDiv.style.display = 'flex';
+                modalContent.style.height = origHeight;
+                modalContent.style.maxHeight = origMaxHeight;
+                modalContent.style.overflow = origOverflow;
+                
+                const imgData = canvas.toDataURL('image/png');
+                
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = pdf.internal.pageSize.getHeight();
+                
+                const margin = 15;
+                const maxImgWidth = pdfWidth - (margin * 2);
+                const imgProps = pdf.getImageProperties(imgData);
+                const imgHeightCalculated = (imgProps.height * maxImgWidth) / imgProps.width;
+                
+                // Cabecera Corporativa
+                pdf.setFillColor(10, 27, 63); 
+                pdf.rect(0, 0, pdfWidth, 30, 'F'); 
+                pdf.setTextColor(255, 255, 255); 
+                pdf.setFont("helvetica", "bold"); 
+                pdf.setFontSize(16); 
+                pdf.text("REPORTE GLOBAL DE ASISTENCIA A GIMNASIO", margin, 20);
+
+                let heightLeft = imgHeightCalculated;
+                let position = 35;
+                
+                // Pegar imagen principal
+                pdf.addImage(imgData, 'PNG', margin, position, maxImgWidth, imgHeightCalculated);
+                heightLeft -= (pdfHeight - 35);
+
+                // Lógica Multi-página automática en caso de tablas muy largas
+                while (heightLeft >= 0) {
+                    position = heightLeft - imgHeightCalculated;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'PNG', margin, position, maxImgWidth, imgHeightCalculated);
+                    heightLeft -= pdfHeight;
+                }
+
+                pdf.save("Reporte_Gym_Global.pdf");
+                btn.innerHTML = originalText; btn.disabled = false;
+
+            } catch (error) {
+                console.error(error);
+                alert("Error al generar PDF.");
+                btn.innerHTML = originalText; btn.disabled = false;
+            }
         };
 
         // ================= DATOS DE EPPS (LISTA MAESTRA) ================= //
